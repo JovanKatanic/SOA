@@ -21,10 +21,15 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func startServer(handler *handler.FacilityHandler) {
+func startServer(FacilityHandler *handler.FacilityHandler, KeypointHandler *handler.KeypointHandler, TourHandler *handler.TourHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/facilities", handler.Create).Methods("POST")
+	router.HandleFunc("/facilities", FacilityHandler.Create).Methods("POST")
+	router.HandleFunc("/facilities/{id}", FacilityHandler.Delete).Methods("DELETE")
+
+	router.HandleFunc("/keypoints", KeypointHandler.Create).Methods("POST")
+
+	router.HandleFunc("/tours", TourHandler.Create).Methods("POST")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
@@ -39,8 +44,17 @@ func main() {
 	}
 	FacilityRepository := &repository.FacilityRepository{DatabaseConnection: database}
 	FacilityService := &service.FacilityService{FacilityRepository: FacilityRepository}
-	handler := &handler.FacilityHandler{FacilityService: FacilityService}
-	startServer(handler)
+	FacilityHandler := &handler.FacilityHandler{FacilityService: FacilityService}
+
+	KeypointRepository := &repository.KeypointRepository{DatabaseConnection: database}
+	KeypointService := &service.KeypointService{KeypointRepository: KeypointRepository}
+	KeypointHandler := &handler.KeypointHandler{KeypointService: KeypointService}
+
+	TourRepository := &repository.TourRepository{DatabaseConnection: database}
+	TourService := &service.TourService{TourRepository: TourRepository}
+	TourHandler := &handler.TourHandler{TourService: TourService}
+
+	startServer(FacilityHandler, KeypointHandler, TourHandler)
 
 	print("ok")
 }
