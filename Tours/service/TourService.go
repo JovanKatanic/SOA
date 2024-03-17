@@ -16,3 +16,11 @@ func (service *TourService) Create(tour *model.Tour) error {
 	}
 	return nil
 }
+
+func (service *TourService) Update(tour *model.Tour) error {
+	err := service.TourRepository.UpdateTour(tour)
+	if err != nil {
+		return err
+	}
+	return nil
+}

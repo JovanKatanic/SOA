@@ -30,10 +30,27 @@ func startServer(FacilityHandler *handler.FacilityHandler, KeypointHandler *hand
 	router.HandleFunc("/keypoints", KeypointHandler.Create).Methods("POST")
 
 	router.HandleFunc("/tours", TourHandler.Create).Methods("POST")
+	router.HandleFunc("/tours", TourHandler.Update).Methods("PUT")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
+	corsMiddleware := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 	println("Server starting")
-	log.Fatal(http.ListenAndServe(":8080", router))
+
+	log.Fatal(http.ListenAndServe(":8080", corsMiddleware(router)))
 }
 
 func main() {

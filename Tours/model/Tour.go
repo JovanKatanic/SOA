@@ -24,6 +24,7 @@ type Tour struct {
 	PublishedDate *time.Time     `json:"publishedDate" gorm:"column:PublishedDate"`
 	Durations     []TourDuration `json:"durations" gorm:"type:jsonb;column:Durations"`
 	KeyPoints     []Keypoint     `json:"keyPoints" gorm:"-"`
+	Image         string         `json:"image" gorm:"-"`
 }
 
 type TourDuration struct {
