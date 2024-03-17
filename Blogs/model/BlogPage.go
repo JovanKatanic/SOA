@@ -8,7 +8,7 @@ import (
 )
 
 type BlogPage struct {
-	Id           int       `json:"id" gorm:"column:Id"`
+	Id           int       `json:"id" gorm:"column:Id;primaryKey;autoIncrement"`
 	Title        string    `json:"title" gorm:"column:Title"`
 	Description  string    `json:"description" gorm:"column:Description"`
 	CreationDate time.Time `json:"creationDate" gorm:"column:CreationDate"`
@@ -26,34 +26,21 @@ type Ratings struct {
 
 func (r *Ratings) Scan(value interface{}) error {
 	if value == nil {
-		*r = Ratings{} // Postavljamo na prazan niz ako je prazan niz
+		*r = Ratings{}
 		return nil
 	}
 	bytes, ok := value.([]byte)
 	if !ok {
 		return fmt.Errorf("Scan source is not []byte")
 	}
-	return json.Unmarshal(bytes, &r)
+	return json.Unmarshal(bytes, r)
 }
-
-/*func (r Ratings) Value() (driver.Value, error) {
-	ratings := []Ratings{r}
-	if len(ratings) == 0 { // Provjera da li je prazan niz
-		return []byte("[]"), nil // Ako je prazan, vraćamo prazan JSON niz
-	}
-	return json.Marshal(ratings) // Inače, normalno serijalizujemo u JSON
-}*/
-
 func (r Ratings) Value() (driver.Value, error) {
-	// Serijalizujemo Ratings u JSON format
-	jsonData, err := json.Marshal(r)
-	if jsonData == nil {
-		return "[]", nil
+	if r.RatingValue == 0 {
+		ratings := make([]Ratings, 0)
+		return json.Marshal(ratings)
 	}
-	if err != nil {
-		return nil, err
-	}
-
-	// Vraćamo serijalizovani JSON kao string
-	return "[" + string(jsonData) + "]", nil
+	ratings := []Ratings{r}
+	return json.Marshal(ratings)
+	//return json.Marshal(r)
 }
