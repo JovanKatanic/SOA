@@ -22,10 +22,11 @@ type Tour struct {
 	DistanceInKm  float64        `json:"distanceInKm" gorm:"column:DistanceInKm"`
 	ArchivedDate  *time.Time     `json:"archivedDate" gorm:"column:ArchivedDate"`
 	PublishedDate *time.Time     `json:"publishedDate" gorm:"column:PublishedDate"`
-	Durations     []TourDuration `json:"durations" gorm:"type:jsonb;column:Durations"`
+	Durations     TourDurations  `json:"durations" gorm:"type:jsonb;column:Durations"`
 	KeyPoints     []Keypoint     `json:"keyPoints" gorm:"-"`
 	Image         string         `json:"image" gorm:"-"`
 }
+type TourDurations []TourDuration
 
 type TourDuration struct {
 	TimeInSeconds  uint32 `json:"timeInSeconds" gorm:"column:TimeInSeconds"`
@@ -43,8 +44,9 @@ func (r *TourDuration) Scan(value interface{}) error {
 	}
 	return json.Unmarshal(bytes, r)
 }
-func (r TourDuration) Value() (driver.Value, error) {
-	tourDurations := []TourDuration{r}
-	return json.Marshal(tourDurations)
-	//return json.Marshal(r)
+
+func (r TourDurations) Value() (driver.Value, error) {
+	// tourDurations := []TourDuration{r}
+	// return json.Marshal(tourDurations)
+	return json.Marshal(r)
 }

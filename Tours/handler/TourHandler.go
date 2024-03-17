@@ -28,16 +28,20 @@ func (handler *TourHandler) Create(writer http.ResponseWriter, req *http.Request
 		writer.WriteHeader(http.StatusExpectationFailed)
 		return
 	}
+	responseBody, err := json.Marshal(tour)
+	if err != nil {
+		println("Error while marshaling tour object to JSON")
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	writer.WriteHeader(http.StatusCreated)
 	writer.Header().Set("Content-Type", "application/json")
+
+	print(responseBody)
+	writer.Write(responseBody)
 }
 
 func (handler *TourHandler) Update(writer http.ResponseWriter, req *http.Request) {
-
-	// body, err4 := ioutil.ReadAll(req.Body)
-	// fmt.Println("Raw JSON:", string(body))
-	// print("----")
-	// print(err4)
 
 	var tour model.Tour
 	err := json.NewDecoder(req.Body).Decode(&tour)
