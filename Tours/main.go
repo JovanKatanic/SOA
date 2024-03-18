@@ -21,14 +21,27 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func startServer(handler *handler.FacilityHandler) {
+func startServer(handler *handler.FacilityHandler, tourHandler *handler.TourHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/facilities", handler.Create).Methods("POST")
+	router.HandleFunc("/createTour", tourHandler.CreateTour).Methods("POST")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
 	log.Fatal(http.ListenAndServe(":8080", router))
+}
+
+func setUpDependencies(database *gorm.DB) (*handler.FacilityHandler, *handler.TourHandler) {
+	FacilityRepository := &repository.FacilityRepository{DatabaseConnection: database}
+	FacilityService := &service.FacilityService{FacilityRepository: FacilityRepository}
+	facilityHandler := &handler.FacilityHandler{FacilityService: FacilityService}
+
+	TourRepository := &repository.TourRepository{DatabaseConnection: database}
+	TourService := &service.TourService{TourRepository: TourRepository}
+	tourHandler := &handler.TourHandler{TourService: TourService}
+
+	return facilityHandler, tourHandler
 }
 
 func main() {
@@ -37,10 +50,9 @@ func main() {
 		print("FAILED TO CONNECT TO DB")
 		return
 	}
-	FacilityRepository := &repository.FacilityRepository{DatabaseConnection: database}
-	FacilityService := &service.FacilityService{FacilityRepository: FacilityRepository}
-	handler := &handler.FacilityHandler{FacilityService: FacilityService}
-	startServer(handler)
+	facilityHandler, tourHandler := setUpDependencies(database)
+
+	startServer(facilityHandler, tourHandler)
 
 	print("ok")
 }
