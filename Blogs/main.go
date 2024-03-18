@@ -28,6 +28,9 @@ func startServer(handler *handler.BlogHandler) {
 	router.Use(corsMiddleware)
 
 	router.HandleFunc("/blogs", handler.Create).Methods("POST")
+	router.HandleFunc("/blogs", handler.GetAllBlogs).Methods("GET")
+	router.HandleFunc("/blogs/{id:[+-]?[0-9]+}", handler.GetBlogByID).Methods("GET")
+	router.HandleFunc("/blogs/updateOneBlog", handler.Update).Methods("PUT")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
@@ -37,7 +40,7 @@ func startServer(handler *handler.BlogHandler) {
 // Middleware funkcija za CORS
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+		w.Header().Set("Access-Control-Allow-Origin", "https://localhost:44333/api/")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
