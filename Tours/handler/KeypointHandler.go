@@ -21,10 +21,17 @@ func (handler *KeypointHandler) Create(writer http.ResponseWriter, req *http.Req
 	}
 	err = handler.KeypointService.Create(&keypoint)
 	if err != nil {
-		println("Error while creating a new facility")
+		println("Error while creating a new keypoint")
 		writer.WriteHeader(http.StatusExpectationFailed)
+		return
+	}
+	responseBody, err := json.Marshal(keypoint)
+	if err != nil {
+		println("Error while marshaling tour object to JSON")
+		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	writer.WriteHeader(http.StatusCreated)
 	writer.Header().Set("Content-Type", "application/json")
+	writer.Write(responseBody)
 }

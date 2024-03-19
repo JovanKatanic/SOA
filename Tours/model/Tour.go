@@ -3,7 +3,6 @@ package model
 import (
 	"database/sql/driver"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/lib/pq"
@@ -28,25 +27,23 @@ type Tour struct {
 }
 type TourDurations []TourDuration
 
+func (r TourDurations) Value() (driver.Value, error) {
+	return json.Marshal(r)
+}
+
 type TourDuration struct {
 	TimeInSeconds  uint32 `json:"timeInSeconds" gorm:"column:TimeInSeconds"`
 	Transportation int    `json:"transportation" gorm:"column:Transportation"`
 }
 
-func (r *TourDuration) Scan(value interface{}) error {
-	if value == nil {
-		*r = TourDuration{}
-		return nil
-	}
-	bytes, ok := value.([]byte)
-	if !ok {
-		return fmt.Errorf("Scan source is not []byte")
-	}
-	return json.Unmarshal(bytes, r)
-}
-
-func (r TourDurations) Value() (driver.Value, error) {
-	// tourDurations := []TourDuration{r}
-	// return json.Marshal(tourDurations)
-	return json.Marshal(r)
-}
+// func (r *TourDuration) Scan(value interface{}) error {
+// 	if value == nil {
+// 		*r = TourDuration{}
+// 		return nil
+// 	}
+// 	bytes, ok := value.([]byte)
+// 	if !ok {
+// 		return fmt.Errorf("Scan source is not []byte")
+// 	}
+// 	return json.Unmarshal(bytes, r)
+// }
