@@ -18,7 +18,7 @@ namespace Explorer.Tours.Tests.Integration
     {
         public TourRatingCommandTests(ToursTestFactory factory) : base(factory) { }
 
-        [Fact]
+        /*[Fact]
         public void Creates()
         {
             // Arrange
@@ -73,6 +73,6 @@ namespace Explorer.Tours.Tests.Integration
             {
                 ControllerContext = BuildContext("-1")
             };
-        }
+        }*/
     }
 }

@@ -18,7 +18,6 @@ func (service *TourService) CreateTour(tour *model.Tour) (*model.Tour, error) {
 		return nil, err
 	}
 
-	println(createdTour.ID)
 	return createdTour, nil
 }
 

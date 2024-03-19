@@ -29,8 +29,6 @@ func (handler *TourHandler) CreateTour(resp http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	println(createdTour.ID)
-
 	jsonResponse, err := json.Marshal(createdTour)
 	if err != nil {
 		println("Error while encoding tour to JSON: ", err.Error())

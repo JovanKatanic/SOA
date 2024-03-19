@@ -21,7 +21,7 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func startServer(FacilityHandler *handler.FacilityHandler, KeypointHandler *handler.KeypointHandler, TourHandler *handler.TourHandler) {
+func startServer(FacilityHandler *handler.FacilityHandler, KeypointHandler *handler.KeypointHandler, tourHandler *handler.TourHandler, tourRatingHandler *handler.TourRatingHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/facilities", FacilityHandler.Create).Methods("POST")
@@ -29,8 +29,10 @@ func startServer(FacilityHandler *handler.FacilityHandler, KeypointHandler *hand
 
 	router.HandleFunc("/keypoints", KeypointHandler.Create).Methods("POST")
 
-	router.HandleFunc("/createTour", TourHandler.CreateTour).Methods("POST")
-	router.HandleFunc("/tours", TourHandler.Update).Methods("PUT")
+	router.HandleFunc("/createTour", tourHandler.CreateTour).Methods("POST")
+	router.HandleFunc("/tours", tourHandler.Update).Methods("PUT")
+
+	router.HandleFunc("/createTourRating", tourRatingHandler.CreateTourRating).Methods("POST")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	corsMiddleware := func(next http.Handler) http.Handler {
@@ -53,7 +55,7 @@ func startServer(FacilityHandler *handler.FacilityHandler, KeypointHandler *hand
 	log.Fatal(http.ListenAndServe(":8080", corsMiddleware(router)))
 }
 
-func setUpDependencies(database *gorm.DB) (*handler.FacilityHandler, *handler.TourHandler, *handler.KeypointHandler) {
+func setUpDependencies(database *gorm.DB) (*handler.FacilityHandler, *handler.TourHandler, *handler.KeypointHandler, *handler.TourRatingHandler) {
 	FacilityRepository := &repository.FacilityRepository{DatabaseConnection: database}
 	FacilityService := &service.FacilityService{FacilityRepository: FacilityRepository}
 	FacilityHandler := &handler.FacilityHandler{FacilityService: FacilityService}
@@ -62,11 +64,15 @@ func setUpDependencies(database *gorm.DB) (*handler.FacilityHandler, *handler.To
 	KeypointService := &service.KeypointService{KeypointRepository: KeypointRepository}
 	KeypointHandler := &handler.KeypointHandler{KeypointService: KeypointService}
 
-	TourRepository := &repository.TourRepository{DatabaseConnection: database}
-	TourService := &service.TourService{TourRepository: TourRepository}
-	TourHandler := &handler.TourHandler{TourService: TourService}
+	tourRepository := &repository.TourRepository{DatabaseConnection: database}
+	tourService := &service.TourService{TourRepository: tourRepository}
+	tourHandler := &handler.TourHandler{TourService: tourService}
 
-	return FacilityHandler, TourHandler, KeypointHandler
+	tourRatingRepository := &repository.TourRatingRepository{DatabaseConnection: database}
+	tourRatingService := &service.TourRatingService{TourRatingRepository: tourRatingRepository}
+	tourRatingHandler := &handler.TourRatingHandler{TourRatingService: tourRatingService}
+
+	return FacilityHandler, tourHandler, KeypointHandler, tourRatingHandler
 }
 
 func main() {
@@ -75,9 +81,9 @@ func main() {
 		print("FAILED TO CONNECT TO DB")
 		return
 	}
-	FacilityHandler, TourHandler, KeypointHandler := setUpDependencies(database)
+	facilityHandler, tourHandler, keypointHandler, tourRatingHandler := setUpDependencies(database)
 
-	startServer(FacilityHandler, KeypointHandler, TourHandler)
+	startServer(facilityHandler, keypointHandler, tourHandler, tourRatingHandler)
 
 	print("ok")
 }
