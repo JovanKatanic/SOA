@@ -131,13 +131,36 @@ func (handler *BlogHandler) UpdateRating(writer http.ResponseWriter, req *http.R
 		return
 	}
 
-	blog, err := handler.BlogService.UpdateRating(blogId, userId, value)
+	blog, err4 := handler.BlogService.UpdateRating(blogId, userId, value)
 
-	if err != nil {
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
+	if err4 != nil {
+		http.Error(writer, err4.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	writer.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(blog)
+}
+
+func (handler *BlogHandler) DeleteRating(writer http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	userId, err := strconv.Atoi(vars["userId"])
+	if err != nil {
+		http.Error(writer, "Invalid blog userId", http.StatusBadRequest)
+		return
+	}
+	blogId, err2 := strconv.Atoi(vars["blogId"])
+	if err2 != nil {
+		http.Error(writer, "Invalid blogId", http.StatusBadRequest)
+		return
+	}
+
+	err3 := handler.BlogService.DeleteRating(userId, blogId)
+
+	if err3 != nil {
+		http.Error(writer, err3.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
 }

@@ -93,3 +93,34 @@ func (repo *BlogRepository) UpdateRating(blogId int, userId int, value int) (*mo
 	}
 	return blog, nil
 }
+
+func (repo *BlogRepository) DeleteRating(userId int, blogId int) error {
+	blog, err := repo.FindByID(blogId)
+	if err != nil {
+		return err
+	}
+	ratings := blog.Ratings
+
+	n := 0
+	var newRatings []model.Rating
+	for _, r := range ratings {
+		if r.UserId != userId {
+			newRatings = append(newRatings, r)
+		}
+		if r.UserId == userId {
+			n = r.RatingValue
+		}
+	}
+	blog.Ratings = newRatings
+	if blog.Ratings == nil {
+		blog.Ratings = make(model.BlogRatings, 0)
+	}
+
+	blog.RatingSum -= n
+
+	err2 := repo.UpdateOneBlog(blog)
+	if err2 != nil {
+		return err2
+	}
+	return nil
+}

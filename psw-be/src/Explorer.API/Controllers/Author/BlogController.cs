@@ -158,11 +158,25 @@ namespace Explorer.API.Controllers.Author
             return CreateResponse(result);
         }
 
-        [HttpDelete("rating/{userId:int}/{blogId:int}")]
+        /*[HttpDelete("rating/{userId:int}/{blogId:int}")]
         public ActionResult DeleteRating(int blogId, int userId)
         {
             var result = _blogService.DeleteRating(blogId, userId);
             return CreateResponse(result);
+        }*/
+        [HttpDelete("rating/{userId:int}/{blogId:int}")]
+        public async Task<ActionResult> DeleteRating(int userId, int blogId)
+        {
+            try
+            {
+                var blog = await _blogService.DeleteRatingAsync(userId, blogId);
+                return CreateResponse(blog);
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         /*[HttpPut("rating/{userId:int}/{blogId:int}/{value:int}")]

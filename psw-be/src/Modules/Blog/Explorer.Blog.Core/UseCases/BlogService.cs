@@ -279,5 +279,17 @@ namespace Explorer.Blog.Core.UseCases
 
             return blogDto;
         }
+
+        public async Task<Result> DeleteRatingAsync(int userId, int blogId)
+        {
+
+            using HttpResponseMessage response = await _httpClient.DeleteAsync("/blogs/rating/" + userId.ToString() + "/" + blogId.ToString());
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var blogDto = JsonConvert.DeserializeObject<BlogDto>(jsonResponse);
+
+            return Result.Ok();
+        }
     }
 }
