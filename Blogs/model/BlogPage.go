@@ -19,10 +19,6 @@ type BlogPage struct {
 }
 type BlogRatings []Rating
 
-/*func (r Rating) Value() (driver.Value, error) {
-	return json.Marshal(r)
-}*/
-
 type Rating struct {
 	UserId       int       `json:"userId" gorm:"column:UserId"`
 	CreationDate time.Time `json:"creationDate" gorm:"column:CreationDate"`
