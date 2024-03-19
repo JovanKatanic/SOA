@@ -54,10 +54,59 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             response.EnsureSuccessStatusCode();
 
             var jsonString = await response.Content.ReadAsStringAsync();
-            var createdTour = JsonSerializer.Deserialize<TourDto>(jsonString);
+            var jsonObject = JsonDocument.Parse(jsonString).RootElement;
 
-            // Return the created tour
-            return createdTour;
+            TourDto tourDto = new TourDto
+            {
+                Id = jsonObject.GetProperty("id").GetInt32(),
+                Name = jsonObject.GetProperty("name").GetString(),
+                Description = jsonObject.GetProperty("description").GetString(),
+                Difficulty = jsonObject.GetProperty("difficulty").GetInt32(),
+                Tags = ParseTags(jsonObject.GetProperty("tags")),
+                Status = jsonObject.GetProperty("status").GetInt32(),
+                Price = jsonObject.GetProperty("price").GetDouble(),
+                AuthorId = jsonObject.GetProperty("authorId").GetInt32(),
+                Equipment = ParseEquipment(jsonObject.GetProperty("equipment")),
+                DistanceInKm = jsonObject.GetProperty("distanceInKm").GetDouble(),
+                ArchivedDate = jsonObject.TryGetProperty("archivedDate", out var archivedDate) ?
+                    (DateTime?)DateTime.Parse(archivedDate.GetString()) : null,
+                PublishedDate = jsonObject.TryGetProperty("publishedDate", out var publishedDate) ?
+                    (DateTime?)DateTime.Parse(archivedDate.GetString()) : null,
+                Durations = { },
+                KeyPoints = { },
+                Image = null
+            };
+
+            return tourDto;
+        }
+
+        private List<string> ParseTags(JsonElement tagsElement)
+        {
+            List<string> tags = new List<string>();
+            if (tagsElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var tag in tagsElement.EnumerateArray())
+                {
+                    tags.Add(tag.GetString());
+                }
+            }
+            return tags;
+        }
+
+        private int[] ParseEquipment(JsonElement equipmentElement)
+        {
+            List<int> equipmentList = new List<int>();
+            if (equipmentElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in equipmentElement.EnumerateArray())
+                {
+                    if (item.ValueKind == JsonValueKind.Number)
+                    {
+                        equipmentList.Add(item.GetInt32());
+                    }
+                }
+            }
+            return equipmentList.ToArray();
         }
 
         public async Task UpdateAsync(TourDto tour)

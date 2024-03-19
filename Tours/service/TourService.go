@@ -10,10 +10,14 @@ type TourService struct {
 }
 
 func (service *TourService) CreateTour(tour *model.Tour) (*model.Tour, error) {
-	err := service.TourRepository.CreateTour(tour)
+	var createdTour *model.Tour
+
+	createdTour, err := service.TourRepository.CreateTour(tour)
 
 	if err != nil {
 		return nil, err
 	}
-	return tour, nil
+
+	println(createdTour.ID)
+	return createdTour, nil
 }

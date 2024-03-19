@@ -10,7 +10,7 @@ type TourDifficulty int
 type TourStatus int
 
 type Tour struct {
-	ID            int             `json:"id" gorm:"column:Id; primaryKey; autoIncrement"`
+	ID            int             `json:"id" gorm:"column:Id; primaryKey;"`
 	Name          string          `json:"name" gorm:"column:Name"`
 	Description   string          `json:"description" gorm:"column:Description"`
 	Difficulty    TourDifficulty  `json:"difficulty" gorm:"column:Difficulty"`
