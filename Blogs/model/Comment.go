@@ -5,7 +5,7 @@ import (
 )
 
 type Comment struct {
-	Id           int       `json:"id" gorm:"column:Id"`
+	Id           int       `json:"id" gorm:"column:Id;primaryKey;autoIncrement"`
 	UserId       int       `json:"userId" gorm:"column:UserId"`
 	CreationDate time.Time `json:"creationDate" gorm:"column:CreationDate"`
 	Description  string    `json:"description" gorm:"column:Description"`

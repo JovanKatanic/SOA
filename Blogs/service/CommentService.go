@@ -18,3 +18,11 @@ func (service *CommentService) CreateComment(comment *model.Comment) error {
 	}
 	return nil
 }
+
+func (service *CommentService) UpdateComment(comment *model.Comment) error {
+	err := service.CommentRepository.UpdateComment(comment)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -33,6 +33,7 @@ func startServer(BlogHandler *handler.BlogHandler, CommentHandler *handler.Comme
 	router.HandleFunc("/blogs/updateOneBlog", BlogHandler.Update).Methods("PUT")
 
 	router.HandleFunc("/comment", CommentHandler.Create).Methods("POST")
+	router.HandleFunc("/comment", CommentHandler.Update).Methods("PUT")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")

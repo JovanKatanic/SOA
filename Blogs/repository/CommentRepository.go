@@ -20,3 +20,14 @@ func (repo *CommentRepository) CreateComment(comment *model.Comment) error {
 	println("Rows affected: ", dbResult.RowsAffected)
 	return nil
 }
+
+func (repo *CommentRepository) UpdateComment(comment *model.Comment) error {
+	dbResult := repo.DatabaseConnection.Table(`blog."Comments"`).Save(comment)
+
+	if dbResult.Error != nil {
+		return dbResult.Error
+	}
+
+	println("Rows affected: ", dbResult.RowsAffected)
+	return nil
+}
