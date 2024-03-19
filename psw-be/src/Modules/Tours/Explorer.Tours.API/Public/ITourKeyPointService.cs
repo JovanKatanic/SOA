@@ -18,7 +18,5 @@ namespace Explorer.Tours.API.Public
         Result<TourKeyPointDto> Update(TourKeyPointDto tourKeyPoint);
         Result<List<TourKeyPointDto>> GetAllByPublicKeypointId(long publicId);
         Result Delete(int id);
-
-        Task<string> CreateAsync(TourKeyPointDto tourKeypointDto, HttpClient _httpClient);
     }
 }

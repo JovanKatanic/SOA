@@ -22,8 +22,5 @@ namespace Explorer.Tours.API.Public.Authoring
         Result<TourDto> CreateCampaign(List<TourDto> tours, string name, string description, int touristId);
         Result<PagedResult<TourDto>> GetPagedForSearchByLocation(int page, int pageSize, int touristId);
         List<TourDto> GetAllByAuthorId(int authorId);
-        Task<string> CreateAsync(TourDto tour, HttpClient _httpClient);
-        Task<string> UpdateAsync(TourDto tour, HttpClient _httpClient);
-
     }
 }
