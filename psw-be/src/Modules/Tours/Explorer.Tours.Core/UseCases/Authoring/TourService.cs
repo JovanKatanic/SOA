@@ -366,6 +366,23 @@ namespace Explorer.Tours.Core.UseCases.Authoring
         {
             return GetPagedByAuthorId(authorId, 0, 0);
         }
+        public async Task<string> CreateAsync(TourDto tour, HttpClient _httpClient)
+        {
+            using StringContent jsonContent = new(JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
+            using HttpResponseMessage response = await _httpClient.PostAsync("http://localhost:8080/tours", jsonContent);
+            response.EnsureSuccessStatusCode();
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            return jsonResponse;
+        }
+
+        public async Task<string> UpdateAsync(TourDto tour, HttpClient _httpClient)
+        {
+            using StringContent jsonContent = new(JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
+            using HttpResponseMessage response = await _httpClient.PutAsync("http://localhost:8080/tours", jsonContent);
+            response.EnsureSuccessStatusCode();
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            return jsonResponse;
+        }
     }
 
 }

@@ -3,6 +3,7 @@ using Explorer.Tours.API.Dtos;
 using Explorer.Tours.API.Public.Authoring;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 
 namespace Explorer.API.Controllers.Author.Authoring
 {
@@ -11,9 +12,10 @@ namespace Explorer.API.Controllers.Author.Authoring
     public class TourController : BaseApiController
     {
         private readonly ITourService _tourService;
-
+        private readonly HttpClient _httpClient;
         public TourController(ITourService tourService)
         {
+            _httpClient = new HttpClient();
             _tourService = tourService;
         }
 
@@ -24,11 +26,17 @@ namespace Explorer.API.Controllers.Author.Authoring
             return CreateResponse(result);
         }
 
+        //[HttpPost]
+        //public ActionResult<TourDto> Create([FromBody] TourDto tour)
+        //{
+        //    var result = _tourService.Create(tour);
+        //    return CreateResponse(result);
+        //}
         [HttpPost]
-        public ActionResult<TourDto> Create([FromBody] TourDto tour)
+        public async Task<ActionResult<string>> Create([FromBody] TourDto tour)
         {
-            var result = _tourService.Create(tour);
-            return CreateResponse(result);
+            var result = await _tourService.CreateAsync(tour, _httpClient);
+            return Ok(result);
         }
 
         [HttpPost("createTour")]
@@ -45,12 +53,21 @@ namespace Explorer.API.Controllers.Author.Authoring
             }
         }
 
+
+
+        //[HttpPut("{id:int}")]
+        //public ActionResult<TourDto> Update([FromBody] TourDto tour)
+        //{
+        //    var result = _tourService.Update(tour);
+        //    return CreateResponse(result);
+        //}
         [HttpPut("{id:int}")]
-        public ActionResult<TourDto> Update([FromBody] TourDto tour)
+        public async Task<string> Update([FromBody] TourDto tour)
         {
-            var result = _tourService.Update(tour);
-            return CreateResponse(result);
+            var result = await _tourService.UpdateAsync(tour, _httpClient);
+            return result;
         }
+
 
         [HttpPut("/updateTour/{id:int}")]
         public async Task<IActionResult> UpdateAsync([FromBody] TourDto tour)

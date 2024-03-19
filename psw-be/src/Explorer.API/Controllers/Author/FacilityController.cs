@@ -4,6 +4,7 @@ using Explorer.Tours.API.Public.Administration;
 using Explorer.Tours.Core.UseCases.Administration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 
 namespace Explorer.API.Controllers.Author
 {
@@ -14,11 +15,12 @@ namespace Explorer.API.Controllers.Author
     {
         private readonly IFacilityService _facilityService;
         private readonly IPublicFacilityService _publicFacilityService;
-
+        private readonly HttpClient _httpClient;
         public FacilityController(IFacilityService facilityService, IPublicFacilityService publicFacilityService)
         {
             _facilityService = facilityService;
             _publicFacilityService = publicFacilityService;
+            _httpClient = new HttpClient();
         }
 
         [HttpGet]
@@ -35,11 +37,17 @@ namespace Explorer.API.Controllers.Author
             return CreateResponse(result);
         }
 
+        //[HttpPost]
+        //public ActionResult<FacilityDto> Create([FromBody] FacilityDto facility)
+        //{
+        //    var result = _facilityService.Create(facility);
+        //    return CreateResponse(result);
+        //}
         [HttpPost]
-        public ActionResult<FacilityDto> Create([FromBody] FacilityDto facility)
+        public Task<string> Create([FromBody] FacilityDto facilityDto)
         {
-            var result = _facilityService.Create(facility);
-            return CreateResponse(result);
+            var result = _facilityService.CreateAsync(facilityDto, _httpClient);
+            return result;
         }
 
         [HttpPut("{id:int}")]
@@ -49,11 +57,17 @@ namespace Explorer.API.Controllers.Author
             return CreateResponse(result);
         }
 
+        //[HttpDelete("{id:int}")]
+        //public ActionResult Delete(int id)
+        //{
+        //    var result = _facilityService.Delete(id);
+        //    return CreateResponse(result);
+        //}
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            var result = _facilityService.Delete(id);
-            return CreateResponse(result);
+            var result = _facilityService.DeleteAsync(id, _httpClient);
+            return Ok();
         }
 
 
