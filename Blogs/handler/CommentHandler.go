@@ -6,6 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type CommentHandler struct {
@@ -49,4 +52,20 @@ func (handler *CommentHandler) Update(writer http.ResponseWriter, req *http.Requ
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
 	json.NewEncoder(writer).Encode(comment)
+}
+
+func (handler *CommentHandler) Delete(writer http.ResponseWriter, req *http.Request) {
+	id, err := strconv.Atoi(mux.Vars(req)["id"])
+
+	if err != nil {
+		http.Error(writer, "Invalid comment ID", http.StatusBadRequest)
+		return
+	}
+	err = handler.CommentService.Delete(id)
+	if err != nil {
+		println("Error while deleting a facility")
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	writer.WriteHeader(http.StatusNoContent)
 }

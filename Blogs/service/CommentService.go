@@ -26,3 +26,12 @@ func (service *CommentService) UpdateComment(comment *model.Comment) error {
 	}
 	return nil
 }
+
+func (service *CommentService) Delete(commentId int) error {
+	err := service.CommentRepository.DeleteComment(commentId)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
