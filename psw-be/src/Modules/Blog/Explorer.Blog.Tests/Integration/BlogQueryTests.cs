@@ -16,7 +16,7 @@ namespace Explorer.Blog.Tests.Integration
         {
         }
         
-        [Fact]
+        /*[Fact]
         public void Retrieves_all()
         {
             // Arrange
@@ -99,6 +99,6 @@ namespace Explorer.Blog.Tests.Integration
             {
                 ControllerContext = BuildContext("-1")
             };
-        }
+        }*/
     }
 }

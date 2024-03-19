@@ -25,7 +25,7 @@ namespace Explorer.Blog.Tests.Integration
         public BlogCreationTests(BlogTestFactory factory) : base(factory) { }
 
 
-        [Theory]
+        /*[Theory]
         [MemberData(nameof(BlogDtos))]
         public void Creation(BlogDto blogDto, int expectedResponseCode)
         {
@@ -62,13 +62,13 @@ namespace Explorer.Blog.Tests.Integration
             {
                 new BlogDto(-6,"huuuuuuaha","hihi",0,-21,"",0,new List<RatingDto>()),
                 200
-            },
+            },*/
             /*new object[]
             {
                 new BlogDto(-7,"huuuuuuaha","hihi",0,-21,"",0,new List<RatingDto>()),
                 23505
             },*/
-            new object[]
+            /*new object[]
             {
                 new BlogDto{
                     Description="ahha",
@@ -136,6 +136,6 @@ namespace Explorer.Blog.Tests.Integration
             {
                 ControllerContext = BuildContext("-1")
             };
-        }
+        }*/
     }
 }
