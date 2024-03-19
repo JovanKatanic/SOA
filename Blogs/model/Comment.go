@@ -1,0 +1,14 @@
+package model
+
+import (
+	"time"
+)
+
+type Comment struct {
+	Id           int       `json:"id" gorm:"column:Id"`
+	UserId       int       `json:"userId" gorm:"column:UserId"`
+	CreationDate time.Time `json:"creationDate" gorm:"column:CreationDate"`
+	Description  string    `json:"description" gorm:"column:Description"`
+	LastEditDate time.Time `json:"lastEditDate" gorm:"column:LastEditDate"`
+	BlogId       int       `json:"blogId" gorm:"column:BlogId"`
+}

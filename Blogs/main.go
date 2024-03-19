@@ -21,16 +21,18 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func startServer(handler *handler.BlogHandler) {
+func startServer(BlogHandler *handler.BlogHandler, CommentHandler *handler.CommentHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
 	// Dodajemo middleware za CORS
 	router.Use(corsMiddleware)
 
-	router.HandleFunc("/blogs", handler.Create).Methods("POST")
-	router.HandleFunc("/blogs", handler.GetAllBlogs).Methods("GET")
-	router.HandleFunc("/blogs/{id:[+-]?[0-9]+}", handler.GetBlogByID).Methods("GET")
-	router.HandleFunc("/blogs/updateOneBlog", handler.Update).Methods("PUT")
+	router.HandleFunc("/blogs", BlogHandler.Create).Methods("POST")
+	router.HandleFunc("/blogs", BlogHandler.GetAllBlogs).Methods("GET")
+	router.HandleFunc("/blogs/{id:[+-]?[0-9]+}", BlogHandler.GetBlogByID).Methods("GET")
+	router.HandleFunc("/blogs/updateOneBlog", BlogHandler.Update).Methods("PUT")
+
+	router.HandleFunc("/comment", CommentHandler.Create).Methods("POST")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
@@ -63,8 +65,13 @@ func main() {
 
 	BlogRepository := &repository.BlogRepository{DatabaseConnection: database}
 	BlogService := &service.BlogService{BlogRepository: BlogRepository}
-	handler := &handler.BlogHandler{BlogService: BlogService}
-	startServer(handler)
+	BlogHandler := &handler.BlogHandler{BlogService: BlogService}
+
+	CommentRepository := &repository.CommentRepository{DatabaseConnection: database}
+	CommentService := &service.CommentService{CommentRepository: CommentRepository}
+	CommentHandler := &handler.CommentHandler{CommentService: CommentService}
+
+	startServer(BlogHandler, CommentHandler)
 
 	print("ok")
 }
