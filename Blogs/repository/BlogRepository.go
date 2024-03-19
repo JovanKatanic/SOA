@@ -49,3 +49,11 @@ func (repo *BlogRepository) UpdateOneBlog(blog *model.BlogPage) error {
 	println("Rows affected: ", dbResult.RowsAffected)
 	return nil
 }
+
+func (repo *BlogRepository) GetAllByStatus(status int) (*[]model.BlogPage, error) {
+	var blogs []model.BlogPage
+	if err := repo.DatabaseConnection.Table(`blog."Blogs"`).Where(`"Status" = ?`, status).Find(&blogs).Error; err != nil {
+		return nil, err
+	}
+	return &blogs, nil
+}

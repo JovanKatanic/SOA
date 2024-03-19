@@ -8,6 +8,8 @@ using Explorer.Tours.Core.UseCases.Administration;
 using FluentResults;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Net.Http;
 
 namespace Explorer.API.Controllers.Tourist
 {
@@ -24,26 +26,72 @@ namespace Explorer.API.Controllers.Tourist
             //_commentService = commentService;
         }
 
-        [HttpPost]
+        /*[HttpPost]
         public ActionResult<BlogDto> Create([FromBody] BlogDto blog)
         {
             var result = _blogService.Create(blog);
             return CreateResponse(result);
+        }*/
+
+
+        [HttpPost]
+        public async Task<ActionResult<BlogDto>> CreateAsync([FromBody] BlogDto blogDto)
+        {
+            try
+            {             
+                var blog = await _blogService.CreateBlogAsync(blogDto);
+                return CreateResponse(blog);
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
-        [HttpGet]
+        /*[HttpGet]
         public ActionResult<List<BlogDto>> GetAll()
         {
             var result = _blogService.GetAll();
             return CreateResponse(result);
+        }*/
+
+        [HttpGet]
+        public async Task<ActionResult<List<BlogDto>>> GetAllAsync()
+        {
+            try
+            {
+                var blogDto = await _blogService.GetAllBlogsAsync();
+                return CreateResponse(blogDto);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
-        [HttpGet("{id:int}")]
+        /*[HttpGet("{id:int}")]
         public ActionResult<BlogDto> Get(int id)
         {
             var result = _blogService.Get(id);
             return CreateResponse(result);
+        }*/
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<BlogDto>> GetAsync(int id)
+        {
+            try
+            {
+                var blogDto =  await _blogService.GetBlogByIdAsync(id);
+                if (blogDto == null) return NotFound();
+                return CreateResponse(blogDto);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
+
 
         [HttpPut]
         public ActionResult<List<BlogDto>> UpdateBlog([FromBody] BlogDto blog)
@@ -54,12 +102,27 @@ namespace Explorer.API.Controllers.Tourist
             return CreateResponse(returnresult);
         }
 
-        [HttpPut("oneBlogUpdated")]
+        /*[HttpPut("oneBlogUpdated")]
         public ActionResult<BlogDto> UpdateOneBlog([FromBody] BlogDto blog)
         {
             var result = _blogService.Update(blog);
 
             return CreateResponse(result);
+        }*/
+
+        [HttpPut("oneBlogUpdated")]
+        public async Task<ActionResult<BlogDto>> UpdateOneBlog([FromBody] BlogDto blogDto)
+        {
+            try
+            {
+                var blog = await _blogService.UpdateBlogAsync(blogDto);
+                return CreateResponse(blog);
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         [HttpPost("createComment")]
@@ -118,11 +181,24 @@ namespace Explorer.API.Controllers.Tourist
             return CreateResponse(result);
         }
 
-        [HttpGet("getByStatus/{state:int}")]
+        /*[HttpGet("getByStatus/{state:int}")]
         public ActionResult<List<BlogDto>> GetBlogsByStatus(int state)
         {
             var result = _blogService.GetBlogsByStatus(state);
             return CreateResponse(result);
+        }*/
+        [HttpGet("getByStatus/{state:int}")]
+        public async Task<ActionResult<List<BlogDto>>> GetBlogsByStatus(int state)
+        {
+            try
+            {
+                var blogDto = await _blogService.GetBlogsByStatusAsync(state);
+                return CreateResponse(blogDto);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         [HttpGet("getByAuthor/{authorId:int}")]

@@ -28,5 +28,12 @@ namespace Explorer.Blog.API.Public
         Result<BlogDto> UpdateRating(int blogId, int userId,int value);
         Result<List<BlogDto>> GetBlogsByStatus(int state);
         Result<List<BlogDto>> GetBlogsByAuthor(int authorId);
+
+
+        Task<Result<BlogDto>> CreateBlogAsync(BlogDto blog);
+        Task<Result<List<BlogDto>>> GetAllBlogsAsync();
+        Task<Result<BlogDto>> GetBlogByIdAsync(int id);
+        Task<Result<BlogDto>> UpdateBlogAsync(BlogDto blog);
+        Task<Result<List<BlogDto>>> GetBlogsByStatusAsync(int state);
     }
 }

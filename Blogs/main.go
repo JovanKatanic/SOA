@@ -31,6 +31,7 @@ func startServer(handler *handler.BlogHandler) {
 	router.HandleFunc("/blogs", handler.GetAllBlogs).Methods("GET")
 	router.HandleFunc("/blogs/{id:[+-]?[0-9]+}", handler.GetBlogByID).Methods("GET")
 	router.HandleFunc("/blogs/updateOneBlog", handler.Update).Methods("PUT")
+	router.HandleFunc("/blogs/getByStatus/{state:[+-]?[0-9]+}", handler.GetAllBlogsByStatus).Methods("GET")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")

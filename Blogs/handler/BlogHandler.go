@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -19,11 +18,6 @@ type BlogHandler struct {
 func (handler *BlogHandler) Create(writer http.ResponseWriter, req *http.Request) {
 	var blog model.BlogPage
 	err := json.NewDecoder(req.Body).Decode(&blog)
-	if len(blog.Ratings) == 0 {
-		blog.Ratings = []model.Rating{
-			{UserId: 0, CreationDate: time.Time{}, RatingValue: 0},
-		}
-	}
 
 	if err != nil {
 		println("Error while parsing json")
@@ -57,7 +51,7 @@ func (handler *BlogHandler) GetAllBlogs(writer http.ResponseWriter, req *http.Re
 	}
 }
 
-func (h *BlogHandler) GetBlogByID(w http.ResponseWriter, r *http.Request) {
+func (handler *BlogHandler) GetBlogByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -65,7 +59,7 @@ func (h *BlogHandler) GetBlogByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	blog, err := h.BlogService.FindByID(id)
+	blog, err := handler.BlogService.FindByID(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -94,4 +88,27 @@ func (handler *BlogHandler) Update(writer http.ResponseWriter, req *http.Request
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
 	json.NewEncoder(writer).Encode(blog)
+}
+
+func (handler *BlogHandler) GetAllBlogsByStatus(writer http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	status, err := strconv.Atoi(vars["state"])
+	if err != nil {
+		http.Error(writer, "Invalid blog status", http.StatusBadRequest)
+		return
+	}
+
+	blogs, err := handler.BlogService.GetAllByStatus(status)
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+
+	if err := json.NewEncoder(writer).Encode(blogs); err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
