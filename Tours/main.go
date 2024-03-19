@@ -21,14 +21,36 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func startServer(handler *handler.FacilityHandler) {
+func startServer(FacilityHandler *handler.FacilityHandler, KeypointHandler *handler.KeypointHandler, TourHandler *handler.TourHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/facilities", handler.Create).Methods("POST")
+	router.HandleFunc("/facilities", FacilityHandler.Create).Methods("POST")
+	router.HandleFunc("/facilities/{id}", FacilityHandler.Delete).Methods("DELETE")
+
+	router.HandleFunc("/keypoints", KeypointHandler.Create).Methods("POST")
+
+	router.HandleFunc("/tours", TourHandler.Create).Methods("POST")
+	router.HandleFunc("/tours", TourHandler.Update).Methods("PUT")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
+	corsMiddleware := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 	println("Server starting")
-	log.Fatal(http.ListenAndServe(":8080", router))
+
+	log.Fatal(http.ListenAndServe(":8080", corsMiddleware(router)))
 }
 
 func main() {
@@ -39,8 +61,17 @@ func main() {
 	}
 	FacilityRepository := &repository.FacilityRepository{DatabaseConnection: database}
 	FacilityService := &service.FacilityService{FacilityRepository: FacilityRepository}
-	handler := &handler.FacilityHandler{FacilityService: FacilityService}
-	startServer(handler)
+	FacilityHandler := &handler.FacilityHandler{FacilityService: FacilityService}
+
+	KeypointRepository := &repository.KeypointRepository{DatabaseConnection: database}
+	KeypointService := &service.KeypointService{KeypointRepository: KeypointRepository}
+	KeypointHandler := &handler.KeypointHandler{KeypointService: KeypointService}
+
+	TourRepository := &repository.TourRepository{DatabaseConnection: database}
+	TourService := &service.TourService{TourRepository: TourRepository}
+	TourHandler := &handler.TourHandler{TourService: TourService}
+
+	startServer(FacilityHandler, KeypointHandler, TourHandler)
 
 	print("ok")
 }

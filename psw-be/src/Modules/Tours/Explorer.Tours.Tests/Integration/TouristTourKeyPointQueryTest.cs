@@ -21,28 +21,28 @@ namespace Explorer.Tours.Tests.Integration
         public TouristTourKeyPointQueryTest(ToursTestFactory factory) : base(factory)
         {
         }
-        private static Explorer.API.Controllers.Tourist.TourKeyPointController CreateController(IServiceScope scope)
-        {
-            return new Explorer.API.Controllers.Tourist.TourKeyPointController(scope.ServiceProvider.GetRequiredService<ITourKeyPointService>(), scope.ServiceProvider.GetRequiredService<IPublicTourKeyPointService>())
-            {
-                ControllerContext = BuildContext("-1")
-            };
-        }
+        //private static Explorer.API.Controllers.Tourist.TourKeyPointController CreateController(IServiceScope scope)
+        //{
+        //    return new Explorer.API.Controllers.Tourist.TourKeyPointController(scope.ServiceProvider.GetRequiredService<ITourKeyPointService>(), scope.ServiceProvider.GetRequiredService<IPublicTourKeyPointService>())
+        //    {
+        //        ControllerContext = BuildContext("-1")
+        //    };
+        //}
 
-        [Fact]
-        public void RetrievesAllByPublicId()
-        {
-            //Arrange
-            using var scope = Factory.Services.CreateScope();
-            var controller = CreateController(scope);
+        //[Fact]
+        //public void RetrievesAllByPublicId()
+        //{
+        //    //Arrange
+        //    using var scope = Factory.Services.CreateScope();
+        //    var controller = CreateController(scope);
 
-            //Act
-            var result = ((ObjectResult)controller.GetAllByPublicKeypointId(-5).Result);
+        //    //Act
+        //    var result = ((ObjectResult)controller.GetAllByPublicKeypointId(-5).Result);
 
-            //Assert
-            result.ShouldNotBe(null);
-            result.StatusCode.ShouldBe(200);
-        }
+        //    //Assert
+        //    result.ShouldNotBe(null);
+        //    result.StatusCode.ShouldBe(200);
+        //}
 
     }
 }

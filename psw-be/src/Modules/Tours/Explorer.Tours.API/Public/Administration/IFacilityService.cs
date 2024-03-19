@@ -11,5 +11,8 @@ namespace Explorer.Tours.API.Public.Administration
         Result<FacilityDto> Create(FacilityDto objectDto);
         Result<FacilityDto> Update(FacilityDto objectDto);
         Result Delete(int id);
+
+        Task<string> CreateAsync(FacilityDto facilityDto, HttpClient _httpClient);
+        Task<string> DeleteAsync(int id, HttpClient _httpClient);
     }
 }
