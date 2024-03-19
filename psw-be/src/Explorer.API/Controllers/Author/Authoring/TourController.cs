@@ -36,8 +36,8 @@ namespace Explorer.API.Controllers.Author.Authoring
         {
             try
             {
-                await _tourService.CreateAsync(tour);
-                return Ok();
+                var createdTour = await _tourService.CreateAsync(tour);
+                return Ok(createdTour);
             }
             catch (Exception e)
             {

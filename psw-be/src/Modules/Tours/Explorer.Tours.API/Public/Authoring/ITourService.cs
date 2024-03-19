@@ -10,7 +10,7 @@ namespace Explorer.Tours.API.Public.Authoring
     {
         Result<PagedResult<TourDto>> GetPaged(int page, int pageSize);
         Result<TourDto> Create(TourDto tour);
-        Task CreateAsync(TourDto tour);
+        Task<TourDto> CreateAsync(TourDto tour);
         Result<TourDto> Update(TourDto tour);
         Task UpdateAsync(TourDto tour);
         Result Delete(int id);

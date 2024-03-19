@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"tours_service/model"
 	"tours_service/service"
@@ -14,6 +13,7 @@ type TourHandler struct {
 
 func (handler *TourHandler) CreateTour(resp http.ResponseWriter, req *http.Request) {
 	var tour model.Tour
+	var createdTour *model.Tour
 
 	err := json.NewDecoder(req.Body).Decode(&tour)
 
@@ -23,14 +23,26 @@ func (handler *TourHandler) CreateTour(resp http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	fmt.Println(tour, tour.Tags)
-
-	err = handler.TourService.CreateTour(&tour)
+	createdTour, err = handler.TourService.CreateTour(&tour)
 	if err != nil {
-		println("Error while creating a new tour")
+		println("Error while creating a new tour: ", err.Error())
+		return
+	}
+
+	jsonResponse, err := json.Marshal(createdTour)
+	if err != nil {
+		println("Error while encoding tour to JSON: ", err.Error())
+		resp.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	resp.WriteHeader(http.StatusCreated)
 	resp.Header().Set("Content-Type", "application/jsons")
+
+	_, err = resp.Write(jsonResponse)
+	if err != nil {
+		println("Error while writing response: ", err.Error())
+		resp.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

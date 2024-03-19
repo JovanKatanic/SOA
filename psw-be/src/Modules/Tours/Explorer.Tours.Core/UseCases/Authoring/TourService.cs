@@ -45,13 +45,19 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             BaseAddress = new Uri("http://localhost:8080")
         };
 
-        public async Task CreateAsync(TourDto tour)
+        public async Task<TourDto> CreateAsync(TourDto tour)
         {
             using StringContent jsonContent = new(JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
 
             using HttpResponseMessage response = await sharedClient.PostAsync("/createTour", jsonContent);
 
             response.EnsureSuccessStatusCode();
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var createdTour = JsonSerializer.Deserialize<TourDto>(jsonString);
+
+            // Return the created tour
+            return createdTour;
         }
 
         public async Task UpdateAsync(TourDto tour)

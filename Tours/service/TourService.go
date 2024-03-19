@@ -9,11 +9,11 @@ type TourService struct {
 	TourRepository *repository.TourRepository
 }
 
-func (service *TourService) CreateTour(tour *model.Tour) error {
+func (service *TourService) CreateTour(tour *model.Tour) (*model.Tour, error) {
 	err := service.TourRepository.CreateTour(tour)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return tour, nil
 }
