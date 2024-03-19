@@ -267,5 +267,17 @@ namespace Explorer.Blog.Core.UseCases
             }
             return listResult;
         }
+
+        public async Task<Result<BlogDto>> UpdateRatingAsync(int blogId, int userId, int value)
+        {
+            
+            using HttpResponseMessage response = await _httpClient.PutAsync("/blogs/rating/" + userId.ToString() + "/" + blogId.ToString() + "/" +  value.ToString(),null);
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var blogDto = JsonConvert.DeserializeObject<BlogDto>(jsonResponse);
+
+            return blogDto;
+        }
     }
 }

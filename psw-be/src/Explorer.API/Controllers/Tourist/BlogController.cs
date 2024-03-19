@@ -174,11 +174,26 @@ namespace Explorer.API.Controllers.Tourist
             return CreateResponse(result);
         }
 
-        [HttpPut("rating/{userId:int}/{blogId:int}/{value:int}")]
-        public ActionResult<BlogDto> UpdateRating(int blogId, int userId,int value)
+        /*[HttpPut("rating/{userId:int}/{blogId:int}/{value:int}")]
+        public ActionResult<BlogDto> UpdateRating(int blogId, int userId, int value)
         {
-            var result = _blogService.UpdateRating(blogId, userId,value);
+            var result = _blogService.UpdateRating(blogId, userId, value);
             return CreateResponse(result);
+        }*/
+
+        [HttpPut("rating/{userId:int}/{blogId:int}/{value:int}")]
+        public async Task<ActionResult<BlogDto>> UpdateRating(int blogId, int userId, int value)
+        {
+            try
+            {
+                var blog = await _blogService.UpdateRatingAsync(blogId, userId, value);
+                return CreateResponse(blog);
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         /*[HttpGet("getByStatus/{state:int}")]

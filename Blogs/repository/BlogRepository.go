@@ -3,6 +3,7 @@ package repository
 import (
 	"blogs_service/model"
 	"fmt"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -56,4 +57,39 @@ func (repo *BlogRepository) GetAllByStatus(status int) (*[]model.BlogPage, error
 		return nil, err
 	}
 	return &blogs, nil
+}
+
+func (repo *BlogRepository) UpdateRating(blogId int, userId int, value int) (*model.BlogPage, error) {
+	blog, err := repo.FindByID(blogId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ratings := blog.Ratings
+
+	n := 0
+	var newRatings []model.Rating
+	for _, r := range ratings {
+		if r.UserId != userId {
+			newRatings = append(newRatings, r)
+			n += r.RatingValue
+		}
+	}
+	newRate := model.Rating{
+		UserId:       userId,
+		CreationDate: time.Now(),
+		RatingValue:  value,
+	}
+	newRatings = append(newRatings, newRate)
+	blog.Ratings = newRatings
+
+	n += newRate.RatingValue
+	blog.RatingSum = n
+
+	err2 := repo.UpdateOneBlog(blog)
+	if err2 != nil {
+		return nil, err2
+	}
+	return blog, nil
 }

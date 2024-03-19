@@ -35,5 +35,6 @@ namespace Explorer.Blog.API.Public
         Task<Result<BlogDto>> GetBlogByIdAsync(int id);
         Task<Result<BlogDto>> UpdateBlogAsync(BlogDto blog);
         Task<Result<List<BlogDto>>> GetBlogsByStatusAsync(int state);
+        Task<Result<BlogDto>> UpdateRatingAsync(int blogId, int userId, int value);
     }
 }

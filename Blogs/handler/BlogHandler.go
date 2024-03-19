@@ -112,3 +112,32 @@ func (handler *BlogHandler) GetAllBlogsByStatus(writer http.ResponseWriter, req 
 		return
 	}
 }
+
+func (handler *BlogHandler) UpdateRating(writer http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	userId, err := strconv.Atoi(vars["userId"])
+	if err != nil {
+		http.Error(writer, "Invalid blog userId", http.StatusBadRequest)
+		return
+	}
+	blogId, err2 := strconv.Atoi(vars["blogId"])
+	if err2 != nil {
+		http.Error(writer, "Invalid blogId", http.StatusBadRequest)
+		return
+	}
+	value, err3 := strconv.Atoi(vars["value"])
+	if err3 != nil {
+		http.Error(writer, "Invalid rating value", http.StatusBadRequest)
+		return
+	}
+
+	blog, err := handler.BlogService.UpdateRating(blogId, userId, value)
+
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(blog)
+}
