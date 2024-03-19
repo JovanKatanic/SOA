@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"tours_service/model"
 	"tours_service/service"
@@ -15,11 +16,14 @@ func (handler *TourHandler) CreateTour(resp http.ResponseWriter, req *http.Reque
 	var tour model.Tour
 
 	err := json.NewDecoder(req.Body).Decode(&tour)
+
 	if err != nil {
-		println("Error while parsing json")
+		println("Error while parsing json: ", err.Error())
 		resp.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	fmt.Println(tour, tour.Tags)
 
 	err = handler.TourService.CreateTour(&tour)
 	if err != nil {

@@ -11,7 +11,7 @@ type TourRepository struct {
 }
 
 func (repo *TourRepository) CreateTour(tour *model.Tour) error {
-	dbResult := repo.DatabaseConnection.Table(`tours."Tours"`).Create(tour)
+	dbResult := repo.DatabaseConnection.Table(`tours."Tour"`).Create(tour)
 
 	if dbResult.Error != nil {
 		return dbResult.Error
