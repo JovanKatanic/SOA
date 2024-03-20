@@ -18,6 +18,7 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Text.Json;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Explorer.Tours.Core.UseCases.Authoring
 {
@@ -47,7 +48,7 @@ namespace Explorer.Tours.Core.UseCases.Authoring
 
         public async Task CreateAsync(TourDto tour)
         {
-            using StringContent jsonContent = new(JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
+            using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
 
             using HttpResponseMessage response = await sharedClient.PostAsync("/createTour", jsonContent);
 
@@ -56,13 +57,28 @@ namespace Explorer.Tours.Core.UseCases.Authoring
 
         public async Task UpdateAsync(TourDto tour)
         {
-            using StringContent jsonContent = new(JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
+            using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
 
             using HttpResponseMessage response = await sharedClient.PostAsync("/updateTour", jsonContent);
 
             response.EnsureSuccessStatusCode();
         }
 
+
+        public async Task<string> ArchiveAsync(int id, int userId, HttpClient _httpClient)
+        {
+            using HttpResponseMessage responseGet = await _httpClient.GetAsync("http://localhost:8080/tours/" + id.ToString());
+            responseGet.EnsureSuccessStatusCode();
+            var jsonResponseGet = await responseGet.Content.ReadAsStringAsync();
+            var tour = JsonConvert.DeserializeObject<Tour>(jsonResponseGet);
+
+            tour.Archive(userId);
+            using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
+            using HttpResponseMessage response = await _httpClient.PutAsync("http://localhost:8080/tours", jsonContent);
+            response.EnsureSuccessStatusCode();
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            return jsonResponse;
+        }
         public Result<TourDto> Archive(int id, int userId)
         {
             try
@@ -80,6 +96,22 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             {
                 return Result.Fail(FailureCode.Forbidden).WithError(e.Message);
             }
+        }
+        
+        public async Task<string> PublishAsync(int id,int userId, HttpClient _httpClient)
+        {
+            using HttpResponseMessage responseGet = await _httpClient.GetAsync("http://localhost:8080/tours/" + id.ToString());
+            responseGet.EnsureSuccessStatusCode();
+
+            var jsonResponseGet = await responseGet.Content.ReadAsStringAsync();
+            var tour= JsonConvert.DeserializeObject<Tour>(jsonResponseGet);
+            
+            tour.Publish(userId);
+            using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
+            using HttpResponseMessage response = await _httpClient.PutAsync("http://localhost:8080/tours", jsonContent);
+            response.EnsureSuccessStatusCode();
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            return jsonResponse;
         }
 
         public Result<TourDto> Publish(int id, int userId)
@@ -313,7 +345,7 @@ namespace Explorer.Tours.Core.UseCases.Authoring
         }
         public async Task<string> CreateAsync(TourDto tour, HttpClient _httpClient)
         {
-            using StringContent jsonContent = new(JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
+            using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
             using HttpResponseMessage response = await _httpClient.PostAsync("http://localhost:8080/tours", jsonContent);
             response.EnsureSuccessStatusCode();
             var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -322,7 +354,7 @@ namespace Explorer.Tours.Core.UseCases.Authoring
 
         public async Task<string> UpdateAsync(TourDto tour, HttpClient _httpClient)
         {
-            using StringContent jsonContent = new(JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
+            using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
             using HttpResponseMessage response = await _httpClient.PutAsync("http://localhost:8080/tours", jsonContent);
             response.EnsureSuccessStatusCode();
             var jsonResponse = await response.Content.ReadAsStringAsync();

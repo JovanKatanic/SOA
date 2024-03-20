@@ -98,18 +98,31 @@ namespace Explorer.API.Controllers.Author.Authoring
             return CreateResponse(result);
         }
 
+        //[HttpPut("publish/{id:int}")]
+        //public ActionResult<TourDto> Publish(int id, [FromBody] int authorId)
+        //{
+        //    var result = _tourService.Publish(id, authorId);
+        //    return CreateResponse(result);
+        //}
+
         [HttpPut("publish/{id:int}")]
-        public ActionResult<TourDto> Publish(int id, [FromBody] int authorId)
+        public async Task<ActionResult<string>> Publish(int id, [FromBody] int authorId)
         {
-            var result = _tourService.Publish(id, authorId);
-            return CreateResponse(result);
+            var result = await _tourService.PublishAsync(id, authorId, _httpClient);
+            return Ok(result);
         }
 
+        //[HttpPut("archive/{id:int}")]
+        //public ActionResult<TourDto> Archive(int id, [FromBody] int authorId)
+        //{
+        //    var result = _tourService.Archive(id, authorId);
+        //    return CreateResponse(result);
+        //}
         [HttpPut("archive/{id:int}")]
-        public ActionResult<TourDto> Archive(int id, [FromBody] int authorId)
+        public async Task<ActionResult<string>> Archive(int id, [FromBody] int authorId)
         {
-            var result = _tourService.Archive(id, authorId);
-            return CreateResponse(result);
+            var result = await _tourService.ArchiveAsync(id, authorId, _httpClient);
+            return Ok(result);
         }
 
         [HttpGet("author")]

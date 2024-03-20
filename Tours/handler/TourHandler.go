@@ -3,8 +3,11 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"tours_service/model"
 	"tours_service/service"
+
+	"github.com/gorilla/mux"
 )
 
 type TourHandler struct {
@@ -77,4 +80,22 @@ func (handler *TourHandler) Update(writer http.ResponseWriter, req *http.Request
 	writer.Header().Set("Content-Type", "application/json")
 	writer.Write(responseBody)
 
+}
+
+func (handler *TourHandler) GetTourByID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, "Invalid tour ID", http.StatusBadRequest)
+		return
+	}
+
+	tour, err := handler.TourService.FindByID(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tour)
 }

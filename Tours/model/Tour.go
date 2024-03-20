@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/lib/pq"
@@ -23,7 +24,7 @@ type Tour struct {
 	PublishedDate *time.Time     `json:"publishedDate" gorm:"column:PublishedDate"`
 	Durations     TourDurations  `json:"durations" gorm:"type:jsonb;column:Durations"`
 	KeyPoints     []Keypoint     `json:"keyPoints" gorm:"-"`
-	Image         string         `json:"image" gorm:"-"`
+	Image         string         `json:"image" gorm:"column:Image"`
 }
 type TourDurations []TourDuration
 
@@ -36,14 +37,14 @@ type TourDuration struct {
 	Transportation int    `json:"transportation" gorm:"column:Transportation"`
 }
 
-// func (r *TourDuration) Scan(value interface{}) error {
-// 	if value == nil {
-// 		*r = TourDuration{}
-// 		return nil
-// 	}
-// 	bytes, ok := value.([]byte)
-// 	if !ok {
-// 		return fmt.Errorf("Scan source is not []byte")
-// 	}
-// 	return json.Unmarshal(bytes, r)
-// }
+func (r *TourDurations) Scan(value interface{}) error {
+	if value == nil {
+		*r = make(TourDurations, 0)
+		return nil
+	}
+	bytes, ok := value.([]byte)
+	if !ok {
+		return fmt.Errorf("Scan source is not []byte")
+	}
+	return json.Unmarshal(bytes, r)
+}

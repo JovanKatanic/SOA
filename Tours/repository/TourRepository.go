@@ -30,3 +30,18 @@ func (repo *TourRepository) UpdateTour(tour *model.Tour) error {
 	println("Rows affected: ", dbResult.RowsAffected)
 	return nil
 }
+
+func (repo *TourRepository) FindByID(id int) (*model.Tour, error) {
+	var tour model.Tour
+	if err := repo.DatabaseConnection.Table(`tours."Tour"`).First(&tour, id).Error; err != nil {
+		return nil, err
+	}
+	var keypoints []model.Keypoint
+	if err := repo.DatabaseConnection.Table(`tours."TourKeyPoints"`).Where(`"tours"."TourKeyPoints"."TourId" = ?`, tour.ID).Find(&keypoints).Error; err != nil {
+		return nil, err
+	}
+	tour.KeyPoints = keypoints
+
+	//fmt.Println(tour)
+	return &tour, nil
+}

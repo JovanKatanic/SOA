@@ -24,3 +24,6 @@ func (service *TourService) Update(tour *model.Tour) error {
 	}
 	return nil
 }
+func (s *TourService) FindByID(id int) (*model.Tour, error) {
+	return s.TourRepository.FindByID(id)
+}

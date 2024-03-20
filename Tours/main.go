@@ -31,6 +31,7 @@ func startServer(FacilityHandler *handler.FacilityHandler, KeypointHandler *hand
 
 	router.HandleFunc("/tours", TourHandler.Create).Methods("POST")
 	router.HandleFunc("/tours", TourHandler.Update).Methods("PUT")
+	router.HandleFunc("/tours/{id}", TourHandler.GetTourByID).Methods("GET")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	corsMiddleware := func(next http.Handler) http.Handler {
