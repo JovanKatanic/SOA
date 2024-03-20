@@ -34,14 +34,14 @@ namespace Explorer.API.Controllers.Tourist
             return CreateResponse(result);
         }
 
-        [HttpPost]
+        /*[HttpPost]
         public ActionResult<TourRatingDto> Create([FromBody] TourRatingDto rating)
         {
             var result = _ratingService.Create(rating);
             return CreateResponse(result);
-        }
+        }*/
 
-        [HttpPost("createRating")]
+        [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] TourRatingDto rating)
         {
             try

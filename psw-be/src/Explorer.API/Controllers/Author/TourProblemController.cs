@@ -18,12 +18,25 @@ namespace Explorer.API.Controllers.Author
             _problemService = problemService;
         }
 
-        [HttpGet("{authorId:long}")]
+        /*[HttpGet("{authorId:long}")]
         public ActionResult<PagedResult<TourProblemDto>> GetByAuthorId(long authorId)
         {
             var result = _problemService.GetByAuthorId(authorId);
             _problemService.FindNames(result.Value);
             return CreateResponse(result);
+        }*/
+
+        [HttpGet("{authorId:long}")]
+        public async Task<IActionResult> GetByAuthorIdAsync(long authorId)
+        {
+            try
+            {
+                var tourProblems = await _problemService.GetByAuthorIdAsync(authorId);
+                return Ok(tourProblems);
+            }catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         [HttpPut("{id:int}")]

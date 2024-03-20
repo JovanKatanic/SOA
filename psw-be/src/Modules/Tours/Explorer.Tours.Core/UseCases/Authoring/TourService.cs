@@ -46,13 +46,68 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             BaseAddress = new Uri("http://localhost:8080")
         };
 
-        public async Task CreateAsync(TourDto tour)
+        public async Task<TourDto> CreateAsync(TourDto tour)
         {
             using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
 
             using HttpResponseMessage response = await sharedClient.PostAsync("/createTour", jsonContent);
 
             response.EnsureSuccessStatusCode();
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var jsonObject = JsonDocument.Parse(jsonString).RootElement;
+
+            TourDto tourDto = new TourDto
+            {
+                Id = jsonObject.GetProperty("id").GetInt32(),
+                Name = jsonObject.GetProperty("name").GetString(),
+                Description = jsonObject.GetProperty("description").GetString(),
+                Difficulty = jsonObject.GetProperty("difficulty").GetInt32(),
+                Tags = ParseTags(jsonObject.GetProperty("tags")),
+                Status = jsonObject.GetProperty("status").GetInt32(),
+                Price = jsonObject.GetProperty("price").GetDouble(),
+                AuthorId = jsonObject.GetProperty("authorId").GetInt32(),
+                Equipment = ParseEquipment(jsonObject.GetProperty("equipment")),
+                DistanceInKm = jsonObject.GetProperty("distanceInKm").GetDouble(),
+                ArchivedDate = jsonObject.TryGetProperty("archivedDate", out var archivedDate) ?
+                    (DateTime?)DateTime.Parse(archivedDate.GetString()) : null,
+                PublishedDate = jsonObject.TryGetProperty("publishedDate", out var publishedDate) ?
+                    (DateTime?)DateTime.Parse(archivedDate.GetString()) : null,
+                Durations = { },
+                KeyPoints = { },
+                Image = null
+            };
+
+            return tourDto;
+        }
+
+        private List<string> ParseTags(JsonElement tagsElement)
+        {
+            List<string> tags = new List<string>();
+            if (tagsElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var tag in tagsElement.EnumerateArray())
+                {
+                    tags.Add(tag.GetString());
+                }
+            }
+            return tags;
+        }
+
+        private int[] ParseEquipment(JsonElement equipmentElement)
+        {
+            List<int> equipmentList = new List<int>();
+            if (equipmentElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in equipmentElement.EnumerateArray())
+                {
+                    if (item.ValueKind == JsonValueKind.Number)
+                    {
+                        equipmentList.Add(item.GetInt32());
+                    }
+                }
+            }
+            return equipmentList.ToArray();
         }
 
         public async Task UpdateAsync(TourDto tour)
@@ -343,15 +398,6 @@ namespace Explorer.Tours.Core.UseCases.Authoring
         {
             return GetPagedByAuthorId(authorId, 0, 0);
         }
-        public async Task<string> CreateAsync(TourDto tour, HttpClient _httpClient)
-        {
-            using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
-            using HttpResponseMessage response = await _httpClient.PostAsync("http://localhost:8080/tours", jsonContent);
-            response.EnsureSuccessStatusCode();
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            return jsonResponse;
-        }
-
         public async Task<string> UpdateAsync(TourDto tour, HttpClient _httpClient)
         {
             using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");

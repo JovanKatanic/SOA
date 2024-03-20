@@ -12,7 +12,8 @@ using Explorer.Tours.Core.Domain.RepositoryInterfaces;
 using FluentResults;
 using Explorer.Stakeholders.API.Internal;
 using Explorer.Tours.API.Public.Authoring;
-
+using System.Text.Json;
+using Explorer.Blog.Core.Domain;
 
 namespace Explorer.Tours.Core.UseCases
 {
@@ -21,13 +22,23 @@ namespace Explorer.Tours.Core.UseCases
         private readonly ITourProblemRepository _tourProblemRepository;
         private readonly IUserNames _userNamesService;
         private readonly ITourService _tourService;
+        private readonly HttpClient _httpClient;
 
-        public TourProblemService(ICrudRepository<TourProblem> repository, IMapper mapper, ITourProblemRepository tourProblemRepository, IUserNames userNamesService, ITourService tourService) : base(repository, mapper)
+        public TourProblemService(ICrudRepository<TourProblem> repository, 
+            IMapper mapper, ITourProblemRepository tourProblemRepository, 
+            IUserNames userNamesService, ITourService tourService,
+            HttpClient httpClient) : base(repository, mapper)
         {
             _tourProblemRepository = tourProblemRepository;
             _userNamesService = userNamesService;
             _tourService = tourService;
+            _httpClient = httpClient;
         }
+
+        private static HttpClient sharedClient = new()
+        {
+            BaseAddress = new Uri("http://localhost:8080")
+        };
         public Result<List<TourProblemDto>> GetByTouristId(long touristId)
         {
             List<TourProblemDto> result = new List<TourProblemDto>();
@@ -52,6 +63,63 @@ namespace Explorer.Tours.Core.UseCases
             tourProblems.ForEach(t => result.Add(MapToDto(t)));
             return result;
         }
+
+        public async Task<List<TourProblemDto>> GetByAuthorIdAsync(long authorId)
+        {
+            using HttpResponseMessage response = await sharedClient.GetAsync("/getByAuthorId/" +  authorId);
+            response.EnsureSuccessStatusCode();
+
+            string responseData = await response.Content.ReadAsStringAsync();
+            var jsonObject = JsonDocument.Parse(responseData).RootElement;
+
+            List<TourProblemDto> tourProblems = new List<TourProblemDto>();
+
+            foreach (var problemJson in jsonObject.EnumerateArray())
+            {
+                TourProblemDto tourProblem = new TourProblemDto
+                {
+                    TouristId = problemJson.GetProperty("touristId").GetInt32(),
+                    TourId = problemJson.GetProperty("tourId").GetInt32(),
+                    Category = (API.Dtos.TourProblemCategory)problemJson.GetProperty("category").GetInt32(),
+                    Priority = (API.Dtos.TourProblemPriority)problemJson.GetProperty("priority").GetInt32(),
+                    Description = problemJson.GetProperty("description").GetString(),
+                    Time = DateTime.Parse(problemJson.GetProperty("time").GetString()),
+                    IsSolved = problemJson.GetProperty("isSolved").GetBoolean(),
+                    Messages = ParseMessages(problemJson.GetProperty("messages")),
+                    Deadline = (DateTime)(problemJson.TryGetProperty("deadline", out var deadline) ?
+                        DateTime.Parse(deadline.GetString()) : (DateTime?)null) ,
+                    TouristUsername = problemJson.GetProperty("touristUsername").GetString(),
+                    AuthorUsername = problemJson.GetProperty("authorUsername").GetString()
+                };
+
+                tourProblems.Add(tourProblem);
+            }
+
+            return tourProblems;
+        }
+
+        private List<TourProblemMessageDto> ParseMessages(JsonElement messagesJson)
+        {
+            List<TourProblemMessageDto> messages = new List<TourProblemMessageDto>();
+
+            foreach (var messageJson in messagesJson.EnumerateArray())
+            {
+                TourProblemMessageDto message = new TourProblemMessageDto
+                {
+                    SenderId = messageJson.GetProperty("SenderId").GetInt64(),
+                    RecipientId = messageJson.GetProperty("RecipientId").GetInt64(),
+                    CreationTime = DateTime.Parse(messageJson.GetProperty("CreationTime").GetString()),
+                    Description = messageJson.GetProperty("Description").GetString(),
+                    SenderName = messageJson.GetProperty("SenderName").GetString(),
+                    IsRead = messageJson.GetProperty("IsRead").GetBoolean()
+                };
+
+                messages.Add(message);
+            }
+
+            return messages;
+        }
+
         public void FindNames(List<TourProblemDto> result)
         {
             var tours = _tourService.GetPaged(0, 0).Value.Results;

@@ -21,7 +21,7 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func startServer(FacilityHandler *handler.FacilityHandler, KeypointHandler *handler.KeypointHandler, TourHandler *handler.TourHandler) {
+func startServer(FacilityHandler *handler.FacilityHandler, KeypointHandler *handler.KeypointHandler, tourHandler *handler.TourHandler, tourRatingHandler *handler.TourRatingHandler, tourProblemHandler *handler.TourProblemHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/facilities", FacilityHandler.Create).Methods("POST")
@@ -29,9 +29,13 @@ func startServer(FacilityHandler *handler.FacilityHandler, KeypointHandler *hand
 
 	router.HandleFunc("/keypoints", KeypointHandler.Create).Methods("POST")
 
-	router.HandleFunc("/tours", TourHandler.Create).Methods("POST")
-	router.HandleFunc("/tours", TourHandler.Update).Methods("PUT")
-	router.HandleFunc("/tours/{id}", TourHandler.GetTourByID).Methods("GET")
+	router.HandleFunc("/createTour", tourHandler.CreateTour).Methods("POST")
+	router.HandleFunc("/tours", tourHandler.Update).Methods("PUT")
+	router.HandleFunc("/tours/{id}", tourHandler.GetTourByID).Methods("GET")
+
+	router.HandleFunc("/createTourRating", tourRatingHandler.CreateTourRating).Methods("POST")
+
+	router.HandleFunc("/getByAuthorId/{authorId}", tourProblemHandler.GetByAuthorId).Methods("GET")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	corsMiddleware := func(next http.Handler) http.Handler {
@@ -54,12 +58,7 @@ func startServer(FacilityHandler *handler.FacilityHandler, KeypointHandler *hand
 	log.Fatal(http.ListenAndServe(":8080", corsMiddleware(router)))
 }
 
-func main() {
-	database := initDB()
-	if database == nil {
-		print("FAILED TO CONNECT TO DB")
-		return
-	}
+func setUpDependencies(database *gorm.DB) (*handler.FacilityHandler, *handler.TourHandler, *handler.KeypointHandler, *handler.TourRatingHandler, *handler.TourProblemHandler) {
 	FacilityRepository := &repository.FacilityRepository{DatabaseConnection: database}
 	FacilityService := &service.FacilityService{FacilityRepository: FacilityRepository}
 	FacilityHandler := &handler.FacilityHandler{FacilityService: FacilityService}
@@ -68,11 +67,31 @@ func main() {
 	KeypointService := &service.KeypointService{KeypointRepository: KeypointRepository}
 	KeypointHandler := &handler.KeypointHandler{KeypointService: KeypointService}
 
-	TourRepository := &repository.TourRepository{DatabaseConnection: database}
-	TourService := &service.TourService{TourRepository: TourRepository}
-	TourHandler := &handler.TourHandler{TourService: TourService}
+	tourRepository := &repository.TourRepository{DatabaseConnection: database}
+	tourService := &service.TourService{TourRepository: tourRepository}
+	tourHandler := &handler.TourHandler{TourService: tourService}
 
-	startServer(FacilityHandler, KeypointHandler, TourHandler)
+	tourRatingRepository := &repository.TourRatingRepository{DatabaseConnection: database}
+	tourRatingService := &service.TourRatingService{TourRatingRepository: tourRatingRepository}
+	tourRatingHandler := &handler.TourRatingHandler{TourRatingService: tourRatingService}
+
+	tourProblemRepository := &repository.TourProblemRepository{DatabaseConnection: database}
+	tourProblemService := &service.TourProblemService{TourProblemRepository: tourProblemRepository,
+		TourService: tourService}
+	tourProblemHandler := &handler.TourProblemHandler{TourProblemService: tourProblemService}
+
+	return FacilityHandler, tourHandler, KeypointHandler, tourRatingHandler, tourProblemHandler
+}
+
+func main() {
+	database := initDB()
+	if database == nil {
+		print("FAILED TO CONNECT TO DB")
+		return
+	}
+	facilityHandler, tourHandler, keypointHandler, tourRatingHandler, tourProblemHandler := setUpDependencies(database)
+
+	startServer(facilityHandler, keypointHandler, tourHandler, tourRatingHandler, tourProblemHandler)
 
 	print("ok")
 }

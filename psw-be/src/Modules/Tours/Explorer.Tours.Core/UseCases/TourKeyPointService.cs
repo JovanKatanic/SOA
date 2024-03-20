@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Explorer.BuildingBlocks.Core.UseCases;
@@ -67,14 +66,6 @@ namespace Explorer.Tours.Core.UseCases
            }
 
            return tourKeyPointDtos;
-        }
-        public async Task<string> CreateAsync(TourKeyPointDto tourKeypointDto, HttpClient _httpClient)
-        {
-            using StringContent jsonContent = new(JsonSerializer.Serialize(tourKeypointDto), Encoding.UTF8, "application/json");
-            using HttpResponseMessage response = await _httpClient.PostAsync("http://localhost:8080/keypoints", jsonContent);
-            response.EnsureSuccessStatusCode();
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            return jsonResponse;
         }
 
     }

@@ -17,6 +17,7 @@ namespace Explorer.Tours.API.Public
         Result<TourProblemDto> Update(TourProblemDto tourProblem);
         Result<List<TourProblemDto>> GetByTouristId(long touristId);
         Result<List<TourProblemDto>> GetByAuthorId(long authorId);
+        Task<List<TourProblemDto>> GetByAuthorIdAsync(long authorId);
         public void FindNames(List<TourProblemDto> result);
         Result<List<TourProblemMessageDto>> GetUnreadMessages(long id);
         public Result<TourProblemDto> GiveDeadline(DateTime deadline, long tourProblemId);

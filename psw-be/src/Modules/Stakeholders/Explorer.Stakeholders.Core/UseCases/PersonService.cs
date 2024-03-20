@@ -23,6 +23,15 @@ namespace Explorer.Stakeholders.Core.UseCases
             _userRepository = userRepository;
         }
 
+        public Result<UserNamesDto> GetName(long id)
+        {
+            User user= _userRepository.Get(id);
+            UserNamesDto userdto= new UserNamesDto();
+            userdto.Id = id;
+            userdto.Username= user.Username;
+            return userdto;
+        }
+
         public Result<PersonDto> Get(int id)
         {
             try
