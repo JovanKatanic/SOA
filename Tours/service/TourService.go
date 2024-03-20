@@ -9,6 +9,15 @@ type TourService struct {
 	TourRepository *repository.TourRepository
 }
 
+func (service *TourService) GetAll() (*[]model.Tour, error) {
+	tours, err := service.TourRepository.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	return tours, nil
+}
+
 func (service *TourService) CreateTour(tour *model.Tour) (*model.Tour, error) {
 	var createdTour *model.Tour
 

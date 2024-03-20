@@ -16,6 +16,14 @@ namespace Explorer.API.Controllers.Author
             _personService = personService;
         }
 
+        [AllowAnonymous]
+        [HttpGet("username/{id:int}")]
+        public ActionResult<UserNamesDto> GetName(int id)
+        {
+            var result = _personService.GetName(id);
+            return CreateResponse(result);
+        }
+
         [HttpGet("{id:int}")]
         public ActionResult<PersonDto> Get(int id)
         {

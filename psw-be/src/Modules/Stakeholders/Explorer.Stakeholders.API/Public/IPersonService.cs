@@ -12,6 +12,7 @@ namespace Explorer.Stakeholders.API.Public
     public interface IPersonService
     {
         Result<List<PersonDto>> GetAuthorsAndTourists();
+        Result<UserNamesDto> GetName(long id);
         Result<PersonDto> Get(int id);
         Result<PersonDto> Update(PersonDto person);
         Result<List<PersonDto>> GetAllFollowers(int id);

@@ -24,14 +24,14 @@ namespace Explorer.API.Controllers.Author.Authoring
             return CreateResponse(result);
         }
 
-        [HttpPost]
+        /*[HttpPost]
         public ActionResult<TourDto> Create([FromBody] TourDto tour)
         {
             var result = _tourService.Create(tour);
             return CreateResponse(result);
-        }
+        }*/
 
-        [HttpPost("createTour")]
+        [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] TourDto tour)
         {
             try
