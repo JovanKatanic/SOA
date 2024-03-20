@@ -116,12 +116,29 @@ namespace Explorer.API.Controllers.Author
             }
         }
 
+        //[HttpPost("createComment")]
+        //public ActionResult<CommentDto> Create([FromBody] CommentDto commentDto)
+        //{
+        //    var result = _blogService.CreateComment(commentDto);
+        //    return CreateResponse(result);
+        //}
+
         [HttpPost("createComment")]
-        public ActionResult<CommentDto> Create([FromBody] CommentDto commentDto)
+        public async Task<ActionResult<BlogDto>> CreateCommentAsync([FromBody] CommentDto commentDto)
         {
-            var result = _blogService.CreateComment(commentDto);
-            return CreateResponse(result);
+            try
+            {
+                var comment = await _blogService.CreateCommentAsync(commentDto);
+                return CreateResponse(comment);
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
+
+
 
         [HttpGet("comment/{id:int}")]
         public ActionResult<CommentDto> GetComment(int id)
@@ -130,18 +147,48 @@ namespace Explorer.API.Controllers.Author
             return CreateResponse(result);
         }
 
+        //[HttpPut("editComment")]
+        //public ActionResult<CommentDto> UpdateComment([FromBody] CommentDto commentDto)
+        //{
+        //    var result = _blogService.UpdateComment(commentDto);
+        //    return CreateResponse(result);
+        //}
+
         [HttpPut("editComment")]
-        public ActionResult<CommentDto> UpdateComment([FromBody] CommentDto commentDto)
+        public async Task<ActionResult<BlogDto>> UpdateComment([FromBody] CommentDto commentDto)
         {
-            var result = _blogService.UpdateComment(commentDto);
-            return CreateResponse(result);
+            try
+            {
+                var comment = await _blogService.UpdateCommentAsync(commentDto);
+                return CreateResponse(comment);
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
+        //[HttpDelete("deleteComment/{id:int}")]
+        //public ActionResult DeleteComment(int id)
+        //{
+        //    var result = _blogService.DeleteComment(id);
+        //    return CreateResponse(result);
+        //}
+
         [HttpDelete("deleteComment/{id:int}")]
-        public ActionResult DeleteComment(int id)
+        public async Task<ActionResult> DeleteRating(int id)
         {
-            var result = _blogService.DeleteComment(id);
-            return CreateResponse(result);
+            try
+            {
+                var comment = await _blogService.DeleteCommentAsync(id);
+                return CreateResponse(comment);
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         [HttpGet("allComments")]
@@ -151,11 +198,25 @@ namespace Explorer.API.Controllers.Author
             return CreateResponse(result);
         }
 
+        //[HttpGet("blogComments/{blogId:int}")]
+        //public ActionResult<List<CommentDto>> GetCommentsByBlogId(int blogId)
+        //{
+        //    var result = _blogService.GetCommentsByBlogId(blogId);
+        //    return CreateResponse(result);
+        //}
+
         [HttpGet("blogComments/{blogId:int}")]
-        public ActionResult<List<CommentDto>> GetCommentsByBlogId(int blogId)
+        public async Task<ActionResult<List<CommentDto>>> GetCommentsByBlogId(int blogId)
         {
-            var result = _blogService.GetCommentsByBlogId(blogId);
-            return CreateResponse(result);
+            try
+            {
+                var result = await _blogService.GetCommentsByBlogIdAsync(blogId);
+                return CreateResponse(result);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         /*[HttpDelete("rating/{userId:int}/{blogId:int}")]

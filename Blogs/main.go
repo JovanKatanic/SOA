@@ -21,18 +21,23 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func startServer(handler *handler.BlogHandler) {
+func startServer(BlogHandler *handler.BlogHandler, CommentHandler *handler.CommentHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.Use(corsMiddleware)
 
-	router.HandleFunc("/blogs", handler.Create).Methods("POST")
-	router.HandleFunc("/blogs", handler.GetAllBlogs).Methods("GET")
-	router.HandleFunc("/blogs/{id:[+-]?[0-9]+}", handler.GetBlogByID).Methods("GET")
-	router.HandleFunc("/blogs/updateOneBlog", handler.Update).Methods("PUT")
-	router.HandleFunc("/blogs/getByStatus/{state:[+-]?[0-9]+}", handler.GetAllBlogsByStatus).Methods("GET")
-	router.HandleFunc("/blogs/rating/{userId:[+-]?[0-9]+}/{blogId:[+-]?[0-9]+}/{value:[+-]?[0-9]+}", handler.UpdateRating).Methods("PUT")
-	router.HandleFunc("/blogs/rating/{userId:[+-]?[0-9]+}/{blogId:[+-]?[0-9]+}", handler.DeleteRating).Methods("DELETE")
+	router.HandleFunc("/blogs", BlogHandler.Create).Methods("POST")
+	router.HandleFunc("/blogs", BlogHandler.GetAllBlogs).Methods("GET")
+	router.HandleFunc("/blogs/{id:[+-]?[0-9]+}", BlogHandler.GetBlogByID).Methods("GET")
+	router.HandleFunc("/blogs/updateOneBlog", BlogHandler.Update).Methods("PUT")
+	router.HandleFunc("/blogs/getByStatus/{state:[+-]?[0-9]+}", BlogHandler.GetAllBlogsByStatus).Methods("GET")
+	router.HandleFunc("/blogs/rating/{userId:[+-]?[0-9]+}/{blogId:[+-]?[0-9]+}/{value:[+-]?[0-9]+}", BlogHandler.UpdateRating).Methods("PUT")
+	router.HandleFunc("/blogs/rating/{userId:[+-]?[0-9]+}/{blogId:[+-]?[0-9]+}", BlogHandler.DeleteRating).Methods("DELETE")
+
+	router.HandleFunc("/comment", CommentHandler.Create).Methods("POST")
+	router.HandleFunc("/comment", CommentHandler.Update).Methods("PUT")
+	router.HandleFunc("/comment/{id}", CommentHandler.Delete).Methods("DELETE")
+	router.HandleFunc("/comments/{id}", CommentHandler.GetByBlogId).Methods("GET")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
@@ -63,8 +68,13 @@ func main() {
 
 	BlogRepository := &repository.BlogRepository{DatabaseConnection: database}
 	BlogService := &service.BlogService{BlogRepository: BlogRepository}
-	handler := &handler.BlogHandler{BlogService: BlogService}
-	startServer(handler)
+	BlogHandler := &handler.BlogHandler{BlogService: BlogService}
+
+	CommentRepository := &repository.CommentRepository{DatabaseConnection: database}
+	CommentService := &service.CommentService{CommentRepository: CommentRepository}
+	CommentHandler := &handler.CommentHandler{CommentService: CommentService}
+
+	startServer(BlogHandler, CommentHandler)
 
 	print("ok")
 }
