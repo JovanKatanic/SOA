@@ -6,6 +6,7 @@ using Explorer.Blog.Core.Domain.RepositoryInterfaces;
 using Explorer.BuildingBlocks.Core.Domain;
 using Explorer.BuildingBlocks.Core.UseCases;
 using Explorer.Stakeholders.API.Internal;
+using Explorer.Stakeholders.Core.Domain;
 using Explorer.Stakeholders.Core.Domain.RepositoryInterfaces;
 using Explorer.Tours.API.Dtos;
 using FluentResults;
@@ -290,6 +291,62 @@ namespace Explorer.Blog.Core.UseCases
             var blogDto = JsonConvert.DeserializeObject<BlogDto>(jsonResponse);
 
             return Result.Ok();
+        }
+
+        public async Task<Result<CommentDto>> CreateCommentAsync(CommentDto comment)
+        {
+            using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(comment), Encoding.UTF8, "application/json");
+
+            using HttpResponseMessage response = await _httpClient.PostAsync("/comment", jsonContent);
+
+            response.EnsureSuccessStatusCode();
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var commentDto = JsonConvert.DeserializeObject<CommentDto>(jsonResponse);
+
+            return commentDto;
+        }
+
+        public async Task<Result> DeleteCommentAsync(int commentId)
+        {
+            using HttpResponseMessage response = await _httpClient.DeleteAsync("/comment/" + commentId.ToString());
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var commentDto = JsonConvert.DeserializeObject<CommentDto>(jsonResponse);
+
+            return Result.Ok();
+        }
+
+        public async Task<Result<CommentDto>> UpdateCommentAsync(CommentDto commentDto)
+        {
+            using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(commentDto), Encoding.UTF8, "application/json");
+            using HttpResponseMessage response = await _httpClient.PutAsync("/comment", jsonContent);
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var comment = JsonConvert.DeserializeObject<CommentDto>(jsonResponse);
+
+            return comment;
+        }
+
+        public async Task<Result<List<CommentDto>>> GetCommentsByBlogIdAsync(int blogId)
+        {
+            using HttpResponseMessage response = await _httpClient.GetAsync("/comments/" + blogId.ToString());
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var commentDtos = JsonConvert.DeserializeObject<List<CommentDto>>(jsonResponse);
+
+            var listResult = new List<CommentDto>(commentDtos);
+
+            foreach (var comment in listResult)
+            {
+                var user = _internalBlogService.GetByUserId(comment.UserId);
+                comment.Username = user.Username;
+                var person = _internalCommentService.GetByUserId(user.Id);
+                comment.ProfilePic = person.ProfilePic;
+            }
+            return listResult;
         }
     }
 }

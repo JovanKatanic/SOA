@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net.Http;
+using System.Reflection.Metadata;
 
 namespace Explorer.API.Controllers.Tourist
 {
@@ -125,11 +126,26 @@ namespace Explorer.API.Controllers.Tourist
             }
         }
 
+        //[HttpPost("createComment")]
+        //public ActionResult<CommentDto> Create([FromBody] CommentDto commentDto)
+        //{
+        //    var result = _blogService.CreateComment(commentDto);
+        //    return CreateResponse(result);
+        //}
+
         [HttpPost("createComment")]
-        public ActionResult<CommentDto> Create([FromBody] CommentDto commentDto)
+        public async Task<ActionResult<BlogDto>> CreateCommentAsync([FromBody] CommentDto commentDto)
         {
-            var result = _blogService.CreateComment(commentDto);
-            return CreateResponse(result);
+            try
+            {
+                var comment = await _blogService.CreateCommentAsync(commentDto);
+                return CreateResponse(comment);
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         [HttpGet("comment/{id:int}")]
@@ -139,19 +155,51 @@ namespace Explorer.API.Controllers.Tourist
             return CreateResponse(result);
         }
 
+        //[HttpPut("editComment")]
+        //public ActionResult<CommentDto> UpdateComment([FromBody] CommentDto commentDto)
+        //{
+        //    var result = _blogService.UpdateComment(commentDto);
+        //    return CreateResponse(result);
+        //}
+
         [HttpPut("editComment")]
-        public ActionResult<CommentDto> UpdateComment([FromBody] CommentDto commentDto)
+        public async Task<ActionResult<BlogDto>> UpdateComment([FromBody] CommentDto commentDto)
         {
-            var result = _blogService.UpdateComment(commentDto);
-            return CreateResponse(result);
+            try
+            {
+                var comment = await _blogService.UpdateCommentAsync(commentDto);
+                return CreateResponse(comment);
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
+        //[HttpDelete("deleteComment/{id:int}")]
+        //public ActionResult DeleteComment(int id)
+        //{
+        //    var result = _blogService.DeleteComment(id);
+        //    return CreateResponse(result);
+        //}
+
         [HttpDelete("deleteComment/{id:int}")]
-        public ActionResult DeleteComment(int id)
+        public async Task<ActionResult> DeleteRating(int id)
         {
-            var result = _blogService.DeleteComment(id);
-            return CreateResponse(result);
+            try
+            {
+                var comment = await _blogService.DeleteCommentAsync(id);
+                return CreateResponse(comment);
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
+
+
 
         [HttpGet("allComments")]
         public ActionResult<PagedResult<CommentDto>> GetAllComments([FromQuery] int page, [FromQuery] int pageSize)

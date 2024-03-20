@@ -12,5 +12,9 @@ namespace Explorer.Blog.API.Public
         Result<CommentDto> Get(int id);
         Result Delete(int id);
         Result<List<CommentDto>> GetCommentsByBlogId(int blogId);
+
+        Task<Result<CommentDto>> CreateCommentAsync(CommentDto comment);
+        Task<Result<CommentDto>> UpdateCommentAsync(CommentDto blog);
+        Task<Result> DeleteCommentAsync(int commentId);
     }
 }
