@@ -37,5 +37,9 @@ namespace Explorer.Blog.API.Public
         Task<Result<List<BlogDto>>> GetBlogsByStatusAsync(int state);
         Task<Result<BlogDto>> UpdateRatingAsync(int blogId, int userId, int value);
         Task<Result> DeleteRatingAsync(int userId, int blogId);
+
+        Task<Result<CommentDto>> CreateCommentAsync(CommentDto commentDto);
+        Task<Result<CommentDto>> UpdateCommentAsync(CommentDto commentDto);
+        Task<Result> DeleteCommentAsync(int commentId);
     }
 }
