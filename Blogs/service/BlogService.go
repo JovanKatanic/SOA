@@ -34,3 +34,15 @@ func (service *BlogService) UpdateOneBlog(blog *model.BlogPage) error {
 	}
 	return nil
 }
+
+func (s *BlogService) GetAllByStatus(status int) (*[]model.BlogPage, error) {
+	return s.BlogRepository.GetAllByStatus(status)
+}
+
+func (service *BlogService) UpdateRating(blogId int, userId int, value int) (*model.BlogPage, error) {
+	return service.BlogRepository.UpdateRating(blogId, userId, value)
+}
+
+func (service *BlogService) DeleteRating(userId int, blogId int) error {
+	return service.BlogRepository.DeleteRating(userId, blogId)
+}

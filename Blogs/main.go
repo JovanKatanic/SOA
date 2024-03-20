@@ -24,13 +24,15 @@ func initDB() *gorm.DB {
 func startServer(BlogHandler *handler.BlogHandler, CommentHandler *handler.CommentHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	// Dodajemo middleware za CORS
 	router.Use(corsMiddleware)
 
 	router.HandleFunc("/blogs", BlogHandler.Create).Methods("POST")
 	router.HandleFunc("/blogs", BlogHandler.GetAllBlogs).Methods("GET")
 	router.HandleFunc("/blogs/{id:[+-]?[0-9]+}", BlogHandler.GetBlogByID).Methods("GET")
 	router.HandleFunc("/blogs/updateOneBlog", BlogHandler.Update).Methods("PUT")
+	router.HandleFunc("/blogs/getByStatus/{state:[+-]?[0-9]+}", handler.GetAllBlogsByStatus).Methods("GET")
+	router.HandleFunc("/blogs/rating/{userId:[+-]?[0-9]+}/{blogId:[+-]?[0-9]+}/{value:[+-]?[0-9]+}", handler.UpdateRating).Methods("PUT")
+	router.HandleFunc("/blogs/rating/{userId:[+-]?[0-9]+}/{blogId:[+-]?[0-9]+}", handler.DeleteRating).Methods("DELETE")
 
 	router.HandleFunc("/comment", CommentHandler.Create).Methods("POST")
 	router.HandleFunc("/comment", CommentHandler.Update).Methods("PUT")
@@ -41,14 +43,12 @@ func startServer(BlogHandler *handler.BlogHandler, CommentHandler *handler.Comme
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
-// Middleware funkcija za CORS
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "https://localhost:44333/api/")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-		// Handle preflight requests
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
 			return
