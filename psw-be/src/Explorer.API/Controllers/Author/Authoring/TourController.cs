@@ -11,10 +11,12 @@ namespace Explorer.API.Controllers.Author.Authoring
     public class TourController : BaseApiController
     {
         private readonly ITourService _tourService;
+        private readonly HttpClient _httpClient;
 
         public TourController(ITourService tourService)
         {
             _tourService = tourService;
+            _httpClient = new HttpClient();
         }
 
         [HttpGet]
