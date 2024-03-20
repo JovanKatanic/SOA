@@ -328,5 +328,25 @@ namespace Explorer.Blog.Core.UseCases
 
             return comment;
         }
+
+        public async Task<Result<List<CommentDto>>> GetCommentsByBlogIdAsync(int blogId)
+        {
+            using HttpResponseMessage response = await _httpClient.GetAsync("/comments/" + blogId.ToString());
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var commentDtos = JsonConvert.DeserializeObject<List<CommentDto>>(jsonResponse);
+
+            var listResult = new List<CommentDto>(commentDtos);
+
+            foreach (var comment in listResult)
+            {
+                var user = _internalBlogService.GetByUserId(comment.UserId);
+                comment.Username = user.Username;
+                var person = _internalCommentService.GetByUserId(user.Id);
+                comment.ProfilePic = person.ProfilePic;
+            }
+            return listResult;
+        }
     }
 }

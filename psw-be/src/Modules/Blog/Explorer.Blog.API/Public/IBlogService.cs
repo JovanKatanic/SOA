@@ -41,5 +41,7 @@ namespace Explorer.Blog.API.Public
         Task<Result<CommentDto>> CreateCommentAsync(CommentDto commentDto);
         Task<Result<CommentDto>> UpdateCommentAsync(CommentDto commentDto);
         Task<Result> DeleteCommentAsync(int commentId);
+    //    Task<Result<CommentDto>> GetCommentAsync(int id);
+        Task<Result<List<CommentDto>>> GetCommentsByBlogIdAsync(int blogId);
     }
 }

@@ -42,3 +42,11 @@ func (repo *CommentRepository) DeleteComment(commentId int) error {
 	println("Rows affected: ", dbResult.RowsAffected)
 	return nil
 }
+
+func (repo *CommentRepository) GetCommentsByBlogId(blogID int) (*[]model.Comment, error) {
+	var comments []model.Comment
+	if err := repo.DatabaseConnection.Table(`blog."Comments"`).Where(`"BlogId" = ?`, blogID).Find(&comments).Error; err != nil {
+		return nil, err
+	}
+	return &comments, nil
+}

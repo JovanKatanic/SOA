@@ -35,3 +35,7 @@ func (service *CommentService) Delete(commentId int) error {
 	}
 	return nil
 }
+
+func (service *CommentService) GetByBlogId(blogID int) (*[]model.Comment, error) {
+	return service.CommentRepository.GetCommentsByBlogId(blogID)
+}

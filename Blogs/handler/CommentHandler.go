@@ -69,3 +69,26 @@ func (handler *CommentHandler) Delete(writer http.ResponseWriter, req *http.Requ
 	}
 	writer.WriteHeader(http.StatusNoContent)
 }
+
+func (handler *CommentHandler) GetByBlogId(writer http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(writer, "Invalid blog status", http.StatusBadRequest)
+		return
+	}
+
+	comments, err := handler.CommentService.GetByBlogId(id)
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+
+	if err := json.NewEncoder(writer).Encode(comments); err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}

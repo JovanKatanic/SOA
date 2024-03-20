@@ -198,11 +198,25 @@ namespace Explorer.API.Controllers.Author
             return CreateResponse(result);
         }
 
+        //[HttpGet("blogComments/{blogId:int}")]
+        //public ActionResult<List<CommentDto>> GetCommentsByBlogId(int blogId)
+        //{
+        //    var result = _blogService.GetCommentsByBlogId(blogId);
+        //    return CreateResponse(result);
+        //}
+
         [HttpGet("blogComments/{blogId:int}")]
-        public ActionResult<List<CommentDto>> GetCommentsByBlogId(int blogId)
+        public async Task<ActionResult<List<CommentDto>>> GetCommentsByBlogId(int blogId)
         {
-            var result = _blogService.GetCommentsByBlogId(blogId);
-            return CreateResponse(result);
+            try
+            {
+                var result = await _blogService.GetCommentsByBlogIdAsync(blogId);
+                return CreateResponse(result);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         /*[HttpDelete("rating/{userId:int}/{blogId:int}")]
