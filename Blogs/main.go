@@ -30,9 +30,9 @@ func startServer(BlogHandler *handler.BlogHandler, CommentHandler *handler.Comme
 	router.HandleFunc("/blogs", BlogHandler.GetAllBlogs).Methods("GET")
 	router.HandleFunc("/blogs/{id:[+-]?[0-9]+}", BlogHandler.GetBlogByID).Methods("GET")
 	router.HandleFunc("/blogs/updateOneBlog", BlogHandler.Update).Methods("PUT")
-	router.HandleFunc("/blogs/getByStatus/{state:[+-]?[0-9]+}", handler.GetAllBlogsByStatus).Methods("GET")
-	router.HandleFunc("/blogs/rating/{userId:[+-]?[0-9]+}/{blogId:[+-]?[0-9]+}/{value:[+-]?[0-9]+}", handler.UpdateRating).Methods("PUT")
-	router.HandleFunc("/blogs/rating/{userId:[+-]?[0-9]+}/{blogId:[+-]?[0-9]+}", handler.DeleteRating).Methods("DELETE")
+	router.HandleFunc("/blogs/getByStatus/{state:[+-]?[0-9]+}", BlogHandler.GetAllBlogsByStatus).Methods("GET")
+	router.HandleFunc("/blogs/rating/{userId:[+-]?[0-9]+}/{blogId:[+-]?[0-9]+}/{value:[+-]?[0-9]+}", BlogHandler.UpdateRating).Methods("PUT")
+	router.HandleFunc("/blogs/rating/{userId:[+-]?[0-9]+}/{blogId:[+-]?[0-9]+}", BlogHandler.DeleteRating).Methods("DELETE")
 
 	router.HandleFunc("/comment", CommentHandler.Create).Methods("POST")
 	router.HandleFunc("/comment", CommentHandler.Update).Methods("PUT")
