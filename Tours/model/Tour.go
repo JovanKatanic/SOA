@@ -10,7 +10,7 @@ type TourDifficulty int
 type TourStatus int
 
 type Tour struct {
-	ID            int            `json:"id" gorm:"column:Id; primaryKey;"`
+	ID            int            `json:"id" gorm:"column:Id;"`
 	Name          string         `json:"name" gorm:"column:Name"`
 	Description   string         `json:"description" gorm:"column:Description"`
 	Difficulty    TourDifficulty `json:"difficulty" gorm:"column:Difficulty"`
@@ -20,10 +20,10 @@ type Tour struct {
 	AuthorId      int            `json:"authorId" gorm:"column:AuthorId"`
 	Equipment     pq.Int32Array  `json:"equipment" gorm:"type:integer[]; column:Equipment"`
 	DistanceInKm  float64        `json:"distanceInKm" gorm:"column:DistanceInKm"`
-	ArchivedDate  time.Time      `json:"archivedDate" gorm:"column:ArchivedDate"`
-	PublishedDate time.Time      `json:"publishedDate" gorm:"column:PublishedDate"`
+	ArchivedDate  *time.Time     `json:"archivedDate" gorm:"column:ArchivedDate"`
+	PublishedDate *time.Time     `json:"publishedDate" gorm:"column:PublishedDate"`
 	Durations     TourDurations  `json:"durations" gorm:"type:jsonb; column:Durations"`
-	KeyPoints     []Keypoint     `json:"keyPoints"`
+	KeyPoints     []Keypoint     `json:"keyPoints" gorm:"-"`
 	Image         string         `json:"image" gorm:"column:Image"`
 }
 

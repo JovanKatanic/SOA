@@ -9,9 +9,8 @@ import (
 type TransportationType int
 
 type TourDuration struct {
-	ID             uint               `json:"id"`
-	TimeInSeconds  uint               `json:"time_in_seconds"`
-	Transportation TransportationType `json:"transportation"`
+	TimeInSeconds  uint               `json:"TimeInSeconds"`
+	Transportation TransportationType `json:"Transportation"`
 }
 
 const (

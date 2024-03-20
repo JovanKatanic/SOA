@@ -69,10 +69,10 @@ namespace Explorer.Tours.Core.UseCases.Authoring
                 AuthorId = jsonObject.GetProperty("authorId").GetInt32(),
                 Equipment = ParseEquipment(jsonObject.GetProperty("equipment")),
                 DistanceInKm = jsonObject.GetProperty("distanceInKm").GetDouble(),
-                ArchivedDate = jsonObject.TryGetProperty("archivedDate", out var archivedDate) ?
-                    (DateTime?)DateTime.Parse(archivedDate.GetString()) : null,
-                PublishedDate = jsonObject.TryGetProperty("publishedDate", out var publishedDate) ?
-                    (DateTime?)DateTime.Parse(archivedDate.GetString()) : null,
+                ArchivedDate = jsonObject.TryGetProperty("archivedDate", out var archivedDate) && archivedDate.ValueKind != JsonValueKind.Null ?
+        (DateTime?)DateTime.Parse(archivedDate.GetString()) : null,
+                PublishedDate = jsonObject.TryGetProperty("publishedDate", out var publishedDate) && publishedDate.ValueKind != JsonValueKind.Null ?
+        (DateTime?)DateTime.Parse(publishedDate.GetString()) : null,
                 Durations = { },
                 KeyPoints = { },
                 Image = null
@@ -125,8 +125,9 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             using HttpResponseMessage responseGet = await _httpClient.GetAsync("http://localhost:8080/tours/" + id.ToString());
             responseGet.EnsureSuccessStatusCode();
             var jsonResponseGet = await responseGet.Content.ReadAsStringAsync();
-            var tour = JsonConvert.DeserializeObject<Tour>(jsonResponseGet);
+            var tour = Newtonsoft.Json.JsonConvert.DeserializeObject<Tour>(jsonResponseGet);
 
+            tour.Id = id;
             tour.Archive(userId);
             using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
             using HttpResponseMessage response = await _httpClient.PutAsync("http://localhost:8080/tours", jsonContent);
@@ -159,8 +160,9 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             responseGet.EnsureSuccessStatusCode();
 
             var jsonResponseGet = await responseGet.Content.ReadAsStringAsync();
-            var tour= JsonConvert.DeserializeObject<Tour>(jsonResponseGet);
-            
+            var tour= Newtonsoft.Json.JsonConvert.DeserializeObject<Tour>(jsonResponseGet);
+
+            tour.Id = id;
             tour.Publish(userId);
             using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
             using HttpResponseMessage response = await _httpClient.PutAsync("http://localhost:8080/tours", jsonContent);

@@ -41,7 +41,7 @@ func startServer(BlogHandler *handler.BlogHandler, CommentHandler *handler.Comme
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":8081", router))
 }
 
 func corsMiddleware(next http.Handler) http.Handler {

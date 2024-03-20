@@ -38,7 +38,7 @@ namespace Explorer.Blog.Core.UseCases
             _commentService = commentService;
             _httpClient = new HttpClient()
             {
-                BaseAddress = new Uri("http://localhost:8080")
+                BaseAddress = new Uri("http://localhost:8081")
             };
         }
 

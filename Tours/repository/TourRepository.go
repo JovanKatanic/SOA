@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"tours_service/model"
 
 	"gorm.io/gorm"
@@ -32,6 +33,7 @@ func (repo *TourRepository) CreateTour(tour *model.Tour) (*model.Tour, error) {
 }
 
 func (repo *TourRepository) UpdateTour(tour *model.Tour) error {
+	println(tour.ID)
 	dbResult := repo.DatabaseConnection.Table(`tours."Tour"`).Save(tour)
 
 	if dbResult.Error != nil {
@@ -53,6 +55,6 @@ func (repo *TourRepository) FindByID(id int) (*model.Tour, error) {
 	}
 	tour.KeyPoints = keypoints
 
-	//fmt.Println(tour)
+	fmt.Println(id)
 	return &tour, nil
 }
