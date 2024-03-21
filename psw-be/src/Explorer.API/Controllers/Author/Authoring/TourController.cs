@@ -47,11 +47,12 @@ namespace Explorer.API.Controllers.Author.Authoring
             }
         }
 
+
         [HttpPut("{id:int}")]
-        public ActionResult<TourDto> Update([FromBody] TourDto tour)
+        public async Task<string> Update([FromBody] TourDto tour)
         {
-            var result = _tourService.Update(tour);
-            return CreateResponse(result);
+            var result = await _tourService.UpdateAsync(tour, _httpClient);
+            return result;
         }
 
         [HttpPut("/updateTour/{id:int}")]

@@ -10,7 +10,7 @@ using Explorer.Tours.API.Public;
 using Explorer.Tours.Core.Domain.RepositoryInterfaces;
 using Explorer.Tours.Core.Domain.Tours;
 using FluentResults;
-
+using System.Text.Json;
 namespace Explorer.Tours.Core.UseCases
 {
     public class TourKeyPointService : CrudService<TourKeyPointDto, TourKeyPoint>, ITourKeyPointService
@@ -21,7 +21,14 @@ namespace Explorer.Tours.Core.UseCases
         {
             _tourKeyPointsRepository = tourKeyPointsRepository;
         }
-
+        public async Task<string> CreateAsync(TourKeyPointDto tourKeypointDto, HttpClient _httpClient)
+        {
+            using StringContent jsonContent = new(JsonSerializer.Serialize(tourKeypointDto), Encoding.UTF8, "application/json");
+            using HttpResponseMessage response = await _httpClient.PostAsync("http://localhost:8080/keypoints", jsonContent);
+            response.EnsureSuccessStatusCode();
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            return jsonResponse;
+        }
         public Result<List<TourKeyPointDto>> GetAllByPublicKeypointId(long publicId)
         {
             List<TourKeyPointDto> tourKeyPointDtos = new List<TourKeyPointDto>();

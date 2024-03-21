@@ -339,7 +339,14 @@ namespace Explorer.Tours.Core.UseCases.Authoring
 
             return filteredTours;
         }
-
+        public async Task<string> CreateAsync(TourDto tour, HttpClient _httpClient)
+        {
+            using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
+            using HttpResponseMessage response = await _httpClient.PostAsync("http://localhost:8080/tours", jsonContent);
+            response.EnsureSuccessStatusCode();
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            return jsonResponse;
+        }
         public Result<PagedResult<TourDto>> GetPagedForSearchByLocation(int page, int pageSize, int touristId)
         {
             double radius = 40000;

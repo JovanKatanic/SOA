@@ -7,7 +7,8 @@ using Explorer.Tours.Core.UseCases.Administration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-
+using System.Text;
+using System.Text.Json;
 namespace Explorer.API.Controllers.Author
 {
     [Authorize(Policy = "authorPolicy")]
@@ -16,11 +17,12 @@ namespace Explorer.API.Controllers.Author
     {
         private readonly ITourKeyPointService _tourKeyPointService;
         private readonly IPublicTourKeyPointService _publicTourKeyPointService;
-
+        private readonly HttpClient _httpClient;
         public TourKeyPointController(ITourKeyPointService tourKeyPointService, IPublicTourKeyPointService publicTourKeyPointService)
         {
             _tourKeyPointService = tourKeyPointService;
             _publicTourKeyPointService = publicTourKeyPointService;
+            _httpClient = new HttpClient();
         }
 
         [HttpGet]
@@ -45,10 +47,10 @@ namespace Explorer.API.Controllers.Author
         }
 
         [HttpPost]
-        public ActionResult<TourKeyPointDto> Create([FromBody] TourKeyPointDto tourKeyPoint)
+        public Task<string> Create([FromBody] TourKeyPointDto tourKeyPoint)
         {
-            var result = _tourKeyPointService.Create(tourKeyPoint);
-            return CreateResponse(result);
+            var result = _tourKeyPointService.CreateAsync(tourKeyPoint, _httpClient);
+            return result;
         }
 
         [HttpPut("{id:int}")]
@@ -66,7 +68,14 @@ namespace Explorer.API.Controllers.Author
 
         }
 
-
+        //public async Task<string> CreateAsync(TourKeyPointDto tourKeypointDto, HttpClient _httpClient)
+        //{
+        //    using StringContent jsonContent = new(JsonSerializer.Serialize(tourKeypointDto), Encoding.UTF8, "application/json");
+        //    using HttpResponseMessage response = await _httpClient.PostAsync("http://localhost:8080/keypoints", jsonContent);
+        //    response.EnsureSuccessStatusCode();
+        //    var jsonResponse = await response.Content.ReadAsStringAsync();
+        //    return jsonResponse;
+        //}
 
         [HttpGet("public")]
         public ActionResult<PagedResult<PublicTourKeyPointDto>> GetAllPublic([FromQuery] int page, [FromQuery] int pageSize)

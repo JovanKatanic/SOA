@@ -25,6 +25,7 @@ namespace Explorer.Tours.API.Public.Authoring
         Task<string> UpdateAsync(TourDto tour, HttpClient _httpClient);
         Task<string> PublishAsync(int id, int userId, HttpClient _httpClient);
         Task<string> ArchiveAsync(int id, int userId, HttpClient _httpClient);
+        Task<string> CreateAsync(TourDto tour, HttpClient _httpClient);
 
     }
 }
