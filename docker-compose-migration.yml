@@ -4,7 +4,7 @@ services:
   smart-tutor-migration:
     build:
       dockerfile: Dockerfile
-      context: .
+      context: ./psw-be
       target: execute-migration
     networks:
       - database

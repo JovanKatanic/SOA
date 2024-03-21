@@ -4,13 +4,13 @@ services:
   explorer:
     build:
       dockerfile: Dockerfile
-      context: .
+      context: ./psw-be
       target: final
     restart: on-failure
     networks:
       - database
     ports:
-      - "8080:80"
+      - "9000:80"
     environment:
       DATABASE_HOST: database
       DATABASE_PORT: 5432
@@ -37,6 +37,20 @@ services:
         target: /tmp/DEMO_SKRIPTA.sql
     ports:
       - "5432:5432"
+
+  tour_service:
+    build:
+      context: ./Tours
+      dockerfile: Dockerfile
+    image: tours_web_service
+    container_name: tours_service
+    restart: on-failure
+    networks:
+      - database
+    ports:
+      - 8080:8080
+    depends_on:
+      - database    
 
 volumes:
   database-data:
