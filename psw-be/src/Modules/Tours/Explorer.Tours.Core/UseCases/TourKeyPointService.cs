@@ -24,7 +24,7 @@ namespace Explorer.Tours.Core.UseCases
         public async Task<string> CreateAsync(TourKeyPointDto tourKeypointDto, HttpClient _httpClient)
         {
             using StringContent jsonContent = new(JsonSerializer.Serialize(tourKeypointDto), Encoding.UTF8, "application/json");
-            using HttpResponseMessage response = await _httpClient.PostAsync("http://localhost:8080/keypoints", jsonContent);
+            using HttpResponseMessage response = await _httpClient.PostAsync("http://tour_service:8080/keypoints", jsonContent);
             response.EnsureSuccessStatusCode();
             var jsonResponse = await response.Content.ReadAsStringAsync();
             return jsonResponse;

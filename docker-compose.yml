@@ -33,7 +33,7 @@ services:
         source: database-data
         target: /var/lib/postgresql/data
       - type: bind
-        source: './Razni fajlovi/DEMO_SKRIPTA.sql'
+        source: './psw-be/Razni fajlovi/DEMO_SKRIPTA.sql'
         target: /tmp/DEMO_SKRIPTA.sql
     ports:
       - "5432:5432"
@@ -50,7 +50,21 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      - database    
+      - database   
+      
+  blog_service:
+    build:
+      context: ./Blogs
+      dockerfile: Dockerfile
+    image: blogs_web_service
+    container_name: blogs_service
+    restart: on-failure
+    networks:
+      - database
+    ports:
+      - 8081:8081
+    depends_on:
+      - database      
 
 volumes:
   database-data:

@@ -15,7 +15,7 @@ namespace Explorer.Tours.Core.UseCases.Administration
         public async Task<string> CreateAsync(FacilityDto facilityDto, HttpClient _httpClient)
         {
             using StringContent jsonContent = new(JsonSerializer.Serialize(facilityDto), Encoding.UTF8, "application/json");
-            using HttpResponseMessage response = await _httpClient.PostAsync("http://localhost:8080/facilities", jsonContent);
+            using HttpResponseMessage response = await _httpClient.PostAsync("http://tours_service:8080/facilities", jsonContent);
             response.EnsureSuccessStatusCode();
             var jsonResponse = await response.Content.ReadAsStringAsync();
             return jsonResponse;
@@ -23,7 +23,7 @@ namespace Explorer.Tours.Core.UseCases.Administration
 
         public async Task<string> DeleteAsync(int id, HttpClient _httpClient)
         {
-            using HttpResponseMessage response = await _httpClient.DeleteAsync("http://localhost:8080/facilities/" + id);
+            using HttpResponseMessage response = await _httpClient.DeleteAsync("http://tours_service:8080/facilities/" + id);
             //response.EnsureSuccessStatusCode();
             return "works";
         }

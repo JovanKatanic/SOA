@@ -29,7 +29,7 @@ namespace Explorer.Tours.Core.UseCases
 
         private static HttpClient sharedClient = new()
         {
-            BaseAddress = new Uri("http://localhost:8080")
+            BaseAddress = new Uri("http://tours_service:8080")
         };
 
         public Result<List<TourRatingDto>> GetByTourId(int tourId)
