@@ -1,6 +1,33 @@
 version: '3.9'
 
 services:
+  mongo:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    networks:
+      - database  
+    volumes:
+      - mongodb_data:/data/db
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "3000:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_PORT=27017
+    networks:
+      - database
+    volumes:
+      - mongo_express_data:/data/db
+    depends_on:
+      - mongo
+
   explorer:
     build:
       dockerfile: Dockerfile
@@ -50,7 +77,7 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      - database   
+      - mongo   
       
   blog_service:
     build:
@@ -69,7 +96,9 @@ services:
 volumes:
   database-data:
     name: explorer
-
+  mongodb_data:
+  mongo_express_data:
+  
 networks:
   database:
     name: database

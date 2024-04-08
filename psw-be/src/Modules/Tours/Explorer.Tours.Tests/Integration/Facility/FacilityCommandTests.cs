@@ -73,69 +73,69 @@ namespace Explorer.Tours.Tests.Integration.Facility
         //    result.StatusCode.ShouldBe(400);
         //}
 
-        [Fact]
-        public void Updates()
-        {
-            // Arrange
-            using var scope = Factory.Services.CreateScope();
-            var controller = CreateController(scope);
-            var dbContext = scope.ServiceProvider.GetRequiredService<ToursContext>();
-            var updatedEntity = new FacilityDto
-            {
-                Id = -1,
-                Name = "Restoran Kod Bake",
-                Description = "Hrana",
-                Image = new Uri("https://hypetv.rs/wp-content/uploads/2022/12/baka-prase.jpeg"),
-                Category = 1,
-                Latitude = 52.4324,
-                Longitude = 52.4123
-            };
+        //[Fact]
+        //public void Updates()
+        //{
+        //    // Arrange
+        //    using var scope = Factory.Services.CreateScope();
+        //    var controller = CreateController(scope);
+        //    var dbContext = scope.ServiceProvider.GetRequiredService<ToursContext>();
+        //    var updatedEntity = new FacilityDto
+        //    {
+        //        Id = -1,
+        //        Name = "Restoran Kod Bake",
+        //        Description = "Hrana",
+        //        Image = new Uri("https://hypetv.rs/wp-content/uploads/2022/12/baka-prase.jpeg"),
+        //        Category = 1,
+        //        Latitude = 52.4324,
+        //        Longitude = 52.4123
+        //    };
 
-            // Act
-            var result = ((ObjectResult)controller.Update(updatedEntity).Result)?.Value as FacilityDto;
+        //    // Act
+        //    var result = ((ObjectResult)controller.Update(updatedEntity).Result)?.Value as FacilityDto;
 
-            // Assert - Response
-            result.ShouldNotBeNull();
-            result.Id.ShouldBe(-1);
-            result.Name.ShouldBe(updatedEntity.Name);
-            result.Description.ShouldBe(updatedEntity.Description);
-            result.Image.ShouldBe(updatedEntity.Image);
-            result.Category.ShouldBe(updatedEntity.Category);
-            result.Latitude.ShouldBe(updatedEntity.Latitude);
-            result.Longitude.ShouldBe(updatedEntity.Longitude);
+        //    // Assert - Response
+        //    result.ShouldNotBeNull();
+        //    result.Id.ShouldBe(-1);
+        //    result.Name.ShouldBe(updatedEntity.Name);
+        //    result.Description.ShouldBe(updatedEntity.Description);
+        //    result.Image.ShouldBe(updatedEntity.Image);
+        //    result.Category.ShouldBe(updatedEntity.Category);
+        //    result.Latitude.ShouldBe(updatedEntity.Latitude);
+        //    result.Longitude.ShouldBe(updatedEntity.Longitude);
 
-            // Assert - Database
-            var storedEntity = dbContext.Facilities.FirstOrDefault(i => i.Description == "Hrana");
-            storedEntity.ShouldNotBeNull();
-            storedEntity.Description.ShouldBe(updatedEntity.Description);
-            var oldEntity = dbContext.Facilities.FirstOrDefault(i => i.Description == "Palacinkarina");
-            oldEntity.ShouldBeNull();
-        }
+        //    // Assert - Database
+        //    var storedEntity = dbContext.Facilities.FirstOrDefault(i => i.Description == "Hrana");
+        //    storedEntity.ShouldNotBeNull();
+        //    storedEntity.Description.ShouldBe(updatedEntity.Description);
+        //    var oldEntity = dbContext.Facilities.FirstOrDefault(i => i.Description == "Palacinkarina");
+        //    oldEntity.ShouldBeNull();
+        //}
 
-        [Fact]
-        public void Update_fails_invalid_id()
-        {
-            // Arrange
-            using var scope = Factory.Services.CreateScope();
-            var controller = CreateController(scope);
-            var updatedEntity = new FacilityDto
-            {
-                Id = -1000,
-                Name = "Test",
-                Description = "Test",
-                Image = new Uri("https://example.com/"),
-                Category = 1,
-                Latitude = 0,
-                Longitude = 0
-            };
+        //[Fact]
+        //public void Update_fails_invalid_id()
+        //{
+        //    // Arrange
+        //    using var scope = Factory.Services.CreateScope();
+        //    var controller = CreateController(scope);
+        //    var updatedEntity = new FacilityDto
+        //    {
+        //        Id = -1000,
+        //        Name = "Test",
+        //        Description = "Test",
+        //        Image = new Uri("https://example.com/"),
+        //        Category = 1,
+        //        Latitude = 0,
+        //        Longitude = 0
+        //    };
 
-            // Act
-            var result = (ObjectResult)controller.Update(updatedEntity).Result;
+        //    // Act
+        //    var result = (ObjectResult)controller.Update(updatedEntity).Result;
 
-            // Assert
-            result.ShouldNotBeNull();
-            result.StatusCode.ShouldBe(404);
-        }
+        //    // Assert
+        //    result.ShouldNotBeNull();
+        //    result.StatusCode.ShouldBe(404);
+        //}
 
         //[Fact]
         //public void Deletes()

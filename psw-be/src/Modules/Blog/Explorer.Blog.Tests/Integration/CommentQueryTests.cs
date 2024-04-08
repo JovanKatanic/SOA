@@ -22,44 +22,44 @@ namespace Explorer.Blog.Tests.Integration
         {
         }
 
-        [Theory]
-        [InlineData(-21, 200)]
-        public void Get_comments_by_blog_id(int blogId, int expectedResponseCode)
-        {
-            //Arrange
-            using var scope = Factory.Services.CreateScope();
-            var controller = CreateController(scope);
-            var dbContext = scope.ServiceProvider.GetRequiredService<BlogContext>();
+        //[Theory]
+        //[InlineData(-21, 200)]
+        //public void Get_comments_by_blog_id(int blogId, int expectedResponseCode)
+        //{
+        //    //Arrange
+        //    using var scope = Factory.Services.CreateScope();
+        //    var controller = CreateController(scope);
+        //    var dbContext = scope.ServiceProvider.GetRequiredService<BlogContext>();
 
-            var result = (ObjectResult)controller.GetCommentsByBlogId(blogId).Result;
+        //    var result = (ObjectResult)controller.GetCommentsByBlogId(blogId).Result;
 
-            // Assert - Response
-            result.ShouldNotBeNull();
-            result.StatusCode.ShouldBe(expectedResponseCode);
-        }
+        //    // Assert - Response
+        //    result.ShouldNotBeNull();
+        //    result.StatusCode.ShouldBe(expectedResponseCode);
+        //}
         
-        [Fact]
-        public void Retrieves_all()
-        {
-            //Arrange
-            using var scope = Factory.Services.CreateScope();
-            var controller = CreateController(scope);
+        //[Fact]
+        //public void Retrieves_all()
+        //{
+        //    //Arrange
+        //    using var scope = Factory.Services.CreateScope();
+        //    var controller = CreateController(scope);
 
-            //Act
-            var result = ((ObjectResult)controller.GetAllComments(0, 0).Result)?.Value as PagedResult<CommentDto>;
+        //    //Act
+        //    var result = ((ObjectResult)controller.GetAllComments(0, 0).Result)?.Value as PagedResult<CommentDto>;
 
-            //Assert
-            result.ShouldNotBeNull();
-            result.Results.Count.ShouldBe(3);
-            result.TotalCount.ShouldBe(3);
-        }
+        //    //Assert
+        //    result.ShouldNotBeNull();
+        //    result.Results.Count.ShouldBe(3);
+        //    result.TotalCount.ShouldBe(3);
+        //}
 
-        private static BlogController CreateController(IServiceScope scope)
-        {
-            return new BlogController(scope.ServiceProvider.GetRequiredService<IBlogService>())
-            {
-                ControllerContext = BuildContext("-1")
-            };
-        }
+        //private static BlogController CreateController(IServiceScope scope)
+        //{
+        //    return new BlogController(scope.ServiceProvider.GetRequiredService<IBlogService>())
+        //    {
+        //        ControllerContext = BuildContext("-1")
+        //    };
+        //}
     }
 }

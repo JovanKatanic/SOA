@@ -11,7 +11,7 @@ type FacilityService struct {
 
 func (service *FacilityService) Create(facility *model.Facility) error {
 	facility.Discriminator = "Facility"
-	err := service.FacilityRepository.CreateFacility(facility)
+	err := service.FacilityRepository.Insert(facility)
 	if err != nil {
 		return err
 	}
@@ -19,7 +19,7 @@ func (service *FacilityService) Create(facility *model.Facility) error {
 }
 
 func (service *FacilityService) Delete(facilityId int) error {
-	err := service.FacilityRepository.DeleteFacility(facilityId)
+	err := service.FacilityRepository.Delete(facilityId)
 
 	if err != nil {
 		return err
