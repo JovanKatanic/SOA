@@ -1,21 +1,34 @@
 package repository
 
 import (
+	"context"
+	"fmt"
+	"time"
 	"tours_service/model"
 
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type KeypointRepository struct {
-	DatabaseConnection *gorm.DB
+	KeypointClient *mongo.Client
 }
 
-func (repo *KeypointRepository) CreateKeypoint(keypoint *model.Keypoint) error {
-	dbResult := repo.DatabaseConnection.Table(`tours."TourKeyPoints"`).Create(keypoint)
+func (rep *KeypointRepository) getCollection() *mongo.Collection {
+	keypointDatabase := rep.KeypointClient.Database("mongodb")
+	keypointssCollection := keypointDatabase.Collection("keypoints")
+	return keypointssCollection
+}
 
-	if dbResult.Error != nil {
-		return dbResult.Error
+func (rep *KeypointRepository) Insert(keypoint *model.Keypoint) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	keypointCollection := rep.getCollection()
+
+	result, err := keypointCollection.InsertOne(ctx, &keypoint)
+	if err != nil {
+		fmt.Print(err)
+		return err
 	}
-	println("Rows affected: ", dbResult.RowsAffected)
+	fmt.Printf("Documents ID: %v\n", result.InsertedID)
 	return nil
 }

@@ -35,14 +35,30 @@ func manageRouter(client *mongo.Client) http.Server {
 	FacilityService := &service.FacilityService{FacilityRepository: FacilityRepository}
 	FacilityHandler := &handler.FacilityHandler{FacilityService: FacilityService}
 
+	KeypointRepository := &repository.KeypointRepository{KeypointClient: client}
+	KeypointService := &service.KeypointService{KeypointRepository: KeypointRepository}
+	KeypointHandler := &handler.KeypointHandler{KeypointService: KeypointService}
+
+	// tourRepository := &repository.TourRepository{TourClient: client}
+	// tourService := &service.TourService{TourRepository: tourRepository}
+	// tourHandler := &handler.TourHandler{TourService: tourService}
+
 	router := mux.NewRouter().StrictSlash(true)
 
-	postRouter := router.Methods(http.MethodPost).Subrouter()
-	postRouter.HandleFunc("/facilities", FacilityHandler.CreateFacility)
-	postRouter.Use(FacilityHandler.MiddlewareFacilityDeserialization)
+	postFacilityRouter := router.Methods(http.MethodPost).Subrouter()
+	postFacilityRouter.HandleFunc("/facilities", FacilityHandler.CreateFacility)
+	postFacilityRouter.Use(FacilityHandler.MiddlewareFacilityDeserialization)
 
 	deleteRouter := router.Methods(http.MethodDelete).Subrouter()
 	deleteRouter.HandleFunc("/facilities/{id}", FacilityHandler.DeleteFacility)
+
+	postKeypointRouter := router.Methods(http.MethodPost).Subrouter()
+	postKeypointRouter.HandleFunc("/keypoints", KeypointHandler.CreateKeypoint)
+	postKeypointRouter.Use(KeypointHandler.MiddlewareKeypointDeserialization)
+
+	// postTourRouter := router.Methods(http.MethodPost).Subrouter()
+	// postTourRouter.HandleFunc("/createTour", tourHandler.CreateTour)
+	// postTourRouter.Use(tourHandler.MiddlewareTourDeserialization)
 
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
@@ -72,7 +88,7 @@ func startServer(FacilityHandler *handler.FacilityHandler, KeypointHandler *hand
 	// router.HandleFunc("/facilities", FacilityHandler.Create).Methods("POST")
 	// router.HandleFunc("/facilities/{id}", FacilityHandler.Delete).Methods("DELETE")
 
-	router.HandleFunc("/keypoints", KeypointHandler.Create).Methods("POST")
+	router.HandleFunc("/keypoints", KeypointHandler.CreateKeypoint).Methods("POST")
 
 	router.HandleFunc("/createTour", tourHandler.CreateTour).Methods("POST")
 	router.HandleFunc("/tours", tourHandler.Update).Methods("PUT")

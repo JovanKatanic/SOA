@@ -11,7 +11,7 @@ type KeypointService struct {
 
 func (service *KeypointService) Create(keypoint *model.Keypoint) error {
 	keypoint.Discriminator = "TourKeyPoint"
-	err := service.KeypointRepository.CreateKeypoint(keypoint)
+	err := service.KeypointRepository.Insert(keypoint)
 	if err != nil {
 		return err
 	}

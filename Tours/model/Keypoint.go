@@ -1,15 +1,25 @@
 package model
 
+import (
+	"encoding/json"
+	"io"
+)
+
 type Keypoint struct {
-	ID             int     `json:"id" gorm:"column:Id"`
-	Name           string  `json:"name" gorm:"column:Name"`
-	Description    string  `json:"description" gorm:"column:Description"`
-	Image          string  `json:"image" gorm:"column:Image"`
-	Latitude       float64 `json:"latitude" gorm:"column:Latitude"`
-	Longitude      float64 `json:"longitude" gorm:"column:Longitude"`
-	TourId         int     `json:"tourId,omitempty" gorm:"column:TourId"`
-	PositionInTour int     `json:"positionInTour,omitempty" gorm:"column:PositionInTour"`
+	ID             int     `json:"id" bson:"_id,omitempty"`
+	Name           string  `json:"name" bson:"name,omitempty"`
+	Description    string  `json:"description" bson:"description,omitempty"`
+	Image          string  `json:"image" bson:"image,omitempty"`
+	Latitude       float64 `json:"latitude" bson:"latitude,omitempty"`
+	Longitude      float64 `json:"longitude" bson:"longitude,omitempty"`
+	TourId         int     `json:"tourId,omitempty" bson:"tourId,omitempty"`
+	PositionInTour int     `json:"positionInTour,omitempty" bson:"positionInTour,omitempty"`
+	Secret         string  `json:"secret,omitempty" bson:"secret,omitempty"`
+	Discriminator  string  `json:"discriminator" bson:"discriminator,omitempty"`
 	//PublicPointId  int     `json:"publicPointId,omitempty" gorm:"column:PublicPointId"`
-	Secret        string `json:"secret,omitempty" gorm:"column:Secret"`
-	Discriminator string `json:"discriminator" gorm:"column:Discriminator"`
+}
+
+func (p *Keypoint) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(p)
 }
