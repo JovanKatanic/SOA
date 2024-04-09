@@ -1,16 +1,16 @@
 package model
 
 import (
-	"database/sql/driver"
 	"encoding/json"
-	"fmt"
+	"io"
 )
 
 type TransportationType int
+type TourDurations []TourDuration
 
 type TourDuration struct {
-	TimeInSeconds  uint               `json:"TimeInSeconds"`
-	Transportation TransportationType `json:"Transportation"`
+	TimeInSeconds  uint `json:"TimeInSeconds" bson:"timeInSeconds"`
+	Transportation int  `json:"Transportation" bson:"transportation"`
 }
 
 const (
@@ -19,42 +19,51 @@ const (
 	Car
 )
 
-func (d TourDuration) Value() (driver.Value, error) {
-	return json.Marshal(d)
+func (p *TourDurations) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(p)
+}
+func (p *TourDuration) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(p)
 }
 
-func (d *TourDuration) Scan(value interface{}) error {
-	if value == nil {
-		*d = TourDuration{}
-		return nil
-	}
+// func (d TourDuration) Value() (driver.Value, error) {
+// 	return json.Marshal(d)
+// }
 
-	bytes, ok := value.([]byte)
+// func (d *TourDuration) Scan(value interface{}) error {
+// 	if value == nil {
+// 		*d = TourDuration{}
+// 		return nil
+// 	}
 
-	if !ok {
-		return fmt.Errorf("Scan source is not []byte")
-	}
+// 	bytes, ok := value.([]byte)
 
-	return json.Unmarshal(bytes, d)
-}
+// 	if !ok {
+// 		return fmt.Errorf("Scan source is not []byte")
+// 	}
 
-type TourDurations []TourDuration
+// 	return json.Unmarshal(bytes, d)
+// }
 
-func (td TourDurations) Value() (driver.Value, error) {
-	return json.Marshal(td)
-}
+//
 
-func (td *TourDurations) Scan(value interface{}) error {
-	if value == nil {
-		*td = TourDurations{}
-		return nil
-	}
+// func (td TourDurations) Value() (driver.Value, error) {
+// 	return json.Marshal(td)
+// }
 
-	bytes, ok := value.([]byte)
+// func (td *TourDurations) Scan(value interface{}) error {
+// 	if value == nil {
+// 		*td = TourDurations{}
+// 		return nil
+// 	}
 
-	if !ok {
-		return fmt.Errorf("Scan source is not []byte")
-	}
+// 	bytes, ok := value.([]byte)
 
-	return json.Unmarshal(bytes, td)
-}
+// 	if !ok {
+// 		return fmt.Errorf("Scan source is not []byte")
+// 	}
+
+// 	return json.Unmarshal(bytes, td)
+// }

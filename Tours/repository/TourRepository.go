@@ -1,60 +1,81 @@
 package repository
 
 import (
+	"context"
 	"fmt"
+	"time"
 	"tours_service/model"
 
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type TourRepository struct {
-	DatabaseConnection *gorm.DB
+	TourClient *mongo.Client
 }
 
-func (repo *TourRepository) GetAll() (*[]model.Tour, error) {
-	var tours []model.Tour
-	dbResult := repo.DatabaseConnection.Table(`tours."Tour"`).Find(&tours)
-	if dbResult != nil {
-		return &tours, dbResult.Error
-	}
+func (rep *TourRepository) getCollection() *mongo.Collection {
+	tourDatabase := rep.TourClient.Database("mongodb")
+	tourCollection := tourDatabase.Collection("tours")
+	return tourCollection
+}
+func (pr *TourRepository) GetById(id int) (*model.Tour, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	return &tours, nil
+	toursCollection := pr.getCollection()
+
+	var tour model.Tour
+	err := toursCollection.FindOne(ctx, bson.M{"_id": id}).Decode(&tour)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return &tour, nil
 }
 
-func (repo *TourRepository) CreateTour(tour *model.Tour) (*model.Tour, error) {
-	dbResult := repo.DatabaseConnection.Table(`tours."Tour"`).Create(tour)
+func (rep *TourRepository) Insert(tour *model.Tour) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	tourCollection := rep.getCollection()
 
-	if dbResult.Error != nil {
-		return nil, dbResult.Error
+	result, err := tourCollection.InsertOne(ctx, &tour)
+	if err != nil {
+		fmt.Print(err)
+		return err
 	}
-
-	println("Rows affected: ", dbResult.RowsAffected)
-	return tour, nil
-}
-
-func (repo *TourRepository) UpdateTour(tour *model.Tour) error {
-	println(tour.ID)
-	dbResult := repo.DatabaseConnection.Table(`tours."Tour"`).Save(tour)
-
-	if dbResult.Error != nil {
-		return dbResult.Error
-	}
-
-	println("Rows affected: ", dbResult.RowsAffected)
+	fmt.Printf("Documents ID: %v\n", result.InsertedID)
 	return nil
 }
 
-func (repo *TourRepository) FindByID(id int) (*model.Tour, error) {
-	var tour model.Tour
-	if err := repo.DatabaseConnection.Table(`tours."Tour"`).First(&tour, id).Error; err != nil {
-		return nil, err
+func (rep *TourRepository) Update(tour *model.Tour) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	tourCollection := rep.getCollection()
+	t, _ := rep.GetById(tour.ID)
+	if t == nil {
+		fmt.Print("No id was found to update")
+		return nil
 	}
-	var keypoints []model.Keypoint
-	if err := repo.DatabaseConnection.Table(`tours."TourKeyPoints"`).Where(`"tours"."TourKeyPoints"."TourId" = ?`, tour.ID).Find(&keypoints).Error; err != nil {
-		return nil, err
+	filter := bson.M{"_id": tour.ID}
+	updateData := bson.M{
+		"$set": tour,
 	}
-	tour.KeyPoints = keypoints
-
-	fmt.Println(id)
-	return &tour, nil
+	_, err := tourCollection.UpdateOne(ctx, filter, updateData)
+	if err != nil {
+		fmt.Print(err)
+		return err
+	}
+	fmt.Printf("Documents ID: %v\n", tour.ID)
+	return nil
 }
+
+// func (repo *TourRepository) GetAll() (*[]model.Tour, error) {
+// 	var tours []model.Tour
+// 	dbResult := repo.DatabaseConnection.Table(`tours."Tour"`).Find(&tours)
+// 	if dbResult != nil {
+// 		return &tours, dbResult.Error
+// 	}
+
+// 	return &tours, nil
+// }

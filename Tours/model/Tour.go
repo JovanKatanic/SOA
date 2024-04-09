@@ -1,42 +1,52 @@
 package model
 
 import (
+	"encoding/json"
+	"io"
 	"time"
-
-	"github.com/lib/pq"
 )
 
 type TourDifficulty int
 type TourStatus int
 
 type Tour struct {
-	ID            int            `json:"id" gorm:"column:Id;"`
-	Name          string         `json:"name" gorm:"column:Name"`
-	Description   string         `json:"description" gorm:"column:Description"`
-	Difficulty    TourDifficulty `json:"difficulty" gorm:"column:Difficulty"`
-	Tags          pq.StringArray `json:"tags" gorm:"type:text[]; column:Tags"`
-	Status        int            `json:"status" gorm:"column:Status"`
-	Price         float64        `json:"price" gorm:"column:Price"`
-	AuthorId      int            `json:"authorId" gorm:"column:AuthorId"`
-	Equipment     pq.Int32Array  `json:"equipment" gorm:"type:integer[]; column:Equipment"`
-	DistanceInKm  float64        `json:"distanceInKm" gorm:"column:DistanceInKm"`
-	ArchivedDate  *time.Time     `json:"archivedDate" gorm:"column:ArchivedDate"`
-	PublishedDate *time.Time     `json:"publishedDate" gorm:"column:PublishedDate"`
-	Durations     TourDurations  `json:"durations" gorm:"type:jsonb; column:Durations"`
-	KeyPoints     []Keypoint     `json:"keyPoints" gorm:"-"`
-	Image         string         `json:"image" gorm:"column:Image"`
+	ID            int            `json:"id" bson:"_id"`
+	Name          string         `json:"name" bson:"name"`
+	Description   string         `json:"description" bson:"description"`
+	Difficulty    int            `json:"difficulty" bson:"difficulty"`
+	Tags          []string       `json:"tags" bson:"tags"`
+	Status        int            `json:"status" bson:"status"`
+	Price         float64        `json:"price" bson:"price"`
+	AuthorId      int            `json:"authorId" bson:"authorId"`
+	Equipment     []int          `json:"equipment" bson:"equipment"`
+	DistanceInKm  float64        `json:"distanceInKm" bson:"distanceInKm"`
+	ArchivedDate  *time.Time     `json:"archivedDate" bson:"archivedDate"`
+	PublishedDate *time.Time     `json:"publishedDate" bson:"publishedDate"`
+	Durations     []TourDuration `json:"durations" bson:"durations"`
+	//KeyPoints     []Keypoint    `json:"keyPoints" bson:"keyPoints,omitempty"`
+	Image string `json:"image" bson:"image"`
 }
 
-const (
-	Beginner TourDifficulty = iota
-	Intermediate
-	Advanced
-	Pro
-)
+func (p *Tour) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(p)
+}
 
-const (
-	Draft TourStatus = iota
-	Published
-	Archived
-	TouristMade
-)
+func (p *Tour) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(p)
+}
+
+// const (
+// 	Beginner TourDifficulty = iota
+// 	Intermediate
+// 	Advanced
+// 	Pro
+// )
+
+// const (
+// 	Draft TourStatus = iota
+// 	Published
+// 	Archived
+// 	TouristMade
+// )

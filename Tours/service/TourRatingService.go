@@ -10,7 +10,7 @@ type TourRatingService struct {
 }
 
 func (service *TourRatingService) CreateTourRating(tourRating *model.TourRating) error {
-	err := service.TourRatingRepository.CreateTourRating(tourRating)
+	err := service.TourRatingRepository.Insert(tourRating)
 
 	if err != nil {
 		return err

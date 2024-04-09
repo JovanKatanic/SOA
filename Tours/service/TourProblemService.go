@@ -13,51 +13,51 @@ type TourProblemService struct {
 	TourService           *TourService
 }
 
-func (service *TourProblemService) GetByAuthorId(authorId *int) (*[]model.TourProblem, error) {
-	tours, err := service.TourService.GetAll()
-	if err != nil {
-		return nil, err
-	}
+// func (service *TourProblemService) GetByAuthorId(authorId *int) (*[]model.TourProblem, error) {
+// 	tours, err := service.TourService.GetAll()
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	var tourProblems []model.TourProblem
-	for _, value := range *tours {
-		if *authorId == value.AuthorId {
-			tourProblem, _ := service.TourProblemRepository.GetByTourId(&value.ID)
+// 	var tourProblems []model.TourProblem
+// 	for _, value := range *tours {
+// 		if *authorId == value.AuthorId {
+// 			tourProblem, _ := service.TourProblemRepository.GetByTourId(&value.ID)
 
-			if tourProblem != nil {
-				tourProblems = append(tourProblems, *tourProblem)
-			}
-		}
-	}
+// 			if tourProblem != nil {
+// 				tourProblems = append(tourProblems, *tourProblem)
+// 			}
+// 		}
+// 	}
 
-	err = service.FindNames(&tourProblems)
-	if err != nil {
-		println("Error fining usernames: ", err.Error())
-		return nil, err
-	}
+// 	err = service.FindNames(&tourProblems)
+// 	if err != nil {
+// 		println("Error fining usernames: ", err.Error())
+// 		return nil, err
+// 	}
 
-	return &tourProblems, nil
-}
+// 	return &tourProblems, nil
+// }
 
-func (service *TourProblemService) FindNames(tourProblems *[]model.TourProblem) error {
-	tours, err := service.TourService.GetAll()
-	if err != nil {
-		return err
-	}
+// func (service *TourProblemService) FindNames(tourProblems *[]model.TourProblem) error {
+// 	tours, err := service.TourService.GetAll()
+// 	if err != nil {
+// 		return err
+// 	}
 
-	for i := range *tourProblems {
-		for _, tourValue := range *tours {
-			if tourValue.ID == (*tourProblems)[i].TourId {
-				authorId := tourValue.AuthorId
+// 	for i := range *tourProblems {
+// 		for _, tourValue := range *tours {
+// 			if tourValue.ID == (*tourProblems)[i].TourId {
+// 				authorId := tourValue.AuthorId
 
-				(*tourProblems)[i].AuthorUsername = GetUsername(authorId).Username
-				(*tourProblems)[i].TouristUsername = GetUsername((*tourProblems)[i].TouristId).Username
-			}
-		}
-	}
+// 				(*tourProblems)[i].AuthorUsername = GetUsername(authorId).Username
+// 				(*tourProblems)[i].TouristUsername = GetUsername((*tourProblems)[i].TouristId).Username
+// 			}
+// 		}
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func GetUsername(userId int) model.UserName {
 	resp, err := http.Get(fmt.Sprintf("https://localhost:44333/api/author/person/username/%d", userId))
