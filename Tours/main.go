@@ -21,7 +21,7 @@ import (
 
 func initMongoDb() *mongo.Client {
 
-	dburi := "mongodb://localhost:27017"
+	dburi := "mongodb://mongo:27017"
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dburi))
 	if err != nil {

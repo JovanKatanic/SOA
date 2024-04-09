@@ -39,16 +39,6 @@ func (pr *TourProblemRepository) GetAll() (*[]model.TourProblem, error) {
 	return &tourProblems, nil
 }
 
-// func (repo *TourProblemRepository) GetAll() (*[]model.TourProblem, error) {
-// 	var allTourProblems []model.TourProblem
-// 	dbResult := repo.DatabaseConnection.Table(`tours."TourProblems"`).Find(&allTourProblems)
-// 	if dbResult != nil {
-// 		return &allTourProblems, dbResult.Error
-// 	}
-
-// 	return &allTourProblems, nil
-// }
-
 func (repo *TourProblemRepository) GetByTourId(tourId *int) (*model.TourProblem, error) {
 	allTourProblems, err := repo.GetAll()
 	if err != nil {

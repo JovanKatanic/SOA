@@ -45,6 +45,11 @@ func (pr *FacilityRepository) Delete(id int) error {
 		fmt.Print(err)
 		return err
 	}
-	fmt.Printf("Documents deleted: %v\n", result.DeletedCount)
+	if result.DeletedCount == 1 {
+		fmt.Println("Document deleted successfully")
+	} else {
+		fmt.Println("Document not found or not deleted")
+	}
+	//fmt.Printf("Documents deleted: %v\n", result.DeletedCount)
 	return nil
 }

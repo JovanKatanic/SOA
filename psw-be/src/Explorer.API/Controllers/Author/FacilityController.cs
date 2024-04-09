@@ -60,19 +60,18 @@ namespace Explorer.API.Controllers.Author
         //    var jsonResponse = await response.Content.ReadAsStringAsync();
         //    return jsonResponse;
         //}
-
-        //public async Task<string> DeleteAsync(int id, HttpClient _httpClient)
-        //{
-        //    using HttpResponseMessage response = await _httpClient.DeleteAsync("http://localhost:8080/facilities/" + id);
-        //    //response.EnsureSuccessStatusCode();
-        //    return "works";
-        //}
         [HttpDelete("{id:int}")]
-        public ActionResult Delete(int id)
+        public async Task<string> DeleteAsync(int id, HttpClient _httpClient)
         {
-            var result = _facilityService.Delete(id);
-            return CreateResponse(result);
+            var result = _facilityService.DeleteAsync(id, _httpClient);
+            return "works";
         }
+        
+        //public ActionResult Delete(int id)
+        //{
+        //    var result = _facilityService.Delete(id);
+        //    return CreateResponse(result);
+        //}
 
 
 
