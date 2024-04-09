@@ -47,6 +47,11 @@ func manageRouter(client *mongo.Client) http.Server {
 	tourRatingService := &service.TourRatingService{TourRatingRepository: tourRatingRepository}
 	tourRatingHandler := &handler.TourRatingHandler{TourRatingService: tourRatingService}
 
+	tourProblemRepository := &repository.TourProblemRepository{TourProblemClient: client}
+	tourProblemService := &service.TourProblemService{TourProblemRepository: tourProblemRepository,
+		TourService: tourService}
+	tourProblemHandler := &handler.TourProblemHandler{TourProblemService: tourProblemService}
+
 	router := mux.NewRouter().StrictSlash(true)
 
 	postFacilityRouter := router.Methods(http.MethodPost).Subrouter()
@@ -75,6 +80,9 @@ func manageRouter(client *mongo.Client) http.Server {
 	postTourRatingRouter.HandleFunc("/createTourRating", tourRatingHandler.CreateTourRating)
 	postTourRatingRouter.Use(tourRatingHandler.MiddlewareTourRatingDeserialization)
 
+	getTourProblemRouter := router.Methods(http.MethodGet).Subrouter()
+	getTourProblemRouter.HandleFunc("/getByAuthorId/{authorId}", tourProblemHandler.GetByAuthorId)
+
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
 	server := http.Server{
@@ -87,66 +95,6 @@ func manageRouter(client *mongo.Client) http.Server {
 	return server
 
 }
-
-// func initDB() *gorm.DB {
-// 	connStr := "user=postgres dbname=explorer password=super sslmode=disable port=5432 host=database"
-// 	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	return db
-// }
-
-func startServer() {
-	router := mux.NewRouter().StrictSlash(true)
-
-	//router.HandleFunc("/getByAuthorId/{authorId}", tourProblemHandler.GetByAuthorId).Methods("GET")
-
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
-	corsMiddleware := func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-			w.Header().Add("Content-Type", "application/json")
-			if r.Method == "OPTIONS" {
-				w.WriteHeader(http.StatusOK)
-				return
-			}
-
-			next.ServeHTTP(w, r)
-		})
-	}
-	println("Server starting")
-
-	log.Fatal(http.ListenAndServe(":8080", corsMiddleware(router)))
-}
-
-// func setUpDependencies(database *gorm.DB) (*handler.FacilityHandler, *handler.TourHandler, *handler.KeypointHandler, *handler.TourRatingHandler, *handler.TourProblemHandler) {
-// 	FacilityRepository := &repository.FacilityRepository{DatabaseConnection: database}
-// 	FacilityService := &service.FacilityService{FacilityRepository: FacilityRepository}
-// 	FacilityHandler := &handler.FacilityHandler{FacilityService: FacilityService}
-
-// 	KeypointRepository := &repository.KeypointRepository{DatabaseConnection: database}
-// 	KeypointService := &service.KeypointService{KeypointRepository: KeypointRepository}
-// 	KeypointHandler := &handler.KeypointHandler{KeypointService: KeypointService}
-
-// 	tourRepository := &repository.TourRepository{DatabaseConnection: database}
-// 	tourService := &service.TourService{TourRepository: tourRepository}
-// 	tourHandler := &handler.TourHandler{TourService: tourService}
-
-// 	tourRatingRepository := &repository.TourRatingRepository{DatabaseConnection: database}
-// 	tourRatingService := &service.TourRatingService{TourRatingRepository: tourRatingRepository}
-// 	tourRatingHandler := &handler.TourRatingHandler{TourRatingService: tourRatingService}
-
-// 	tourProblemRepository := &repository.TourProblemRepository{DatabaseConnection: database}
-// 	tourProblemService := &service.TourProblemService{TourProblemRepository: tourProblemRepository,
-// 		TourService: tourService}
-// 	tourProblemHandler := &handler.TourProblemHandler{TourProblemService: tourProblemService}
-
-// 	return FacilityHandler, tourHandler, KeypointHandler, tourRatingHandler, tourProblemHandler
-// }
 
 func main() {
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)

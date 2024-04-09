@@ -1,23 +1,25 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type TourProblemCategory int
 type TourProblemPriority int
 
 type TourProblem struct {
-	ID              int                 `json:"id" gorm:"column:Id; primaryKey"`
-	TouristId       int                 `json:"touristId" gorm:"column:TouristId"`
-	TourId          int                 `json:"tourId" gorm:"column:TourId"`
-	Category        TourProblemCategory `json:"category" gorm:"column:Category"`
-	Priority        TourProblemPriority `json:"priority" gorm:"column:Priority"`
-	Description     string              `json:"description" gorm:"column:Description"`
-	Time            time.Time           `json:"time" gorm:"column:Time"`
-	IsSolved        bool                `json:"isSolved" gorm:"column:IsSolved"`
-	Messages        TourProblemMessages `json:"messages" gorm:"type:jsonb; column:Messages"`
-	Deadline        *time.Time          `json:"deadline" gorm:"column:Deadline"`
-	AuthorUsername  string              `json:"authorUsername"`
-	TouristUsername string              `json:"touristUsername"`
+	ID              int                 `json:"id" bson:"_id"`
+	TouristId       int                 `json:"touristId" bson:"touristId"`
+	TourId          int                 `json:"tourId" bson:"tourId"`
+	Category        TourProblemCategory `json:"category" bson:"category"`
+	Priority        TourProblemPriority `json:"priority" bson:"priority"`
+	Description     string              `json:"description" bson:"description"`
+	Time            time.Time           `json:"time" bson:"time"`
+	IsSolved        bool                `json:"isSolved" bson:"isSolved"`
+	Messages        TourProblemMessages `json:"messages" bson:"messages"`
+	Deadline        *time.Time          `json:"deadline" bson:"deadline"`
+	AuthorUsername  string              `json:"authorUsername" `
+	TouristUsername string              `json:"touristUsername" `
 }
 
 const (

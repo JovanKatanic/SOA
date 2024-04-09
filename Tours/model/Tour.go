@@ -37,16 +37,16 @@ func (p *Tour) ToJSON(w io.Writer) error {
 	return e.Encode(p)
 }
 
-// const (
-// 	Beginner TourDifficulty = iota
-// 	Intermediate
-// 	Advanced
-// 	Pro
-// )
+const (
+	Beginner TourDifficulty = iota
+	Intermediate
+	Advanced
+	Pro
+)
 
-// const (
-// 	Draft TourStatus = iota
-// 	Published
-// 	Archived
-// 	TouristMade
-// )
+const (
+	Draft TourStatus = iota
+	Published
+	Archived
+	TouristMade
+)
