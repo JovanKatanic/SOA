@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -27,7 +28,21 @@ func (handler *TourHandler) CreateTour(writer http.ResponseWriter, req *http.Req
 		return
 	}
 	handler.TourService.CreateTour(tour)
+	tourJSON, err := json.Marshal(tour)
+	if err != nil {
+
+		http.Error(writer, "Failed to marshal tour to JSON", http.StatusInternalServerError)
+		return
+	}
+	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusCreated)
+
+	_, err = writer.Write(tourJSON)
+	if err != nil {
+
+		http.Error(writer, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (p *TourHandler) GetTourById(rw http.ResponseWriter, h *http.Request) {

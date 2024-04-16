@@ -23,8 +23,8 @@ type Tour struct {
 	ArchivedDate  *time.Time     `json:"archivedDate" bson:"archivedDate"`
 	PublishedDate *time.Time     `json:"publishedDate" bson:"publishedDate"`
 	Durations     []TourDuration `json:"durations" bson:"durations"`
-	//KeyPoints     []Keypoint    `json:"keyPoints" bson:"keyPoints,omitempty"`
-	Image string `json:"image" bson:"image"`
+	KeyPoints     []Keypoint     `json:"keyPoints" bson:"-"`
+	Image         string         `json:"image" bson:"image"`
 }
 
 func (p *Tour) FromJSON(r io.Reader) error {

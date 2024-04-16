@@ -31,6 +31,7 @@ func (pr *TourRepository) GetById(id int) (*model.Tour, error) {
 		fmt.Println(err)
 		return nil, err
 	}
+
 	return &tour, nil
 }
 

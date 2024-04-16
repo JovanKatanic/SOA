@@ -21,7 +21,7 @@ import (
 
 func initMongoDb() *mongo.Client {
 
-	dburi := "mongodb://mongo:27017"
+	dburi := "mongodb://mongo:27017" //ili localhost
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dburi))
 	if err != nil {
@@ -40,7 +40,7 @@ func manageRouter(client *mongo.Client) http.Server {
 	KeypointHandler := &handler.KeypointHandler{KeypointService: KeypointService}
 
 	tourRepository := &repository.TourRepository{TourClient: client}
-	tourService := &service.TourService{TourRepository: tourRepository}
+	tourService := &service.TourService{TourRepository: tourRepository, KeypointRepository: KeypointRepository}
 	tourHandler := &handler.TourHandler{TourService: tourService}
 
 	tourRatingRepository := &repository.TourRatingRepository{TourRatingClient: client}

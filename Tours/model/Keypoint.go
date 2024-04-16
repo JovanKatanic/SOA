@@ -6,16 +6,16 @@ import (
 )
 
 type Keypoint struct {
-	ID             int     `json:"id" bson:"_id,omitempty"`
-	Name           string  `json:"name" bson:"name,omitempty"`
-	Description    string  `json:"description" bson:"description,omitempty"`
-	Image          string  `json:"image" bson:"image,omitempty"`
-	Latitude       float64 `json:"latitude" bson:"latitude,omitempty"`
-	Longitude      float64 `json:"longitude" bson:"longitude,omitempty"`
-	TourId         int     `json:"tourId,omitempty" bson:"tourId,omitempty"`
-	PositionInTour int     `json:"positionInTour,omitempty" bson:"positionInTour,omitempty"`
-	Secret         string  `json:"secret,omitempty" bson:"secret,omitempty"`
-	Discriminator  string  `json:"discriminator" bson:"discriminator,omitempty"`
+	ID             int     `json:"id" bson:"_id"`
+	Name           string  `json:"name" bson:"name"`
+	Description    string  `json:"description" bson:"description"`
+	Image          string  `json:"image" bson:"image"`
+	Latitude       float64 `json:"latitude" bson:"latitude"`
+	Longitude      float64 `json:"longitude" bson:"longitude"`
+	TourId         int     `json:"tourId,omitempty" bson:"tourId"`
+	PositionInTour int     `json:"positionInTour" bson:"positionInTour"`
+	Secret         string  `json:"secret" bson:"secret"`
+	Discriminator  string  `json:"discriminator" bson:"discriminator"`
 	//PublicPointId  int     `json:"publicPointId,omitempty" gorm:"column:PublicPointId"`
 }
 

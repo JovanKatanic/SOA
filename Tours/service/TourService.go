@@ -1,12 +1,14 @@
 package service
 
 import (
+	"fmt"
 	"tours_service/model"
 	"tours_service/repository"
 )
 
 type TourService struct {
-	TourRepository *repository.TourRepository
+	TourRepository     *repository.TourRepository
+	KeypointRepository *repository.KeypointRepository
 }
 
 func (service *TourService) GetAll() (*[]model.Tour, error) {
@@ -35,5 +37,13 @@ func (service *TourService) UpdateTour(tour *model.Tour) error {
 	return nil
 }
 func (s *TourService) GetTourById(id int) (*model.Tour, error) {
-	return s.TourRepository.GetById(id)
+	tour, _ := s.TourRepository.GetById(id)
+	if tour == nil {
+		// Handle case where tour is nil (not found)
+		fmt.Println("Tour not found")
+		return nil, nil
+	}
+	keypoints, err := s.KeypointRepository.GetByTourId(id)
+	tour.KeyPoints = keypoints
+	return tour, err
 }
