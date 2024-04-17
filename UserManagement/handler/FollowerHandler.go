@@ -1,10 +1,14 @@
 package handler
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"user_management_service/model"
 	"user_management_service/repository"
 )
+
+type KeyProduct struct{}
 
 type FollowerHandler struct {
 	logger *log.Logger
@@ -21,6 +25,34 @@ func (m *FollowerHandler) MiddlewareContentTypeSet(next http.Handler) http.Handl
 
 		rw.Header().Add("Content-Type", "application/json")
 
+		next.ServeHTTP(rw, h)
+	})
+}
+
+func (f *FollowerHandler) CreateFollow(rw http.ResponseWriter, h *http.Request) {
+	follower := h.Context().Value(KeyProduct{}).(*model.Follower)
+	err := f.repo.WriteFollower(follower)
+
+	if err != nil {
+		f.logger.Print("Database exception: ", err.Error())
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusCreated)
+}
+
+func (f *FollowerHandler) MiddlewareFollowerDeserialization(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, h *http.Request) {
+		follower := &model.Follower{}
+		err := follower.FromJSON(h.Body)
+		if err != nil {
+			http.Error(rw, "Unable to decode json", http.StatusBadRequest)
+			f.logger.Fatal(err)
+			return
+		}
+		ctx := context.WithValue(h.Context(), KeyProduct{}, follower)
+		h = h.WithContext(ctx)
 		next.ServeHTTP(rw, h)
 	})
 }

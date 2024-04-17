@@ -76,7 +76,7 @@ namespace Explorer.Stakeholders.Core.UseCases.Identity
         {
             using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(follower), Encoding.UTF8, "application/json");
 
-            using HttpResponseMessage response = await sharedClient.PostAsync("/createFollowe", jsonContent);
+            using HttpResponseMessage response = await sharedClient.PostAsync("/createFollow", jsonContent);
 
             response.EnsureSuccessStatusCode();
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"user_management_service/model"
 
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
@@ -34,17 +35,48 @@ func NewFollowerRepository(logger *log.Logger) (*FollowerRepository, error) {
 	}, nil
 }
 
-func (mr *FollowerRepository) CheckConnection() {
+func (f *FollowerRepository) CheckConnection() {
 	ctx := context.Background()
-	err := mr.driver.VerifyConnectivity(ctx)
+	err := f.driver.VerifyConnectivity(ctx)
 	if err != nil {
-		mr.logger.Panic(err)
+		f.logger.Panic(err)
 		return
 	}
 
-	mr.logger.Printf(`Neo4J server address: %s`, mr.driver.Target().Host)
+	f.logger.Printf(`Neo4J server address: %s`, f.driver.Target().Host)
 }
 
-func (mr *FollowerRepository) CloseDriverConnection(ctx context.Context) {
-	mr.driver.Close(ctx)
+func (f *FollowerRepository) CloseDriverConnection(ctx context.Context) {
+	f.driver.Close(ctx)
+}
+
+func (f *FollowerRepository) WriteFollower(follower *model.Follower) error {
+	ctx := context.Background()
+	session := f.driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	defer session.Close(ctx)
+
+	savedFollowing, err := session.ExecuteWrite(ctx,
+		func(transaction neo4j.ManagedTransaction) (any, error) {
+			result, err := transaction.Run(ctx,
+				"MATCH (a:People), (b:People) WHERE a.id = $aId  AND b.id = $bId CREATE (a) -[r:FOLLOWS]-> (b) RETURN type(r)",
+				map[string]any{"aId": follower.FollowerId, "bId": follower.FollowedId})
+
+			if err != nil {
+				return nil, err
+			}
+
+			if result.Next(ctx) {
+				return result.Record().Values[0], nil
+			}
+
+			return nil, result.Err()
+		})
+
+	if err != nil {
+		f.logger.Println("Error inserting follow: ", err)
+		return err
+	}
+
+	f.logger.Println(savedFollowing.(string))
+	return nil
 }

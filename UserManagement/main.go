@@ -39,6 +39,10 @@ func main() {
 	router := mux.NewRouter()
 	router.Use(followerHandler.MiddlewareContentTypeSet)
 
+	postFollowRelationship := router.Methods(http.MethodPost).Subrouter()
+	postFollowRelationship.HandleFunc("/createFollow", followerHandler.CreateFollow)
+	postFollowRelationship.Use(followerHandler.MiddlewareFollowerDeserialization)
+
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
 	server := http.Server{
@@ -50,7 +54,7 @@ func main() {
 	}
 
 	followerLogger.Println("Server listening on port", port)
-	//Distribute all the connections to goroutines
+
 	go func() {
 		err := server.ListenAndServe()
 		if err != nil {
@@ -65,7 +69,6 @@ func main() {
 	sig := <-sigCh
 	followerLogger.Println("Received terminate, graceful shutdown", sig)
 
-	//Try to shutdown gracefully
 	if server.Shutdown(timeoutContext) != nil {
 		followerLogger.Fatal("Cannot gracefully shutdown...")
 	}

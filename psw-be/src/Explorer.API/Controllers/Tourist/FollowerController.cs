@@ -23,14 +23,14 @@ namespace Explorer.API.Controllers.Tourist.Identity
             return CreateResponse(result);
         }
 
-        /*[HttpPut]
+        /*[HttpPost]
         public ActionResult<FollowerDto> Create([FromBody] FollowerDto follower)
         {
             var result = _followerService.Create(follower);
             return CreateResponse(result);
         }*/
 
-        [HttpPut]
+        [HttpPost]
         public async Task<IActionResult> CreatAync([FromBody] FollowerDto follower)
         {
             try
