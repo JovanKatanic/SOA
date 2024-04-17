@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Explorer.Stakeholders.Core.UseCases.Identity
@@ -21,12 +22,20 @@ namespace Explorer.Stakeholders.Core.UseCases.Identity
     {
         private readonly IFollowerRepository _followerRepository;
         private readonly IPersonRepository _personRepository;
+        private readonly HttpClient _httpClient;
 
-        public FollowerService(IFollowerRepository followerRepository, IMapper mapper, IPersonRepository personRepository) : base(mapper)
+        public FollowerService(IFollowerRepository followerRepository, IMapper mapper, 
+            IPersonRepository personRepository, HttpClient _httpClient) : base(mapper)
         {
             _followerRepository = followerRepository;
             _personRepository = personRepository;
+            this._httpClient = _httpClient;
         }
+
+        private static HttpClient sharedClient = new()
+        {
+            BaseAddress = new Uri("http://follower_service:8082")
+        };
         public Result<List<SavedNotificationDto>> GetFollowersNotifications(int id)
         {
             try
@@ -61,6 +70,38 @@ namespace Explorer.Stakeholders.Core.UseCases.Identity
             {
                 return Result.Fail(FailureCode.InvalidArgument).WithError(e.Message);
             }
+        }
+
+        public async Task<FollowerDto> CreateAsync(FollowerDto follower)
+        {
+            using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(follower), Encoding.UTF8, "application/json");
+
+            using HttpResponseMessage response = await sharedClient.PostAsync("/createFollowe", jsonContent);
+
+            response.EnsureSuccessStatusCode();
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var jsonObject = JsonDocument.Parse(jsonString).RootElement;
+
+            FollowerDto followerDto = new FollowerDto
+            {
+                Id = jsonObject.GetProperty("id").GetInt32(),
+                FollowerId = jsonObject.GetProperty("followerId").GetInt32(),
+                FollowedId = jsonObject.GetProperty("followedId").GetInt32(),
+                Notification = ParseNotification(jsonObject.GetProperty("notification"))
+            };
+
+            return followerDto;
+        }
+
+        private FollowerNotificationDto ParseNotification(JsonElement notificationElement)
+        {
+            if (notificationElement.ValueKind == JsonValueKind.Object)
+            {
+                return JsonSerializer.Deserialize<FollowerNotificationDto>(notificationElement.GetRawText());
+            }
+
+            return new FollowerNotificationDto();
         }
 
         public Result Delete(int followerId, int followedId)

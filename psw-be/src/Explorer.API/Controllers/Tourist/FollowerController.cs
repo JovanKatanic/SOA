@@ -23,12 +23,26 @@ namespace Explorer.API.Controllers.Tourist.Identity
             return CreateResponse(result);
         }
 
-        [HttpPut]
+        /*[HttpPut]
         public ActionResult<FollowerDto> Create([FromBody] FollowerDto follower)
         {
             var result = _followerService.Create(follower);
             return CreateResponse(result);
-        }
+        }*/
+
+        [HttpPut]
+        public async Task<IActionResult> CreatAync([FromBody] FollowerDto follower)
+        {
+            try
+            {
+                var createdFollower = await _followerService.CreateAsync(follower);
+                return Ok(createdFollower);
+            }
+            catch(Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        })
 
         [HttpDelete("{followerId:int}/{followedId:int}")]
         public ActionResult Delete(int followerId, int followedId)
