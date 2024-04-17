@@ -6,4 +6,4 @@ COPY . .
 RUN go mod tidy
 RUN go build
 
-CMD ["./UserManagementService"]
+CMD ["./user_management_service"]
