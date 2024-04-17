@@ -42,7 +42,7 @@ namespace Explorer.API.Controllers.Tourist.Identity
             {
                 return StatusCode(500, e.Message);
             }
-        })
+        }
 
         [HttpDelete("{followerId:int}/{followedId:int}")]
         public ActionResult Delete(int followerId, int followedId)
