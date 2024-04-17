@@ -1,9 +1,13 @@
-FROM golang:alpine
+FROM golang:alpine as user_management_build_container
 
-WORKDIR /go/src/app
+WORKDIR /app
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
 COPY . .
+RUN go build -o user_management_service
 
-RUN go mod tidy
-RUN go build
-
-CMD ["./user_management_service"]
+FROM alpine
+COPY --from=user_management_build_container /app/user_management_service /usr/bin
+EXPOSE 8082
+ENTRYPOINT ["user_management_service"]
