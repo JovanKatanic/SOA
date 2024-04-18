@@ -4,6 +4,8 @@ import (
 	"context"
 	"log"
 	"os"
+	"strconv"
+	"time"
 	"user_management_service/model"
 
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
@@ -60,8 +62,9 @@ func (f *FollowerRepository) WriteFollower(follower *model.Follower) error {
 	savedFollowing, err := session.ExecuteWrite(ctx,
 		func(transaction neo4j.ManagedTransaction) (any, error) {
 			result, err := transaction.Run(ctx,
-				"MATCH (a:Person), (b:Person) WHERE a.id = $aId  AND b.id = $bId CREATE (a) -[r:FOLLOWS]-> (b) RETURN type(r)",
-				map[string]any{"aId": follower.FollowerId, "bId": follower.FollowedId})
+				"MATCH (a:Person), (b:Person) WHERE a.id = $aId  AND b.id = $bId CREATE (a) -[r:FOLLOWS {content:$content, timeOfArrival:$timeOfArrival, read:$read}]-> (b) RETURN type(r)",
+				map[string]any{"aId": follower.FollowerId, "bId": follower.FollowedId,
+					"content": strconv.Itoa(follower.FollowerId) + " has started following you", "timeOfArrival": time.Now(), "read": false})
 
 			f.logger.Print("Napravljen je upit")
 			if err != nil {
