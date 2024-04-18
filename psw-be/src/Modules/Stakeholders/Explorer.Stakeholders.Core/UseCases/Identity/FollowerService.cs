@@ -34,7 +34,7 @@ namespace Explorer.Stakeholders.Core.UseCases.Identity
 
         private static HttpClient sharedClient = new()
         {
-            BaseAddress = new Uri("http://follower_service:8082")
+            BaseAddress = new Uri("http://user_management_service:8082")
         };
         public Result<List<SavedNotificationDto>> GetFollowersNotifications(int id)
         {
