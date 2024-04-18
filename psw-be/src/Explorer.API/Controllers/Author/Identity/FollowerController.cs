@@ -35,8 +35,8 @@ namespace Explorer.API.Controllers.Author.Identity
         {
             try
             {
-                var createdFollower = await _followerService.CreateAsync(follower);
-                return Ok(createdFollower);
+                await _followerService.CreateAsync(follower);
+                return Ok();
             }
             catch (Exception e)
             {

@@ -31,6 +31,9 @@ func (m *FollowerHandler) MiddlewareContentTypeSet(next http.Handler) http.Handl
 
 func (f *FollowerHandler) CreateFollow(rw http.ResponseWriter, h *http.Request) {
 	follower := h.Context().Value(KeyProduct{}).(*model.Follower)
+
+	f.logger.Print("Follower handler check: \n")
+	f.logger.Print(follower)
 	err := f.repo.WriteFollower(follower)
 
 	if err != nil {

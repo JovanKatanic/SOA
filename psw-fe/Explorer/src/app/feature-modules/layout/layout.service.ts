@@ -74,7 +74,7 @@ export class LayoutService {
   }
 
   createFollow(follower: Follower, role: string): Observable<Person>{
-    return this.http.put<Person>(environment.apiHost +  role + "/follower", follower)
+    return this.http.post<Person>(environment.apiHost +  role + "/follower", follower)
   }
 
   deleteFollow(followerId: number, followedId: number, role: string){

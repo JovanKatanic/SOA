@@ -72,7 +72,7 @@ namespace Explorer.Stakeholders.Core.UseCases.Identity
             }
         }
 
-        public async Task<FollowerDto> CreateAsync(FollowerDto follower)
+        public async Task CreateAsync(FollowerDto follower)
         {
             using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(follower), Encoding.UTF8, "application/json");
 
@@ -80,28 +80,6 @@ namespace Explorer.Stakeholders.Core.UseCases.Identity
 
             response.EnsureSuccessStatusCode();
 
-            var jsonString = await response.Content.ReadAsStringAsync();
-            var jsonObject = JsonDocument.Parse(jsonString).RootElement;
-
-            FollowerDto followerDto = new FollowerDto
-            {
-                Id = jsonObject.GetProperty("id").GetInt32(),
-                FollowerId = jsonObject.GetProperty("followerId").GetInt32(),
-                FollowedId = jsonObject.GetProperty("followedId").GetInt32(),
-                Notification = ParseNotification(jsonObject.GetProperty("notification"))
-            };
-
-            return followerDto;
-        }
-
-        private FollowerNotificationDto ParseNotification(JsonElement notificationElement)
-        {
-            if (notificationElement.ValueKind == JsonValueKind.Object)
-            {
-                return JsonSerializer.Deserialize<FollowerNotificationDto>(notificationElement.GetRawText());
-            }
-
-            return new FollowerNotificationDto();
         }
 
         public Result Delete(int followerId, int followedId)

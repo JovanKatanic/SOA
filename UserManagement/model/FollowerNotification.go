@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"io"
 	"time"
 )
 
@@ -51,4 +52,14 @@ func (n *Notifications) Scan(value interface{}) error {
 	}
 
 	return json.Unmarshal(bytes, n)
+}
+
+func (f *FollowerNotification) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(f)
+}
+
+func (f *FollowerNotification) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(f)
 }
