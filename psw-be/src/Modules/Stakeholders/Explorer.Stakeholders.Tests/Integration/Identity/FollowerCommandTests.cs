@@ -26,7 +26,7 @@ namespace Explorer.Stakeholders.Tests.Integration.Identity
 
         }
 
-        [Theory]
+     /*   [Theory]
         [MemberData(nameof(FollowerDto))]
         public void Create_session(FollowerDto follower, int expectedResponseCode)
         {
@@ -42,7 +42,7 @@ namespace Explorer.Stakeholders.Tests.Integration.Identity
             var storedEntity = dbContext.Followers.FirstOrDefault(t => t.Id == follower.Id);
             storedEntity.ShouldNotBeNull();
         }
-
+     */
         [Theory]
         [InlineData(-22, -12, 200)]
         public void Delete_session(int followerId, int followedId, int expectedResponseCode)

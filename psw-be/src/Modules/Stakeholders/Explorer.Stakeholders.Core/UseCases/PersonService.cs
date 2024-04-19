@@ -1,13 +1,16 @@
 ﻿using AutoMapper;
 using Explorer.BuildingBlocks.Core.UseCases;
 using Explorer.Stakeholders.API.Dtos;
+using Explorer.Stakeholders.API.Internal;
 using Explorer.Stakeholders.API.Public;
 using Explorer.Stakeholders.Core.Domain;
 using Explorer.Stakeholders.Core.Domain.RepositoryInterfaces;
 using FluentResults;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,10 +20,15 @@ namespace Explorer.Stakeholders.Core.UseCases
     {
         private readonly IPersonRepository _personRepository;
         private readonly IUserRepository _userRepository;
+        private static HttpClient _httpClient;
         public PersonService(IPersonRepository personRepository, IUserRepository userRepository, IMapper mapper) : base(mapper)
         {
             _personRepository = personRepository;
             _userRepository = userRepository;
+            _httpClient = new HttpClient()
+            {
+                BaseAddress = new Uri("http://user_management_service:8082")
+            };
         }
 
         public Result<UserNamesDto> GetName(long id)
@@ -105,6 +113,18 @@ namespace Explorer.Stakeholders.Core.UseCases
             {
                 return Result.Fail(FailureCode.InvalidArgument).WithError(e.Message);
             }
+        }
+
+        public async Task<Result<List<PersonDto>>> GetAllFollowingsAsync(int id)
+        {
+            using HttpResponseMessage response = await _httpClient.GetAsync("/followings/" + id.ToString());
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var followings = JsonConvert.DeserializeObject<List<PersonDto>>(jsonResponse);
+
+
+            return followings;
         }
     }
 }

@@ -92,3 +92,53 @@ func (f *FollowerRepository) WriteFollower(follower *model.Follower) error {
 	f.logger.Println(savedFollowing.(string))
 	return nil
 }
+
+func (f *FollowerRepository) GetFollowedPersonsById(personID int) (model.Followings, error) {
+	ctx := context.Background()
+	session := f.driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	defer session.Close(ctx)
+
+	followings, err := session.ExecuteRead(ctx,
+		func(transaction neo4j.ManagedTransaction) (any, error) {
+			result, err := transaction.Run(ctx,
+				"MATCH (follower:Person)-[f:Follows]->(followed:Person) WHERE follower.userId = $personID RETURN followed.id as id, followed.userId as userId, followed.name as name, followed.surname as surname, followed.email as email, followed.profilePic as profilePic, followed.biography as biography, followed.motto as motto",
+				map[string]any{"personID": personID})
+			if err != nil {
+				return nil, err
+			}
+
+			// Option 1: we iterate over result while there are records
+			var followings model.Followings
+			for result.Next(ctx) {
+				record := result.Record()
+				id, _ := record.Get("id")
+				userId, _ := record.Get("userId")
+				name, _ := record.Get("name")
+				surrname, _ := record.Get("surname")
+				email, _ := record.Get("email")
+				profilePic, _ := record.Get("profilePic")
+				biography, _ := record.Get("biography")
+				motto, _ := record.Get("motto")
+
+				followings = append(followings, &model.People{
+					ID:         id.(int64),
+					UserId:     userId.(int64),
+					Name:       name.(string),
+					Surname:    surrname.(string),
+					Email:      email.(string),
+					ProfilePic: profilePic.(string),
+					Biography:  biography.(string),
+					Motto:      motto.(string),
+					Latitude:   5.55,
+					Longitude:  0.0,
+				})
+			}
+			f.logger.Println("All followings: ", followings)
+			return followings, nil
+		})
+	if err != nil {
+		f.logger.Println("Error querying search:", err)
+		return nil, err
+	}
+	return followings.(model.Followings), nil
+}

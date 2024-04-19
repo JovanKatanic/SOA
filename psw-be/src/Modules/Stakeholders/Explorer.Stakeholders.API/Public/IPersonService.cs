@@ -19,5 +19,7 @@ namespace Explorer.Stakeholders.API.Public
         Result<List<PersonDto>> GetAllFollowings(int id);
         Result<string> GetEmailByUserId(int id);
         Result<string> GetNameById(int id);
+
+        Task<Result<List<PersonDto>>> GetAllFollowingsAsync(int id);
     }
 }
