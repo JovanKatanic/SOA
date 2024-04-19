@@ -6,8 +6,8 @@ import (
 )
 
 type People struct {
-	ID         int     `json:"id" bson:"id"`
-	UserId     int     `json:"userId" bson:"userId"`
+	ID         int64   `json:"id" bson:"id"`
+	UserId     int64   `json:"userId" bson:"userId"`
 	Name       string  `json:"name" bson:"name"`
 	Surname    string  `json:"surname" bson:"surname"`
 	Email      string  `json:"email" bson:"email"`
@@ -18,6 +18,8 @@ type People struct {
 	Longitude  float64 `json:"longitude" bson:"longitude"`
 }
 
+type Followings []*People
+
 func (o *People) ToJSON(w io.Writer) error {
 	e := json.NewEncoder(w)
 	return e.Encode(o)
@@ -26,4 +28,9 @@ func (o *People) ToJSON(w io.Writer) error {
 func (o *People) FromJSON(r io.Reader) error {
 	d := json.NewDecoder(r)
 	return d.Decode(o)
+}
+
+func (o *Followings) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
 }

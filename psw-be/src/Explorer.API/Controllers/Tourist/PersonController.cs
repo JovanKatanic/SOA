@@ -1,4 +1,5 @@
-﻿using Explorer.Stakeholders.API.Dtos;
+﻿using Explorer.Blog.API.Dtos;
+using Explorer.Stakeholders.API.Dtos;
 using Explorer.Stakeholders.API.Public;
 using Explorer.Tours.API.Dtos;
 using Explorer.Tours.API.Internal;
@@ -39,12 +40,29 @@ namespace Explorer.API.Controllers.Tourist
             return CreateResponse(result);
         }
 
+
+
+        //[AllowAnonymous]
+        //[HttpGet("followings/{id:int}")]
+        //public ActionResult<List<PersonDto>> GetAllFollowings(int id)
+        //{
+        //    var result = _personService.GetAllFollowings(id);
+        //    return CreateResponse(result);
+        //}
+
         [AllowAnonymous]
         [HttpGet("followings/{id:int}")]
-        public ActionResult<List<PersonDto>> GetAllFollowings(int id)
+        public async Task<ActionResult<List<PersonDto>>> GetAllFollowingsAsync(int id)
         {
-            var result = _personService.GetAllFollowings(id);
-            return CreateResponse(result);
+            try
+            {
+                var followings = await _personService.GetAllFollowingsAsync(id);
+                return CreateResponse(followings);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         [HttpPut("{id:int}")]
