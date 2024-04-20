@@ -11,7 +11,7 @@ using System.Text;
 using System.Text.Json;
 namespace Explorer.API.Controllers.Author
 {
-    [Authorize(Policy = "authorPolicy")]
+    //[Authorize(Policy = "authorPolicy")]
     [Route("api/tourKeyPoint")]
     public class TourKeyPointController : BaseApiController
     {

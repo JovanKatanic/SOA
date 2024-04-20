@@ -23,7 +23,7 @@ type Tour struct {
 	ArchivedDate  *time.Time     `json:"archivedDate" bson:"archivedDate"`
 	PublishedDate *time.Time     `json:"publishedDate" bson:"publishedDate"`
 	Durations     []TourDuration `json:"durations" bson:"durations"`
-	KeyPoints     []Keypoint     `json:"keyPoints" bson:"-"`
+	KeyPoints     []Keypoint     `json:"keyPoints" bson:"keyPoints"`
 	Image         string         `json:"image" bson:"image"`
 }
 

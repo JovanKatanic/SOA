@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Explorer.API.Controllers.Author.Authoring
 {
-    [Authorize(Policy = "authorPolicy")]
+    //[Authorize(Policy = "authorPolicy")]
     [Route("api/tourManagement/tour")]
     public class TourController : BaseApiController
     {
@@ -78,10 +78,10 @@ namespace Explorer.API.Controllers.Author.Authoring
 
         [AllowAnonymous]
         [HttpGet("{id:int}")]
-        public ActionResult<TourDto> Get(int id)
+        public async Task<string> Get(int id)
         {
-            var result = _tourService.Get(id);
-            return CreateResponse(result);
+            var result = await _tourService.GetAsync(id);
+            return result;
         }
 
         //[HttpPut("publish/{id:int}")]
@@ -112,10 +112,10 @@ namespace Explorer.API.Controllers.Author.Authoring
         }
 
         [HttpGet("author")]
-        public ActionResult<PagedResult<TourDto>> GetAllByAuthorId([FromQuery] int authorId, [FromQuery] int page, [FromQuery] int pageSize)
+        public async Task<string> GetAllByAuthorId([FromQuery] int authorId, [FromQuery] int page, [FromQuery] int pageSize)
         {
-            var result = _tourService.GetPagedByAuthorId(authorId, page, pageSize);
-            return CreateResponse(result);
+            var result = await _tourService.GetPagedByAuthorIdAsync(authorId, page, pageSize);
+            return result;
         }
     }
 }

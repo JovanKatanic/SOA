@@ -48,7 +48,7 @@ export class CouponFormComponent implements OnInit{
 
   ngOnInit(): void {
     this.tourAuthoringService.getToursByAuthorId(this.user.id).subscribe({
-      next: (result => this.tours = result.results)
+      next: (result => this.tours = result)
     })
     if (this.title == 'Edit') {
       this.couponForm.patchValue(this.selectedCoupon);
