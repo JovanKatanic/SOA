@@ -65,6 +65,21 @@ namespace Explorer.API.Controllers.Tourist
             }
         }
 
+        [AllowAnonymous]
+        [HttpGet("recommendedfollowings/{id:int}")]
+        public async Task<ActionResult<List<PersonDto>>> GetRecommendedFollowingsAsync(int id)
+        {
+            try
+            {
+                var followings = await _personService.GetRecommendedFollowingsAsync(id);
+                return CreateResponse(followings);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
         [HttpPut("{id:int}")]
         public ActionResult<PersonDto> Update([FromBody] PersonDto person)
         {

@@ -92,7 +92,6 @@ func (m *FollowerHandler) GetAllFollowings(rw http.ResponseWriter, h *http.Reque
 }
 
 func (m *FollowerHandler) GetAllRecommendedFollowings(rw http.ResponseWriter, h *http.Request) {
-	m.logger.Printf("WENT IN!!!!!!")
 	vars := mux.Vars(h)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -101,7 +100,6 @@ func (m *FollowerHandler) GetAllRecommendedFollowings(rw http.ResponseWriter, h 
 		return
 	}
 
-	m.logger.Printf("WENT IN!!!!!!")
 	followings, err := m.repo.GetRecommendedPersonsById(id)
 	if err != nil {
 		m.logger.Print("Database exception: ", err)
