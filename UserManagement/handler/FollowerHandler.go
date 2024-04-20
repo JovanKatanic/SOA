@@ -90,3 +90,31 @@ func (m *FollowerHandler) GetAllFollowings(rw http.ResponseWriter, h *http.Reque
 		return
 	}
 }
+
+func (m *FollowerHandler) GetAllRecommendedFollowings(rw http.ResponseWriter, h *http.Request) {
+	m.logger.Printf("WENT IN!!!!!!")
+	vars := mux.Vars(h)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		m.logger.Printf("Expected integer, got: %d", id)
+		http.Error(rw, "Unable to convert limit to integer", http.StatusBadRequest)
+		return
+	}
+
+	m.logger.Printf("WENT IN!!!!!!")
+	followings, err := m.repo.GetRecommendedPersonsById(id)
+	if err != nil {
+		m.logger.Print("Database exception: ", err)
+	}
+
+	if followings == nil {
+		return
+	}
+
+	err = followings.ToJSON(rw)
+	if err != nil {
+		http.Error(rw, "Unable to convert to json", http.StatusInternalServerError)
+		m.logger.Fatal("Unable to convert to json :", err)
+		return
+	}
+}

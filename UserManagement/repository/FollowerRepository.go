@@ -142,3 +142,68 @@ func (f *FollowerRepository) GetFollowedPersonsById(personID int) (model.Followi
 	}
 	return followings.(model.Followings), nil
 }
+
+func (f *FollowerRepository) GetRecommendedPersonsById(personId int) (model.Followings, error) {
+	followings, err := f.GetFollowedPersonsById(personId)
+	if err != nil {
+		return nil, err
+	}
+
+	recommendedFollowings := make(model.Followings, 0)
+
+	for _, following := range followings {
+		followersOfFollowing, err := f.GetFollowedPersonsById(int(following.ID))
+		if err != nil {
+			return nil, err
+		}
+		recommendedFollowings = append(recommendedFollowings, followersOfFollowing...)
+	}
+
+	// Uklanjanje iz recommendedFollowings svih elemenata koji se poklapaju sa followings
+	recommendedFollowings = removeDuplicates(recommendedFollowings)
+
+	// Uklanjanje iz recommendedFollowings svih elemenata koji se poklapaju sa followings
+	recommendedFollowings = removeDuplicatesFollowings(recommendedFollowings, followings)
+
+	// Uklanjanje iz recommendedFollowings elementa sa istim personId-om kao što je personId
+	for i := len(recommendedFollowings) - 1; i >= 0; i-- {
+		if int(recommendedFollowings[i].ID) == personId {
+			recommendedFollowings = append(recommendedFollowings[:i], recommendedFollowings[i+1:]...)
+		}
+	}
+
+	return recommendedFollowings, nil
+
+}
+
+// Funkcija za uklanjanje duplikata iz slice-a
+func removeDuplicates(slice model.Followings) model.Followings {
+	encountered := map[int64]bool{}
+	result := model.Followings{}
+
+	for _, v := range slice {
+		if !encountered[v.ID] {
+			encountered[v.ID] = true
+			result = append(result, v)
+		}
+	}
+
+	return result
+}
+
+// Funkcija za uklanjanje iz slice-a elemenata koji se poklapaju sa followings
+func removeDuplicatesFollowings(recommendedFollowings, followings model.Followings) model.Followings {
+	uniqueFollowings := make(map[int64]bool)
+	for _, following := range followings {
+		uniqueFollowings[following.ID] = true
+	}
+
+	result := make(model.Followings, 0)
+	for _, recommendedFollowing := range recommendedFollowings {
+		if !uniqueFollowings[recommendedFollowing.ID] {
+			result = append(result, recommendedFollowing)
+		}
+	}
+
+	return result
+}
