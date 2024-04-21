@@ -279,6 +279,7 @@ export class TourFormComponent implements OnInit {
     this.tour.publishedDate = undefined;
     this.tour.durations = this.getDurations();
     this.tour.image = this.tourForm.value.image || "https://media.istockphoto.com/id/904172104/photo/weve-made-it-all-this-way-i-am-proud.jpg?s=612x612&w=0&k=20&c=MewnsAhbeGRcMBN9_ZKhThmqPK6c8nCT8XYk5ZM_hdg=";
+    this.tour.keyPoints=[];
   }
 
   private getDurations(): TourDuration[] {

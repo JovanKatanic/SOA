@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"fmt"
+	"math"
+	"math/rand"
 	"time"
 	"tours_service/model"
 
@@ -23,6 +25,9 @@ func (rep *FacilityRepository) getCollection() *mongo.Collection {
 func (rep *FacilityRepository) Insert(facility *model.Facility) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	rand.Seed(time.Now().UnixNano())
+	randomInt := rand.Intn(math.MaxInt32)
+	facility.ID = randomInt
 	facilityCollection := rep.getCollection()
 
 	result, err := facilityCollection.InsertOne(ctx, &facility)

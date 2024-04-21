@@ -19,6 +19,7 @@ using System.Xml.Linq;
 using System.Text.Json;
 using System.Text;
 using Newtonsoft.Json;
+using Explorer.Stakeholders.Core.Domain;
 
 namespace Explorer.Tours.Core.UseCases.Authoring
 {
@@ -194,6 +195,13 @@ namespace Explorer.Tours.Core.UseCases.Authoring
         {
             var result = _tourRepository.GetPagedByAuthorId(authorId, page, pageSize);
             return MapToDto(result);
+        }
+        public async Task<string> GetPagedByAuthorIdAsync(int authorId, int page, int pageSize)
+        {
+            using HttpResponseMessage response = await sharedClient.GetAsync("/tours/author/"+authorId.ToString());
+            response.EnsureSuccessStatusCode();
+            var jsonResponseGet = await response.Content.ReadAsStringAsync();
+            return jsonResponseGet;
         }
 
         public Result<TourDto> CreateCampaign(List<TourDto> tours, string name, string description, int touristId)
@@ -415,6 +423,14 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             var jsonResponse = await response.Content.ReadAsStringAsync();
             return jsonResponse;
         }
+        public async Task<string> GetAsync(int id)
+        {
+            using HttpResponseMessage response = await sharedClient.GetAsync("/tours/" + id.ToString());
+            response.EnsureSuccessStatusCode();
+            var jsonResponseGet = await response.Content.ReadAsStringAsync();
+            return jsonResponseGet;
+        }
+
     }
 
 }

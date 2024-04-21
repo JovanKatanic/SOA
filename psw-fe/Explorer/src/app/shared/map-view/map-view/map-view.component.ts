@@ -263,8 +263,8 @@ export class MapViewComponent implements OnInit {
     switch (this.user.role) {
       case 'author': 
         this.tourAuthoringService.getToursByAuthorId(this.user?.id!).subscribe({
-          next: (response: PagedResults<Tour>) => {
-            this.tours = response.results;
+          next: (response: Tour[]) => {
+            this.tours = response;
           },
           error: () => {},
           }

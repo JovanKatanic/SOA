@@ -44,6 +44,17 @@ func (s *TourService) GetTourById(id int) (*model.Tour, error) {
 		return nil, nil
 	}
 	keypoints, err := s.KeypointRepository.GetByTourId(id)
+
 	tour.KeyPoints = keypoints
+
 	return tour, err
+}
+
+func (service *TourService) GetToursByAuthorId(id int) (*[]model.Tour, error) {
+	tours, err := service.TourRepository.GetByAuthorId(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return tours, nil
 }

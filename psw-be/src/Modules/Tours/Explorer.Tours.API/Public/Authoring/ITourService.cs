@@ -27,5 +27,7 @@ namespace Explorer.Tours.API.Public.Authoring
         Task<string> ArchiveAsync(int id, int userId, HttpClient _httpClient);
         Task<string> CreateAsync(TourDto tour, HttpClient _httpClient);
 
+        Task<string> GetPagedByAuthorIdAsync(int authorId, int page, int pageSize);
+        Task<string> GetAsync(int id);
     }
 }

@@ -87,8 +87,8 @@ export class OverallTourStatisticsComponent implements OnInit {
 
   getAuthorsTours(): void{
     this.service.getToursByAuthorId(this.user?.id??0).subscribe({
-      next: (result: PagedResults<Tour>) => {
-        this.authorsTours = result.results;
+      next: (result: Tour[]) => {
+        this.authorsTours = result;
         this.getAllTours();
       }
     })

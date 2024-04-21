@@ -43,7 +43,7 @@ export class CouponManagementComponent implements OnInit {
             element.formattedDate = new Date(element.expirationDate!).toLocaleDateString('en-GB');
         });
         this.tourAuthoringService.getToursByAuthorId(this.user.id).subscribe({
-          next: (result => this.tours = result.results),
+          next: (result => this.tours = result),
           complete: (): void => {
             this.coupons.forEach(element => {
               if (element.tourId == null)

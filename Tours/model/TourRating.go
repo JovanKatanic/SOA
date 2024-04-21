@@ -9,7 +9,7 @@ import (
 )
 
 type TourRating struct {
-	ID               int64          `json:"id" bson:"_id"`
+	ID               int            `json:"id" bson:"_id"`
 	PersonId         int16          `json:"personId" bson:"personId"`
 	TourId           int64          `json:"tourId" bson:"tourId"`
 	Mark             int32          `json:"mark" bson:"mark"`

@@ -216,8 +216,8 @@ export class TourAuthoringService {
     return this.http.get<PublicFacility[]>(environment.apiHost + 'author/facilities/public/Approved');
   }
 
-  getToursByAuthorId(id: number): Observable<PagedResults<Tour>> {
-    return this.http.get<PagedResults<Tour>>(
+  getToursByAuthorId(id: number): Observable<Tour[]> {
+    return this.http.get<Tour[]>(
       environment.apiHost + 'tourManagement/tour/author?authorId=' + id
     );
   }

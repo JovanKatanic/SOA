@@ -27,6 +27,7 @@ func (handler *TourHandler) CreateTour(writer http.ResponseWriter, req *http.Req
 		http.Error(writer, "Invalid tour type in context", http.StatusInternalServerError)
 		return
 	}
+	tour.KeyPoints = []model.Keypoint{}
 	handler.TourService.CreateTour(tour)
 	tourJSON, err := json.Marshal(tour)
 	if err != nil {
@@ -54,6 +55,7 @@ func (p *TourHandler) GetTourById(rw http.ResponseWriter, h *http.Request) {
 		return
 	}
 	tour, err := p.TourService.GetTourById(id)
+
 	if err != nil {
 		fmt.Print("Database exception: ", err)
 	}
@@ -71,6 +73,41 @@ func (p *TourHandler) GetTourById(rw http.ResponseWriter, h *http.Request) {
 		return
 	}
 }
+func (p *TourHandler) GetToursByAuthorId(rw http.ResponseWriter, h *http.Request) {
+	vars := mux.Vars(h)
+	idstr := vars["id"]
+	id, err := strconv.Atoi(idstr)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	tours, err := p.TourService.GetToursByAuthorId(id)
+	if err != nil {
+		fmt.Print("Database exception: ", err)
+	}
+
+	if tours == nil {
+		http.Error(rw, "Tour with given author id not found", http.StatusNotFound)
+		fmt.Printf("Tour with author id: '%d' not found", id)
+		return
+	}
+	tourJSON, err := json.Marshal(tours)
+	if err != nil {
+
+		http.Error(rw, "Failed to marshal tour to JSON", http.StatusInternalServerError)
+		return
+	}
+	rw.Header().Set("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusCreated)
+
+	_, err = rw.Write(tourJSON)
+	if err != nil {
+
+		http.Error(rw, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
+}
+
 func (handler *TourHandler) UpdateTour(writer http.ResponseWriter, req *http.Request) {
 	tourInterface := req.Context().Value(KeyProduct{})
 	if tourInterface == nil {
@@ -83,7 +120,21 @@ func (handler *TourHandler) UpdateTour(writer http.ResponseWriter, req *http.Req
 		return
 	}
 	handler.TourService.UpdateTour(tour)
+	tourJSON, err := json.Marshal(tour)
+	if err != nil {
+
+		http.Error(writer, "Failed to marshal tour to JSON", http.StatusInternalServerError)
+		return
+	}
+	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusCreated)
+
+	_, err = writer.Write(tourJSON)
+	if err != nil {
+
+		http.Error(writer, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (p *TourHandler) MiddlewareTourDeserialization(next http.Handler) http.Handler {
