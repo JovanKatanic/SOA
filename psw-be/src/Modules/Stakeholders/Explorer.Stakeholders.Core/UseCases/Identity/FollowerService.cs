@@ -95,6 +95,15 @@ namespace Explorer.Stakeholders.Core.UseCases.Identity
             }
         }
 
+        public async Task DeleteAsync(int followerId, int followedId)
+        {
+
+            using HttpResponseMessage response = await sharedClient.DeleteAsync("/deleteFollow/" + followerId.ToString() + "/" + followedId.ToString());
+
+            response.EnsureSuccessStatusCode();
+
+        }
+
         public Result<List<FollowerDto>> GetFollowings(int id)
         {
             var result = _followerRepository.GetFollowings(id);

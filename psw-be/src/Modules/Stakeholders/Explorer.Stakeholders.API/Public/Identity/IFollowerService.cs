@@ -15,5 +15,7 @@ namespace Explorer.Stakeholders.API.Public.Identity
         public Task CreateAsync(FollowerDto follower);
         public Result Delete(int followerId, int followedId);
         public Result<List<FollowerDto>> GetFollowings(int id);
+
+        public Task DeleteAsync(int followerId, int followedId);
     }
 }

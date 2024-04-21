@@ -44,11 +44,25 @@ namespace Explorer.API.Controllers.Tourist.Identity
             }
         }
 
-        [HttpDelete("{followerId:int}/{followedId:int}")]
+        /*[HttpDelete("{followerId:int}/{followedId:int}")]
         public ActionResult Delete(int followerId, int followedId)
         {
             var result = _followerService.Delete(followerId, followedId);
             return CreateResponse(result);
+        }*/
+
+        [HttpDelete("{followerId:int}/{followedId:int}")]
+        public async Task<IActionResult> DeleteAsync(int followerId, int followedId)
+        {
+            try
+            {
+                await _followerService.DeleteAsync(followerId, followedId);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         [HttpGet("followings/{id:int}")]

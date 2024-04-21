@@ -185,7 +185,7 @@ export class UserProfilesComponent implements OnInit {
     this.service.deleteFollow(this.user.id, this.profiles[index].id, this.user.role).subscribe({
       next: (result => {}),
       error: (error: any) => { this.toastr.error('Error while trying to unfollow a user','Error');},
-      complete: (): void => { }
+      complete: (): void => { this.ngOnInit(); }
     })
   }
 
