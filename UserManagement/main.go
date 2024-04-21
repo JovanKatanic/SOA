@@ -49,6 +49,9 @@ func main() {
 	getRecommendedFollowings := router.Methods(http.MethodGet).Subrouter()
 	getRecommendedFollowings.HandleFunc("/recommendedfollowings/{id}", followerHandler.GetAllRecommendedFollowings)
 
+	deleteFollowRelationship := router.Methods(http.MethodDelete).Subrouter()
+	deleteFollowRelationship.HandleFunc("/deleteFollow/{followerId}/{followedId}", followerHandler.DeleteFollow)
+
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
 	server := http.Server{

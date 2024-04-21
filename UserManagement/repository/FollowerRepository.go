@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"log"
 	"os"
 	"strconv"
@@ -62,7 +63,7 @@ func (f *FollowerRepository) WriteFollower(follower *model.Follower) error {
 	savedFollowing, err := session.ExecuteWrite(ctx,
 		func(transaction neo4j.ManagedTransaction) (any, error) {
 			result, err := transaction.Run(ctx,
-				"MATCH (a:Person), (b:Person) WHERE a.id = $aId  AND b.id = $bId CREATE (a) -[r:FOLLOWS {content:$content, timeOfArrival:$timeOfArrival, read:$read}]-> (b) RETURN type(r)",
+				"MATCH (a:Person), (b:Person) WHERE a.id = $aId  AND b.id = $bId CREATE (a) -[r:Follows {content:$content, timeOfArrival:$timeOfArrival, read:$read}]-> (b) RETURN type(r)",
 				map[string]any{"aId": follower.FollowerId, "bId": follower.FollowedId,
 					"content": strconv.Itoa(follower.FollowerId) + " has started following you", "timeOfArrival": time.Now(), "read": false})
 
@@ -90,6 +91,42 @@ func (f *FollowerRepository) WriteFollower(follower *model.Follower) error {
 	}
 
 	f.logger.Println(savedFollowing.(string))
+	return nil
+}
+
+func (f *FollowerRepository) DeleteFollower(followerId int, followedId int) error {
+	ctx := context.Background()
+	session := f.driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	defer session.Close(ctx)
+
+	_, err := session.ExecuteWrite(ctx,
+		func(transaction neo4j.ManagedTransaction) (interface{}, error) {
+			result, err := transaction.Run(ctx,
+				"MATCH (a:Person)-[r:Follows]->(b:Person) WHERE a.id = $aId AND b.id = $bId DELETE r",
+				map[string]interface{}{"aId": followerId, "bId": followedId})
+
+			if err != nil {
+				return nil, err
+			}
+
+			summary, err := result.Consume(ctx)
+			if err != nil {
+				return nil, err
+			}
+
+			counters := summary.Counters()
+			if counters.RelationshipsDeleted() > 0 {
+				return "Follow relationship deleted successfully", nil
+			} else {
+				return nil, errors.New("follow relationship not found or not deleted")
+			}
+		})
+
+	if err != nil {
+		f.logger.Println("Error deleting follow: ", err)
+		return err
+	}
+
 	return nil
 }
 

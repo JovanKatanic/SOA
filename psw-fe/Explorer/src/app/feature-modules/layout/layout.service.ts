@@ -147,5 +147,9 @@ export class LayoutService {
   updateUserNews(userNews: UserNews): Observable<UserNews> {
     return this.http.put<UserNews>(environment.apiHost + 'tourist/userNews', userNews);
   }
+
+  getRecommendedProfiles(id: number): Observable<Person[]>{
+    return this.http.get<Person[]>(environment.apiHost + 'tourist/person/recommendedfollowings/' + id);
+  }
 }
 
