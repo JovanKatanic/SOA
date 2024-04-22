@@ -21,5 +21,6 @@ namespace Explorer.Stakeholders.API.Public
         Result<string> GetNameById(int id);
 
         Task<Result<List<PersonDto>>> GetAllFollowingsAsync(int id);
+        Task<Result<List<PersonDto>>> GetRecommendedFollowingsAsync(int id);
     }
 }

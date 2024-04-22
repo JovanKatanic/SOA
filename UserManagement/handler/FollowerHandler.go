@@ -63,6 +63,32 @@ func (f *FollowerHandler) MiddlewareFollowerDeserialization(next http.Handler) h
 	})
 }
 
+func (f *FollowerHandler) DeleteFollow(rw http.ResponseWriter, h *http.Request) {
+	vars := mux.Vars(h)
+	followerId, err := strconv.Atoi(vars["followerId"])
+	followedId, err1 := strconv.Atoi(vars["followedId"])
+	if err != nil {
+		f.logger.Printf("Expected integer, got: %d", followerId)
+		http.Error(rw, "Unable to convert limit to integer", http.StatusBadRequest)
+		return
+	}
+
+	if err1 != nil {
+		f.logger.Printf("Expected integer, got: %d", followedId)
+		http.Error(rw, "Unable to convert limit to integer", http.StatusBadRequest)
+		return
+	}
+
+	err2 := f.repo.DeleteFollower(followerId, followedId)
+
+	if err2 != nil {
+		f.logger.Println("Database exception: ", err)
+	} else {
+		f.logger.Println("Delete follows relation between two node.")
+	}
+
+}
+
 func (m *FollowerHandler) GetAllFollowings(rw http.ResponseWriter, h *http.Request) {
 	m.logger.Printf("WENT IN!!!!!!")
 	vars := mux.Vars(h)
@@ -75,6 +101,32 @@ func (m *FollowerHandler) GetAllFollowings(rw http.ResponseWriter, h *http.Reque
 
 	m.logger.Printf("WENT IN!!!!!!")
 	followings, err := m.repo.GetFollowedPersonsById(id)
+	if err != nil {
+		m.logger.Print("Database exception: ", err)
+	}
+
+	if followings == nil {
+		return
+	}
+
+	err = followings.ToJSON(rw)
+	if err != nil {
+		http.Error(rw, "Unable to convert to json", http.StatusInternalServerError)
+		m.logger.Fatal("Unable to convert to json :", err)
+		return
+	}
+}
+
+func (m *FollowerHandler) GetAllRecommendedFollowings(rw http.ResponseWriter, h *http.Request) {
+	vars := mux.Vars(h)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		m.logger.Printf("Expected integer, got: %d", id)
+		http.Error(rw, "Unable to convert limit to integer", http.StatusBadRequest)
+		return
+	}
+
+	followings, err := m.repo.GetRecommendedPersonsById(id)
 	if err != nil {
 		m.logger.Print("Database exception: ", err)
 	}

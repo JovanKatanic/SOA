@@ -90,6 +90,40 @@
                     </button>
                 </div>
             </div>
+            <div class="recommended-wrapper mt-2 mb-5 smaller">
+                <p class="d-flex justify-content-center mt-2">Recommended people</p>
+                <div id="skrol" style="overflow-y: scroll; height: 40vh; scroll-behavior: smooth; margin-left: 2%; margin-right: 2%;" class="mt-4 mb-2">
+                    <mat-card *ngFor="let profile of recommendedProfiles" class="recommended-container mt-2">
+
+                        <mat-card-content class="content-card">                      
+                            <div class="box3 box4 d-flex">
+                                <div class="evenboxinner">
+                                    <img class="img-fluid" src="{{profile.profilePic}}" alt="avatar" />
+                                </div>
+                            </div>
+                            <div class="info col-sm-8">
+                                <mat-card-title>{{profile.name}} {{profile.surname}}</mat-card-title>
+                                <mat-card-subtitle>{{profile.motto}}</mat-card-subtitle>
+                                <div class="button-follow">
+                                    <mat-card-actions>
+                                        <button mat-button 
+                                            class="follow-button" (click)="follow($event, profile.userId)">
+                                            <svg width="20" height="20">
+                                                <use xlink:href="#follow" />
+                                            </svg>
+                                            follow
+                                        </button>
+                                        
+                                    </mat-card-actions>
+                                </div>
+                            </div>
+                        </mat-card-content>
+
+                    </mat-card>
+
+                </div>
+                
+            </div>
         </div>  
 
         <div id="skrol" style="overflow-y: scroll;height: 130vh;scroll-behavior: smooth;" class="col-md-8">

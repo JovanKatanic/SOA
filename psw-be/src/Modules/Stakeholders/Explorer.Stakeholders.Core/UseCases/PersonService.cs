@@ -126,5 +126,17 @@ namespace Explorer.Stakeholders.Core.UseCases
 
             return followings;
         }
+
+        public async Task<Result<List<PersonDto>>> GetRecommendedFollowingsAsync(int id)
+        {
+            using HttpResponseMessage response = await _httpClient.GetAsync("/recommendedfollowings/" + id.ToString());
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var followings = JsonConvert.DeserializeObject<List<PersonDto>>(jsonResponse);
+
+
+            return followings;
+        }
     }
 }

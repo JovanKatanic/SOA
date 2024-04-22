@@ -24,6 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 export class UserProfilesComponent implements OnInit {
   hubConnection: signalR.HubConnection;
   profiles: Person[];
+  recommendedProfiles: Person[];
   selectedProfile: Person;
   user: User;
   userProfile: Person;
@@ -48,6 +49,7 @@ export class UserProfilesComponent implements OnInit {
     this.getAllTours();
     this.getUserProfile();
     this.GetAllUserProfiles();
+    this.GetRecommendedUserProfiles();
     this.CreateHubConnection();
 
     window.addEventListener('scroll', () => {
@@ -105,6 +107,18 @@ export class UserProfilesComponent implements OnInit {
         this.profiles.splice(index, 1);
 
         this.GetFollowings();
+      }
+    });
+  }
+
+  GetRecommendedUserProfiles(): void {
+    this.service.getRecommendedProfiles(this.user.id).subscribe({
+      next: (result => this.recommendedProfiles = result),
+      error: (error: any) => console.log(error),
+      complete: (): void => {
+        console.log(this.recommendedProfiles);
+
+        //this.GetFollowings();
       }
     });
   }
@@ -171,7 +185,7 @@ export class UserProfilesComponent implements OnInit {
     this.service.deleteFollow(this.user.id, this.profiles[index].id, this.user.role).subscribe({
       next: (result => {}),
       error: (error: any) => { this.toastr.error('Error while trying to unfollow a user','Error');},
-      complete: (): void => { }
+      complete: (): void => { this.ngOnInit(); }
     })
   }
 

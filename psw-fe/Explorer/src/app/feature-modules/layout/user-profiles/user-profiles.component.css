@@ -285,3 +285,50 @@ h2{
   opacity: 1 !important;
   transition: all .2s ease-in-out;
  }
+
+
+ .recommended-wrapper{
+  border-radius: 5%;
+  background-color: white;
+  height: 40%;
+  color: black;
+ }
+
+ .recommended-container{
+  border: 2px solid black;
+  border-radius: 5%;
+  margin-left: 5%;
+  margin-right: 5%;
+
+ }
+
+ .box4 {
+  width: 100px;
+  border-width: 3px 3px 5px 5px;
+  border-radius: 4% 95% 6% 95%/95% 4% 92% 5%;
+}
+
+.box3 {
+  width: 100px;
+  height: 100px;
+  background: transparent;
+  border: solid black;
+  border-color: black;
+}
+
+.content-card{
+  display: flex;
+  flex-direction: row;
+}
+
+.info{
+  display: flex;
+  flex-direction: column;
+  margin-left: 4%;
+}
+
+.button-follow{
+  display: flex;
+  justify-content: end;
+  align-items: end;
+}
