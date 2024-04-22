@@ -18,19 +18,16 @@ func (service *TourProblemService) GetByAuthorId(authorId *int) (*[]model.TourPr
 	if err != nil {
 		return nil, err
 	}
-
 	var tourProblems []model.TourProblem
 	for _, value := range *tours {
 		if *authorId == value.AuthorId {
 
 			tourProblem, _ := service.TourProblemRepository.GetByTourId(&value.ID)
-
 			if tourProblem != nil {
 				tourProblems = append(tourProblems, *tourProblem)
 			}
 		}
 	}
-
 	err = service.FindNames(&tourProblems)
 	if err != nil {
 		println("Error fining usernames: ", err.Error())
@@ -64,7 +61,7 @@ func GetUsername(userId int) model.UserName {
 	//TODO ovo je dodato////////////////////////////////////////////////////
 	user := model.UserName{
 		ID:       123,
-		Username: "example_user",
+		Username: "lukapopovic",
 	}
 	return user
 	//////////////////////////////////////////////////////////////////

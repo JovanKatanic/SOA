@@ -25,7 +25,6 @@ func (pr *TourProblemRepository) GetAll() (*[]model.TourProblem, error) {
 	defer cancel()
 
 	tourProblemCollection := pr.getCollection()
-
 	var tourProblems []model.TourProblem
 	tourProblemCursor, err := tourProblemCollection.Find(ctx, bson.M{})
 	if err != nil {
@@ -36,6 +35,7 @@ func (pr *TourProblemRepository) GetAll() (*[]model.TourProblem, error) {
 		fmt.Println(err)
 		return nil, err
 	}
+	fmt.Println(tourProblems)
 	return &tourProblems, nil
 }
 
@@ -44,7 +44,6 @@ func (repo *TourProblemRepository) GetByTourId(tourId *int) (*model.TourProblem,
 	if err != nil {
 		return nil, err
 	}
-
 	for _, value := range *allTourProblems {
 		if value.TourId == *tourId {
 			return &value, nil

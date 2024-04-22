@@ -21,7 +21,6 @@ func (p *TourProblemHandler) GetByAuthorId(rw http.ResponseWriter, h *http.Reque
 	if err != nil {
 		fmt.Print("Database exception: ", err)
 	}
-
 	if tourProblems == nil {
 		http.Error(rw, "User with given id not found", http.StatusNotFound)
 		fmt.Printf("User with id: '%d' not found", authorId)

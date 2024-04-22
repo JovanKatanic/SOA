@@ -119,6 +119,7 @@ func (handler *TourHandler) UpdateTour(writer http.ResponseWriter, req *http.Req
 		http.Error(writer, "Invalid tour type in context", http.StatusInternalServerError)
 		return
 	}
+	tour.KeyPoints = []model.Keypoint{}
 	handler.TourService.UpdateTour(tour)
 	tourJSON, err := json.Marshal(tour)
 	if err != nil {
