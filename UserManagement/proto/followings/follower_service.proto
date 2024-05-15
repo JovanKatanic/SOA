@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option go_package = "proto/followings";
+
+service FollowerService {
+  rpc GetFollowings(GetFollowRequest) returns (GetFollowResponse) {}
+}
+
+message People {
+    int64 ud = 1;
+    int64 userId = 2;
+    string name = 3;
+    string surname = 4;
+    string email = 5;
+    string profile_pic = 6;
+    string biography = 7;
+    string motto = 8;
+    double latitude = 9;
+    double longitude = 10;
+}
+
+message GetFollowRequest {
+  int32 id = 1;
+}
+
+message GetFollowResponse{
+    repeated People people = 1;
+}

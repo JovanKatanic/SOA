@@ -2,6 +2,8 @@ package main
 
 import (
 	"api_gateway/proto/auth"
+	"api_gateway/proto/blogs"
+	"api_gateway/proto/followings"
 	"context"
 	"log"
 	"net/http"
@@ -15,19 +17,27 @@ import (
 )
 
 type Config struct {
-	Address                    string
-	StakeholdersServiceAddress string
+	StakeholderServiceAddress string
+	Address                   string
+	BlogServiceAddress        string
+	BlogAddress               string
+	FollowingServiceAdress    string
+	FOllowingAddress          string
 }
 
 func main() {
 	cfg := Config{
-		StakeholdersServiceAddress: "localhost:8000",
-		Address:                    ":8000",
+		BlogServiceAddress:        "localhost:8001",
+		BlogAddress:               ":8001",
+		FollowingServiceAdress:    "localhost:8002",
+		FOllowingAddress:          ":8002",
+		StakeholderServiceAddress: "localhost:8000",
+		Address:                   ":8000",
 	}
 
 	conn, err := grpc.DialContext(
 		context.Background(),
-		cfg.StakeholdersServiceAddress,
+		cfg.StakeholderServiceAddress,
 		grpc.WithBlock(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
@@ -55,6 +65,72 @@ func main() {
 	go func() {
 		if err := gwServer.ListenAndServe(); err != nil {
 			log.Fatal("server error: ", err)
+		}
+	}()
+
+	blogConn, err := grpc.DialContext(
+		context.Background(),
+		cfg.BlogServiceAddress,
+		grpc.WithBlock(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+
+	if err != nil {
+		log.Fatalln("Failed to dial blog service:", err)
+	}
+
+	blogGwmux := runtime.NewServeMux()
+	blogClient := blogs.NewBlogServiceClient(blogConn)
+	err = blogs.RegisterBlogServiceHandlerClient(
+		context.Background(),
+		blogGwmux,
+		blogClient,
+	)
+	if err != nil {
+		log.Fatalln("Failed to register blog gateway:", err)
+	}
+
+	blogGwServer := &http.Server{
+		Addr:    cfg.BlogAddress,
+		Handler: blogGwmux,
+	}
+
+	go func() {
+		if err := blogGwServer.ListenAndServe(); err != nil {
+			log.Fatal("Blog server error: ", err)
+		}
+	}()
+
+	followCon, err := grpc.DialContext(
+		context.Background(),
+		cfg.FollowingServiceAdress,
+		grpc.WithBlock(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+
+	if err != nil {
+		log.Fatalln("Failed to dial blog service:", err)
+	}
+
+	followGMux := runtime.NewServeMux()
+	followClient := followings.NewFollowerServiceClient(followCon)
+	err = followings.RegisterFollowerServiceHandlerClient(
+		context.Background(),
+		followGMux,
+		followClient,
+	)
+	if err != nil {
+		log.Fatalln("Failed to register blog gateway:", err)
+	}
+
+	followingGwServer := &http.Server{
+		Addr:    cfg.FOllowingAddress,
+		Handler: followGMux,
+	}
+
+	go func() {
+		if err := followingGwServer.ListenAndServe(); err != nil {
+			log.Fatal("Blog server error: ", err)
 		}
 	}()
 

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option go_package = "proto/blogs";
+
+service BlogService {
+  rpc GetBlog(GetBlogRequest) returns (GetBlogResponse) {}
+}
+
+message Blog {
+    int32 id = 1;
+    string title = 2;
+    string description = 3;
+    string creationDate = 4;
+    int32 status = 5;
+    int32 userId = 6;
+    repeated string ratingSum = 7;
+}
+
+message GetBlogRequest {
+  int32 id = 1;
+}
+
+message GetBlogResponse{
+    Blog blog = 1;
+}
