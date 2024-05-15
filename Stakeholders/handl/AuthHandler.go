@@ -17,6 +17,7 @@ import (
 type AuthHandler struct {
 	auth.UnimplementedStakeholderServiceServer
 	DatabaseConnection *gorm.DB
+	Key                string
 }
 
 func ConvertToString(role int) string {
@@ -32,17 +33,7 @@ func ConvertToString(role int) string {
 	}
 }
 
-func (h AuthHandler) Greet(ctx context.Context, request *auth.Request) (*auth.Response, error) {
-	var user model.User
-	if err := h.DatabaseConnection.Table(`stakeholders."Users"`).Where(`"Users"."Username" = ? and "Users"."IsActive" = true`, "stefanstojanovic").First(&user).Error; err != nil {
-		return nil, err
-	}
-
-	var person model.Person
-	if err := h.DatabaseConnection.Table(`stakeholders."People"`).Where(`"People"."UserId" = ?`, user.ID).First(&person).Error; err != nil {
-		return nil, err
-	}
-
+func generateAccessToken(user model.User, person model.Person, key string) (string, error) {
 	claims := jwt.MapClaims{
 		"jti":      uuid.New().String(),
 		"id":       user.ID,
@@ -52,18 +43,133 @@ func (h AuthHandler) Greet(ctx context.Context, request *auth.Request) (*auth.Re
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte("your_secret_key")) // Replace "your_secret_key" with your actual secret key
+	tokenString, err := token.SignedString([]byte(key))
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
+func (h AuthHandler) LogIn(ctx context.Context, request *auth.RequestLogIn) (*auth.ResponseLogIn, error) {
+	var user model.User
+	if err := h.DatabaseConnection.Table(`stakeholders."Users"`).Where(`"Users"."Username" = ? and "Users"."IsActive" = true`, request.Username).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	var person model.Person
+	if err := h.DatabaseConnection.Table(`stakeholders."People"`).Where(`"People"."UserId" = ?`, user.ID).First(&person).Error; err != nil {
+		return nil, err
+	}
+
+	tokenString, _ := generateAccessToken(user, person, h.Key)
+
+	return &auth.ResponseLogIn{
+		Id:          user.ID,
+		AccessToken: tokenString,
+	}, nil
+}
+
+func (h AuthHandler) RegisterTourist(ctx context.Context, request *auth.RequestRegister) (*auth.ResponseLogIn, error) {
+
+	var user model.User = model.User{
+		Username: request.Username,
+		Password: request.Password,
+		Role:     2,
+		IsActive: false,
+	}
+
+	dbResult := h.DatabaseConnection.Table(`stakeholders."Users"`).Create(&user)
+
+	if dbResult.Error != nil {
+		return nil, dbResult.Error
+	}
+
+	var person model.Person = model.Person{
+		UserID:  user.ID,
+		Name:    request.Name,
+		Surname: request.Surname,
+		Email:   request.Email,
+	}
+	dbResultPerson := h.DatabaseConnection.Table(`stakeholders."People"`).Create(&person)
+
+	if dbResultPerson.Error != nil {
+		return nil, dbResultPerson.Error
+	}
+	tokenString, _ := generateAccessToken(user, person, h.Key)
+
+	user.EmailVerificationToken = &tokenString
+	dbResultToken := h.DatabaseConnection.Table(`stakeholders."Users"`).Save(user)
+
+	if dbResultToken.Error != nil {
+		return nil, dbResultToken.Error
+	}
+
+	tokenStringAccess, _ := generateAccessToken(user, person, h.Key)
+
+	return &auth.ResponseLogIn{
+		Id:          user.ID,
+		AccessToken: tokenStringAccess,
+	}, nil
+}
+
+func (h AuthHandler) ActivateUser(ctx context.Context, request *auth.RequestActivateUser) (*auth.ResponseLogIn, error) {
+
+	token, err := jwt.Parse(request.Token, func(token *jwt.Token) (interface{}, error) {
+		return []byte(h.Key), nil
+	})
 	if err != nil {
 		return nil, err
 	}
-	authenticationResponse := model.AuthenticationTokensDto{
-		ID:          user.ID,
-		AccessToken: tokenString,
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, fmt.Errorf("invalid token claims")
 	}
 
-	fmt.Println(authenticationResponse)
+	id, ok := claims["id"].(int64)
+	if !ok {
+		return nil, fmt.Errorf("invalid id in token")
+	}
 
-	return &auth.Response{
-		Greeting: fmt.Sprintf("Hi %s!", request.Name),
+	var user model.User
+	if err := h.DatabaseConnection.Table(`stakeholders."Users"`).First(&user, id).Error; err != nil {
+		return nil, err
+	}
+
+	if user.EmailVerificationToken == nil || user.EmailVerificationToken != &request.Token {
+		return nil, fmt.Errorf("invalid token")
+	}
+
+	expirationTime := time.Unix(int64(claims["exp"].(float64)), 0)
+
+	if time.Now().After(expirationTime) {
+		return nil, fmt.Errorf("token has expired")
+	}
+
+	user.IsActive = true
+	user.EmailVerificationToken = nil
+
+	var person model.Person
+	if err := h.DatabaseConnection.Table(`stakeholders."People"`).Where(`"People"."UserId" = ?`, user.ID).First(&person).Error; err != nil {
+		return nil, err
+	}
+
+	tokenStringAccess, _ := generateAccessToken(user, person, h.Key)
+
+	return &auth.ResponseLogIn{
+		Id:          user.ID,
+		AccessToken: tokenStringAccess,
+	}, nil
+}
+
+func (h AuthHandler) ChangePassword(ctx context.Context, request *auth.RequestChangePassword) (*auth.RequestActivateUser, error) {
+	return &auth.RequestActivateUser{
+		Token: "ahha",
+	}, nil
+}
+
+func (h AuthHandler) ChangePasswordRequest(ctx context.Context, request *auth.RequestChangePasswordRequest) (*auth.RequestActivateUser, error) {
+	return &auth.RequestActivateUser{
+		Token: "ahha",
 	}, nil
 }
