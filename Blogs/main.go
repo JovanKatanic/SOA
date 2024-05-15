@@ -1,20 +1,23 @@
 package main
 
 import (
-	"blogs_service/handler"
-	"blogs_service/repository"
-	"blogs_service/service"
+	"blogs_service/handl"
+	"blogs_service/proto/blogs"
 	"log"
-	"net/http"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
-	"github.com/gorilla/mux"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func initDB() *gorm.DB {
-	//connStr := "user=postgres dbname=explorer-v1 password=super sslmode=disable"
-	connStr := "user=postgres dbname=explorer password=super sslmode=disable port=5432 host=database"
+	connStr := "user=postgres dbname=explorer-v1 password=super sslmode=disable"
+	//connStr := "user=postgres dbname=explorer password=super sslmode=disable port=5432 host=database"
 	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
 		panic(err)
@@ -22,7 +25,7 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func startServer(BlogHandler *handler.BlogHandler, CommentHandler *handler.CommentHandler) {
+/*func startServer(BlogHandler *handler.BlogHandler, CommentHandler *handler.CommentHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.Use(corsMiddleware)
@@ -58,7 +61,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
-}
+}*/
 
 func main() {
 	database := initDB()
@@ -67,7 +70,37 @@ func main() {
 		return
 	}
 
-	BlogRepository := &repository.BlogRepository{DatabaseConnection: database}
+	listener, err := net.Listen("tcp", "localhost:8001")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer func(listener net.Listener) {
+		err := listener.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(listener)
+
+	grpcServer := grpc.NewServer()
+	reflection.Register(grpcServer)
+
+	blogHandler := handl.BlogHandler{DatabaseConnection: database}
+	blogs.RegisterBlogServiceServer(grpcServer, blogHandler)
+
+	go func() {
+		if err := grpcServer.Serve(listener); err != nil {
+			log.Fatal("server error: ", err)
+		}
+	}()
+
+	stopCh := make(chan os.Signal)
+	signal.Notify(stopCh, syscall.SIGTERM)
+
+	<-stopCh
+
+	grpcServer.Stop()
+
+	/*BlogRepository := &repository.BlogRepository{DatabaseConnection: database}
 	BlogService := &service.BlogService{BlogRepository: BlogRepository}
 	BlogHandler := &handler.BlogHandler{BlogService: BlogService}
 
@@ -77,5 +110,5 @@ func main() {
 
 	startServer(BlogHandler, CommentHandler)
 
-	print("ok")
+	print("ok")*/
 }

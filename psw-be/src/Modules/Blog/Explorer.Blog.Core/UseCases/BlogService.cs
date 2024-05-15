@@ -36,9 +36,13 @@ namespace Explorer.Blog.Core.UseCases
             _internalCommentService = internalCommentService;
             _blogRepository = blogRepository;
             _commentService = commentService;
-            _httpClient = new HttpClient()
+            /*_httpClient = new HttpClient()
             {
                 BaseAddress = new Uri("http://blogs_service:8081")
+            };*/
+            _httpClient = new HttpClient()
+            {
+                BaseAddress = new Uri("http://localhost:8081")
             };
         }
 
