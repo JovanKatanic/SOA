@@ -74,7 +74,7 @@ func (h AuthHandler) RegisterTourist(ctx context.Context, request *auth.RequestR
 	var user model.User = model.User{
 		Username: request.Username,
 		Password: request.Password,
-		Role:     2,
+		Role:     1,
 		IsActive: false,
 	}
 
