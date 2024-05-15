@@ -104,6 +104,27 @@ func (h AuthHandler) RegisterTourist(ctx context.Context, request *auth.RequestR
 		return nil, dbResultToken.Error
 	}
 
+	var wallet model.Wallet = model.Wallet{
+		UserId:  user.ID,
+		Balance: 0,
+	}
+	dbResultWallet := h.DatabaseConnection.Table(`payments."Wallet"`).Create(&wallet)
+
+	if dbResultWallet.Error != nil {
+		return nil, dbResultWallet.Error
+	}
+	var userExperience model.UserExperience = model.UserExperience{
+		UserID: user.ID,
+		XP:     0,
+		Level:  1,
+	}
+
+	dbResultUserExp := h.DatabaseConnection.Table(`encounters."UserExperience"`).Create(&userExperience)
+
+	if dbResultUserExp.Error != nil {
+		return nil, dbResultUserExp.Error
+	}
+
 	tokenStringAccess, _ := generateAccessToken(user, person, h.Key)
 
 	return &auth.ResponseLogIn{
@@ -120,13 +141,16 @@ func (h AuthHandler) ActivateUser(ctx context.Context, request *auth.RequestActi
 	if err != nil {
 		return nil, err
 	}
+	if !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
 		return nil, fmt.Errorf("invalid token claims")
 	}
 
-	id, ok := claims["id"].(int64)
+	id, ok := claims["id"]
 	if !ok {
 		return nil, fmt.Errorf("invalid id in token")
 	}
@@ -136,7 +160,7 @@ func (h AuthHandler) ActivateUser(ctx context.Context, request *auth.RequestActi
 		return nil, err
 	}
 
-	if user.EmailVerificationToken == nil || user.EmailVerificationToken != &request.Token {
+	if user.EmailVerificationToken == nil || *user.EmailVerificationToken != request.Token {
 		return nil, fmt.Errorf("invalid token")
 	}
 
@@ -148,6 +172,11 @@ func (h AuthHandler) ActivateUser(ctx context.Context, request *auth.RequestActi
 
 	user.IsActive = true
 	user.EmailVerificationToken = nil
+	dbResultToken := h.DatabaseConnection.Table(`stakeholders."Users"`).Save(user)
+
+	if dbResultToken.Error != nil {
+		return nil, dbResultToken.Error
+	}
 
 	var person model.Person
 	if err := h.DatabaseConnection.Table(`stakeholders."People"`).Where(`"People"."UserId" = ?`, user.ID).First(&person).Error; err != nil {
