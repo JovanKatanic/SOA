@@ -13,19 +13,25 @@ service BlogService{
 }
 
 message Blog {
-    int32 id = 1;
-    string title = 2;
-    string description = 3;
-    string creationDate = 4;
-    int32 status = 5;
-    int32 userId = 6;
-    repeated string ratingSum = 7;
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  string creationDate = 4;
+  int32 status = 5;
+  int32 userId = 6;
+  repeated Rating ratingSum = 7;
+}
+
+message Rating {
+int32 userId = 1;
+string creationDate = 2;
+int32 ratingValue = 3;
 }
 
 message GetBlogRequest {
-  int32 id = 1;
+int32 id = 1;
 }
 
 message GetBlogResponse{
-    Blog blog = 1;
+  Blog blog = 1;
 }
