@@ -11,9 +11,27 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
+func initDB() *gorm.DB {
+	connStr := "user=postgres dbname=explorer-v1 password=super sslmode=disable"
+	//connStr := "user=postgres dbname=explorer password=super sslmode=disable port=5432 host=database"
+	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	return db
+}
+
 func main() {
+
+	database := initDB()
+	if database == nil {
+		print("FAILED TO CONNECT TO DB")
+		return
+	}
 
 	listener, err := net.Listen("tcp", "localhost:8000")
 	if err != nil {
@@ -29,7 +47,7 @@ func main() {
 	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
 
-	authHandler := handl.AuthHandler{}
+	authHandler := handl.AuthHandler{DatabaseConnection: database}
 	auth.RegisterStakeholderServiceServer(grpcServer, authHandler)
 
 	go func() {
