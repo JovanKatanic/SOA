@@ -19,7 +19,8 @@ message Blog {
   string creationDate = 4;
   int32 status = 5;
   int32 userId = 6;
-  repeated Rating ratingSum = 7;
+  int32 ratingSum = 7;
+  repeated Rating ratings = 8;
 }
 
 message Rating {

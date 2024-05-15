@@ -116,12 +116,12 @@ namespace Explorer.API.Controllers.Author
             }
         }
 
-        //[HttpPost("createComment")]
-        //public ActionResult<CommentDto> Create([FromBody] CommentDto commentDto)
-        //{
-        //    var result = _blogService.CreateComment(commentDto);
-        //    return CreateResponse(result);
-        //}
+        /*[HttpPost("createComment")]
+        public ActionResult<CommentDto> Create([FromBody] CommentDto commentDto)
+        {
+            var result = _blogService.CreateComment(commentDto);
+            return CreateResponse(result);
+        }*/
 
         [HttpPost("createComment")]
         public async Task<ActionResult<BlogDto>> CreateCommentAsync([FromBody] CommentDto commentDto)
@@ -240,14 +240,14 @@ namespace Explorer.API.Controllers.Author
             }
         }
 
-        /*[HttpPut("rating/{userId:int}/{blogId:int}/{value:int}")]
+        [HttpPut("rating/{userId:int}/{blogId:int}/{value:int}")]
         public ActionResult<BlogDto> UpdateRating(int blogId, int userId, int value)
         {
             var result = _blogService.UpdateRating(blogId, userId, value);
             return CreateResponse(result);
-        }*/
+        }
 
-        [HttpPut("rating/{userId:int}/{blogId:int}/{value:int}")]
+        /*[HttpPut("rating/{userId:int}/{blogId:int}/{value:int}")]
         public async Task<ActionResult<BlogDto>> UpdateRating(int blogId, int userId, int value)
         {
             try
@@ -260,7 +260,7 @@ namespace Explorer.API.Controllers.Author
             {
                 return StatusCode(500, e.Message);
             }
-        }
+        }*/
 
         /*[HttpGet("getByStatus/{state:int}")]
         public ActionResult<List<BlogDto>> GetBlogsByStatus(int state)

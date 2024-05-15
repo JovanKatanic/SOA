@@ -36,7 +36,8 @@ func (h BlogHandler) GetBlog(ctx context.Context, request *blogs.GetBlogRequest)
 		CreationDate: blog.CreationDate.String(),
 		Status:       int32(blog.Status),
 		UserId:       int32(blog.UserId),
-		RatingSum:    ratingList,
+		RatingSum:    int32(blog.RatingSum),
+		Ratings:      ratingList,
 	}
 
 	fmt.Println(blog)
