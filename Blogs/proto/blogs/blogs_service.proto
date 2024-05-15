@@ -4,6 +4,7 @@ option go_package = "proto/blogs";
 
 service BlogService {
   rpc GetBlog(GetBlogRequest) returns (GetBlogResponse) {}
+  rpc CreateBlog(CreateBlogRequest) returns (GetBlogResponse){}
 }
 
 message Blog {
@@ -29,4 +30,8 @@ message GetBlogRequest {
 
 message GetBlogResponse{
     Blog blog = 1;
+}
+
+message CreateBlogRequest{
+  Blog blog = 1;
 }

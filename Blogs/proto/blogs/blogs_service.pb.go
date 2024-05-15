@@ -280,6 +280,53 @@ func (x *GetBlogResponse) GetBlog() *Blog {
 	return nil
 }
 
+type CreateBlogRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Blog *Blog `protobuf:"bytes,1,opt,name=blog,proto3" json:"blog,omitempty"`
+}
+
+func (x *CreateBlogRequest) Reset() {
+	*x = CreateBlogRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_blogs_blogs_service_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateBlogRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBlogRequest) ProtoMessage() {}
+
+func (x *CreateBlogRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_blogs_blogs_service_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBlogRequest.ProtoReflect.Descriptor instead.
+func (*CreateBlogRequest) Descriptor() ([]byte, []int) {
+	return file_blogs_blogs_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CreateBlogRequest) GetBlog() *Blog {
+	if x != nil {
+		return x.Blog
+	}
+	return nil
+}
+
 var File_blogs_blogs_service_proto protoreflect.FileDescriptor
 
 var file_blogs_blogs_service_proto_rawDesc = []byte{
@@ -310,12 +357,19 @@ var file_blogs_blogs_service_proto_rawDesc = []byte{
 	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x22, 0x2c, 0x0a, 0x0f, 0x47,
 	0x65, 0x74, 0x42, 0x6c, 0x6f, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x19,
 	0x0a, 0x04, 0x62, 0x6c, 0x6f, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x42,
-	0x6c, 0x6f, 0x67, 0x52, 0x04, 0x62, 0x6c, 0x6f, 0x67, 0x32, 0x3d, 0x0a, 0x0b, 0x42, 0x6c, 0x6f,
+	0x6c, 0x6f, 0x67, 0x52, 0x04, 0x62, 0x6c, 0x6f, 0x67, 0x22, 0x2e, 0x0a, 0x11, 0x43, 0x72, 0x65,
+	0x61, 0x74, 0x65, 0x42, 0x6c, 0x6f, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x19,
+	0x0a, 0x04, 0x62, 0x6c, 0x6f, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x42,
+	0x6c, 0x6f, 0x67, 0x52, 0x04, 0x62, 0x6c, 0x6f, 0x67, 0x32, 0x73, 0x0a, 0x0b, 0x42, 0x6c, 0x6f,
 	0x67, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x2e, 0x0a, 0x07, 0x47, 0x65, 0x74, 0x42,
 	0x6c, 0x6f, 0x67, 0x12, 0x0f, 0x2e, 0x47, 0x65, 0x74, 0x42, 0x6c, 0x6f, 0x67, 0x52, 0x65, 0x71,
 	0x75, 0x65, 0x73, 0x74, 0x1a, 0x10, 0x2e, 0x47, 0x65, 0x74, 0x42, 0x6c, 0x6f, 0x67, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x0d, 0x5a, 0x0b, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x2f, 0x62, 0x6c, 0x6f, 0x67, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x34, 0x0a, 0x0a, 0x43, 0x72, 0x65, 0x61,
+	0x74, 0x65, 0x42, 0x6c, 0x6f, 0x67, 0x12, 0x12, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x42,
+	0x6c, 0x6f, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x10, 0x2e, 0x47, 0x65, 0x74,
+	0x42, 0x6c, 0x6f, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x0d,
+	0x5a, 0x0b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x62, 0x6c, 0x6f, 0x67, 0x73, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -330,23 +384,27 @@ func file_blogs_blogs_service_proto_rawDescGZIP() []byte {
 	return file_blogs_blogs_service_proto_rawDescData
 }
 
-var file_blogs_blogs_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_blogs_blogs_service_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_blogs_blogs_service_proto_goTypes = []interface{}{
-	(*Blog)(nil),            // 0: Blog
-	(*Rating)(nil),          // 1: Rating
-	(*GetBlogRequest)(nil),  // 2: GetBlogRequest
-	(*GetBlogResponse)(nil), // 3: GetBlogResponse
+	(*Blog)(nil),              // 0: Blog
+	(*Rating)(nil),            // 1: Rating
+	(*GetBlogRequest)(nil),    // 2: GetBlogRequest
+	(*GetBlogResponse)(nil),   // 3: GetBlogResponse
+	(*CreateBlogRequest)(nil), // 4: CreateBlogRequest
 }
 var file_blogs_blogs_service_proto_depIdxs = []int32{
 	1, // 0: Blog.ratings:type_name -> Rating
 	0, // 1: GetBlogResponse.blog:type_name -> Blog
-	2, // 2: BlogService.GetBlog:input_type -> GetBlogRequest
-	3, // 3: BlogService.GetBlog:output_type -> GetBlogResponse
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	0, // 2: CreateBlogRequest.blog:type_name -> Blog
+	2, // 3: BlogService.GetBlog:input_type -> GetBlogRequest
+	4, // 4: BlogService.CreateBlog:input_type -> CreateBlogRequest
+	3, // 5: BlogService.GetBlog:output_type -> GetBlogResponse
+	3, // 6: BlogService.CreateBlog:output_type -> GetBlogResponse
+	5, // [5:7] is the sub-list for method output_type
+	3, // [3:5] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_blogs_blogs_service_proto_init() }
@@ -403,6 +461,18 @@ func file_blogs_blogs_service_proto_init() {
 				return nil
 			}
 		}
+		file_blogs_blogs_service_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateBlogRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -410,7 +480,7 @@ func file_blogs_blogs_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_blogs_blogs_service_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

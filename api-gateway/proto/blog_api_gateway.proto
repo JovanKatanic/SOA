@@ -10,6 +10,13 @@ service BlogService{
       get: "/api/users/blog"
     };
   }
+
+  rpc CreateBlog(CreateBlogRequest) returns (GetBlogResponse){
+    option (google.api.http) = {
+      post: "/api/users/blog",
+      body: "*"
+    };
+  }
 }
 
 message Blog {
@@ -34,5 +41,9 @@ int32 id = 1;
 }
 
 message GetBlogResponse{
+  Blog blog = 1;
+}
+
+message CreateBlogRequest{
   Blog blog = 1;
 }
