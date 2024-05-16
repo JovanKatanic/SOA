@@ -2,6 +2,7 @@ package handl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"stakeholders_service/model"
@@ -42,6 +43,15 @@ func generateAccessToken(user model.User, person model.Person, key string) (stri
 		"role":     ConvertToString(user.Role),
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(key))
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
+func createToken(claims jwt.MapClaims, key string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(key))
 	if err != nil {
@@ -192,13 +202,86 @@ func (h AuthHandler) ActivateUser(ctx context.Context, request *auth.RequestActi
 }
 
 func (h AuthHandler) ChangePassword(ctx context.Context, request *auth.RequestChangePassword) (*auth.RequestActivateUser, error) {
+	token, err := jwt.Parse(request.Token, func(token *jwt.Token) (interface{}, error) {
+		return []byte(h.Key), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if request.NewPassword != request.NewPasswordConfirm {
+		return nil, errors.New("passwords do not match")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, fmt.Errorf("invalid token claims")
+	}
+
+	userId, ok := claims["id"]
+	if !ok {
+		return nil, fmt.Errorf("invalid id in token")
+	}
+
+	var user model.User
+	if err := h.DatabaseConnection.Table(`stakeholders."Users"`).Where(`"Users"."Id" = ?`, userId).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	if user.ResetPasswordToken == nil || *user.ResetPasswordToken != request.Token {
+		return nil, errors.New("invalid token")
+	}
+
+	expirationTime := time.Unix(int64(claims["exp"].(float64)), 0)
+	if time.Now().After(expirationTime) {
+		return nil, fmt.Errorf("token has expired")
+	}
+
+	user.Password = request.NewPassword
+	user.ResetPasswordToken = nil
+
+	dbResultToken := h.DatabaseConnection.Table(`stakeholders."Users"`).Save(user)
+	if dbResultToken.Error != nil {
+		return nil, dbResultToken.Error
+	}
+
 	return &auth.RequestActivateUser{
-		Token: "ahha",
+		Token: "Password successfully changed",
 	}, nil
 }
 
 func (h AuthHandler) ChangePasswordRequest(ctx context.Context, request *auth.RequestChangePasswordRequest) (*auth.RequestActivateUser, error) {
+	var person model.Person
+	if err := h.DatabaseConnection.Table(`stakeholders."People"`).Where(`"People"."Email" = ?`, request.Email).First(&person).Error; err != nil {
+		return nil, err
+	}
+
+	var user model.User
+	if err := h.DatabaseConnection.Table(`stakeholders."Users"`).Where(`"Users"."Id" = ?`, person.UserID).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	var claims = jwt.MapClaims{
+		"jti":      uuid.New().String(),
+		"id":       user.ID,
+		"username": user.Username,
+		"personId": person.ID,
+		"role":     ConvertToString(user.Role),
+		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+	}
+
+	jwt, err := createToken(claims, h.Key)
+	if err != nil {
+		return nil, err
+	}
+
+	user.ResetPasswordToken = &jwt
+	dbResultToken := h.DatabaseConnection.Table(`stakeholders."Users"`).Save(user)
+	if dbResultToken.Error != nil {
+		return nil, dbResultToken.Error
+	}
+
 	return &auth.RequestActivateUser{
-		Token: "ahha",
+		Token: jwt,
 	}, nil
 }

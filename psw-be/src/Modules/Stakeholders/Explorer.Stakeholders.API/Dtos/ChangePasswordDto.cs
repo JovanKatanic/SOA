@@ -10,6 +10,6 @@ namespace Explorer.Stakeholders.API.Dtos
     {
         public string newPassword {  get; set; }
         public string newPasswordConfirm {  get; set; }
-        public string token { get; set; }
+        public string token { get; set; }    
     }
 }
