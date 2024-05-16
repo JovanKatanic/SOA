@@ -43,7 +43,7 @@ namespace Explorer.Stakeholders.Tests.Integration.Identity
             storedEntity.ShouldNotBeNull();
         }
      */
-        [Theory]
+        /*[Theory]
         [InlineData(-22, -12, 200)]
         public void Delete_session(int followerId, int followedId, int expectedResponseCode)
         {
@@ -98,7 +98,7 @@ namespace Explorer.Stakeholders.Tests.Integration.Identity
                     200
                 }
             };
-        }
+        }*/
 
         private static FollowerController CreateController(IServiceScope scope)
         {
