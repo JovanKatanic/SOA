@@ -12,6 +12,7 @@ import (
 	"syscall"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/rs/cors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -57,9 +58,18 @@ func main() {
 		log.Fatalln("Failed to register gateway:", err)
 	}
 
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},                            // Allow all origins
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"}, // Allow specific HTTP methods
+		AllowedHeaders:   []string{"*"},                            // Allow all headers
+		AllowCredentials: true,                                     // Allow sending credentials (e.g., cookies)
+	})
+
+	handler := c.Handler(gwmux)
+
 	gwServer := &http.Server{
 		Addr:    cfg.Address,
-		Handler: gwmux,
+		Handler: handler,
 	}
 
 	go func() {

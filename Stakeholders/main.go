@@ -47,7 +47,7 @@ func main() {
 	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
 
-	authHandler := handl.AuthHandler{DatabaseConnection: database}
+	authHandler := handl.AuthHandler{DatabaseConnection: database, Key: "your_secret_key"}
 	auth.RegisterStakeholderServiceServer(grpcServer, authHandler)
 
 	go func() {

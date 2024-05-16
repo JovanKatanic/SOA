@@ -139,7 +139,38 @@ services:
     ports:
       - 8081:8081
     depends_on:
-      - database      
+      - database   
+      
+  stakeholder_service:
+    image: stakeholder_service
+    container_name: stakeholder_service
+    hostname: stakeholder_service
+    build:
+      context: ./Stakeholders/
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      GREETER_SERVICE_ADDRESS: :8000
+    networks:
+      - database
+
+  api_gateway:
+    image: api_gateway
+    container_name: api_gateway
+    hostname: api_gateway
+    build:
+      context: ./api-gateway/
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      GREETER_SERVICE_ADDRESS: stakeholder_service:8000
+      GATEWAY_ADDRESS: :8000
+    depends_on:
+      - stakeholder_service
+    networks:
+      - database
+    ports:
+      - "8000:8000"       
 
 volumes:
   database-data:

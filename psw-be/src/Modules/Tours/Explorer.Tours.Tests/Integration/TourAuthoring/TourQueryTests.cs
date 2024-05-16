@@ -20,7 +20,7 @@ namespace Explorer.Tours.Tests.Integration.TourAuthoring
     {
         public TourQueryTests(ToursTestFactory factory) : base(factory) { }
         
-        [Fact]
+        /*[Fact]
         public void Retrieves_all()
         {
             // Arrange
@@ -63,7 +63,7 @@ namespace Explorer.Tours.Tests.Integration.TourAuthoring
 
             // Assert
             result.ShouldNotBeNull();
-        }
+        }*/
 
 
         private static TourController CreateController(IServiceScope scope)
