@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+option go_package = "proto/tours";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+service TourService{
+    rpc CreateTour(CreateTourRequest) returns (CreateTourResponse){
+        option(google.api.http) = {
+            post: "/api/tours/createTour"
+            body: "*"
+        };
+    }
+
+    rpc GetTourById(GetTourRequest) returns (GetTourResponse) {
+        option(google.api.http) = {
+            get: "/api/tours/getTourById/{id}"
+        };
+    }
+
+    rpc GetToursByAuthorId(GetToursByAuthorIdRequest) returns (GetToursByAuthorIdResponse){
+        option(google.api.http) = {
+            get: "/api/tours/getToursByAuthorId/{id}"
+        };
+    }
+    
+    rpc UpdateTour(UpdateTourRequest) returns (UpdateTourResponse){
+        option(google.api.http) = {
+            put: "/api/tours/updateTour"
+            body: "*"
+        };
+    }
+}
+
+message Tour{
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    int32 difficulty = 4;
+    repeated string tags = 5;
+    int32 status = 6;
+    double price = 7;
+    int32 authorId = 8;
+    repeated int32 equipment = 9;
+    double distanceInKm = 10;
+    google.protobuf.Timestamp archivedDate = 11;
+    google.protobuf.Timestamp publishDate = 12;
+    repeated TourDuration durations = 13;
+    repeated Keypoint keypoints = 14;
+    string image = 15;
+}
+
+message TourDuration{
+    uint32 timeInSeconds = 1;
+    int32 transportation = 2;
+}
+
+message Keypoint{
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    string image = 4;
+    double latitude = 5;
+    double longitude = 6;
+    int32 tourId = 7;
+    int32 positionInTour = 8;
+    string secret = 9;
+    string discriminator = 10;
+}
+
+message CreateTourRequest {
+    Tour tour = 1;
+}
+
+message CreateTourResponse{
+    Tour tour = 1;
+}
+
+message GetTourRequest{
+    int32 id = 1;
+}
+
+message GetTourResponse{
+    Tour tour = 1;
+}
+
+message GetToursByAuthorIdRequest{
+    int32 id = 1;
+}
+
+message GetToursByAuthorIdResponse{
+    repeated Tour tour = 1;
+}
+
+message UpdateTourRequest{
+    Tour tour = 1;
+}
+
+message UpdateTourResponse{
+    Tour tour = 1;
+}
