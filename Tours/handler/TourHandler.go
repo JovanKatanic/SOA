@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -294,35 +293,64 @@ func (handler *TourHandler) GetToursByAuthorId(ctx context.Context, request *tou
 // 	}
 // }
 
-func (handler *TourHandler) UpdateTour(writer http.ResponseWriter, req *http.Request) {
-	tourInterface := req.Context().Value(KeyProduct{})
-	if tourInterface == nil {
-		http.Error(writer, "Tour not found in context", http.StatusInternalServerError)
-		return
+func (handler *TourHandler) UpdateTour(ctx context.Context, request *tours.UpdateTourRequest) (*tours.UpdateTourResponse, error) {
+	var tour model.Tour = model.Tour{
+		ID:            int(request.Tour.Id),
+		Name:          request.Tour.Name,
+		Description:   request.Tour.Description,
+		Difficulty:    int(request.Tour.Difficulty),
+		Tags:          request.Tour.Tags,
+		Status:        int(request.Tour.Status),
+		Price:         request.Tour.Price,
+		AuthorId:      int(request.Tour.AuthorId),
+		Equipment:     convertInt32ToInt(request.Tour.Equipment),
+		DistanceInKm:  request.Tour.DistanceInKm,
+		ArchivedDate:  convertTimestampToTime(request.Tour.ArchivedDate),
+		PublishedDate: convertTimestampToTime(request.Tour.PublishDate),
+		Durations:     convertTourDurations(request.Tour.Durations),
+		KeyPoints:     convertKeyPoints(request.Tour.Keypoints),
+		Image:         request.Tour.Image,
 	}
-	tour, ok := tourInterface.(*model.Tour)
-	if !ok {
-		http.Error(writer, "Invalid tour type in context", http.StatusInternalServerError)
-		return
-	}
-	tour.KeyPoints = []model.Keypoint{}
-	handler.TourService.UpdateTour(tour)
-	tourJSON, err := json.Marshal(tour)
+
+	err := handler.TourService.UpdateTour(&tour)
 	if err != nil {
-
-		http.Error(writer, "Failed to marshal tour to JSON", http.StatusInternalServerError)
-		return
+		return nil, err
 	}
-	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(http.StatusCreated)
 
-	_, err = writer.Write(tourJSON)
-	if err != nil {
-
-		http.Error(writer, "Failed to write response", http.StatusInternalServerError)
-		return
-	}
+	return &tours.UpdateTourResponse{
+		Tour: convertTour(&tour),
+	}, nil
 }
+
+// func (handler *TourHandler) UpdateTour(writer http.ResponseWriter, req *http.Request) {
+// 	tourInterface := req.Context().Value(KeyProduct{})
+// 	if tourInterface == nil {
+// 		http.Error(writer, "Tour not found in context", http.StatusInternalServerError)
+// 		return
+// 	}
+// 	tour, ok := tourInterface.(*model.Tour)
+// 	if !ok {
+// 		http.Error(writer, "Invalid tour type in context", http.StatusInternalServerError)
+// 		return
+// 	}
+// 	tour.KeyPoints = []model.Keypoint{}
+// 	handler.TourService.UpdateTour(tour)
+// 	tourJSON, err := json.Marshal(tour)
+// 	if err != nil {
+
+// 		http.Error(writer, "Failed to marshal tour to JSON", http.StatusInternalServerError)
+// 		return
+// 	}
+// 	writer.Header().Set("Content-Type", "application/json")
+// 	writer.WriteHeader(http.StatusCreated)
+
+// 	_, err = writer.Write(tourJSON)
+// 	if err != nil {
+
+// 		http.Error(writer, "Failed to write response", http.StatusInternalServerError)
+// 		return
+// 	}
+// }
 
 func (p *TourHandler) MiddlewareTourDeserialization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, h *http.Request) {

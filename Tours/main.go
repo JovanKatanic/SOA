@@ -46,8 +46,9 @@ func manageRouter(client *mongo.Client) http.Server {
 
 	tourRepository := &repository.TourRepository{TourClient: client}
 	tourService := &service.TourService{TourRepository: tourRepository, KeypointRepository: KeypointRepository}
-	tourHandler := &handler.TourHandler{TourService: tourService}
 	//treba dodati sve metode iz tours-a, pa otkomentarisati
+
+	//tourHandler := &handler.TourHandler{TourService: tourService}
 	//tours.RegisterTourServiceServer(grpcServer, tourHandler)
 
 	tourRatingRepository := &repository.TourRatingRepository{TourRatingClient: client}
@@ -76,9 +77,9 @@ func manageRouter(client *mongo.Client) http.Server {
 	// postTourRouter.HandleFunc("/createTour", tourHandler.CreateTour)
 	// postTourRouter.Use(tourHandler.MiddlewareTourDeserialization)
 
-	putTourRouter := router.Methods(http.MethodPut).Subrouter()
-	putTourRouter.HandleFunc("/tours", tourHandler.UpdateTour)
-	putTourRouter.Use(tourHandler.MiddlewareTourDeserialization)
+	// putTourRouter := router.Methods(http.MethodPut).Subrouter()
+	// putTourRouter.HandleFunc("/tours", tourHandler.UpdateTour)
+	// putTourRouter.Use(tourHandler.MiddlewareTourDeserialization)
 
 	// getTourRouter := router.Methods(http.MethodGet).Subrouter()
 	// getTourRouter.HandleFunc("/tours/{id}", tourHandler.GetTourById)
