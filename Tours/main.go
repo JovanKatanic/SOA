@@ -80,9 +80,9 @@ func manageRouter(client *mongo.Client) http.Server {
 	putTourRouter.HandleFunc("/tours", tourHandler.UpdateTour)
 	putTourRouter.Use(tourHandler.MiddlewareTourDeserialization)
 
-	getTourRouter := router.Methods(http.MethodGet).Subrouter()
-	getTourRouter.HandleFunc("/tours/{id}", tourHandler.GetTourById)
-	getTourRouter.HandleFunc("/tours/author/{id}", tourHandler.GetToursByAuthorId)
+	// getTourRouter := router.Methods(http.MethodGet).Subrouter()
+	// getTourRouter.HandleFunc("/tours/{id}", tourHandler.GetTourById)
+	// getTourRouter.HandleFunc("/tours/author/{id}", tourHandler.GetToursByAuthorId)
 
 	postTourRatingRouter := router.Methods(http.MethodPost).Subrouter()
 	postTourRatingRouter.HandleFunc("/createTourRating", tourRatingHandler.CreateTourRating)

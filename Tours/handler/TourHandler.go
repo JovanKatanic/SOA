@@ -5,13 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 	"tours_service/model"
 	"tours_service/proto/tours"
 	"tours_service/service"
 
-	"github.com/gorilla/mux"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -161,6 +159,17 @@ func convertTour(slice *model.Tour) *tours.Tour {
 	return modelTour
 }
 
+func convertTours(slice *[]model.Tour) []*tours.Tour {
+	if slice == nil {
+		return nil
+	}
+	tourPtrs := make([]*tours.Tour, len(*slice))
+	for i, v := range *slice {
+		tourPtrs[i] = convertTour(&v)
+	}
+	return tourPtrs
+}
+
 // func (handler *TourHandler) CreateTour(writer http.ResponseWriter, req *http.Request) {
 // 	tourInterface := req.Context().Value(KeyProduct{})
 // 	if tourInterface == nil {
@@ -186,72 +195,104 @@ func convertTour(slice *model.Tour) *tours.Tour {
 // 	_, err = writer.Write(tourJSON)
 // 	if err != nil {
 
-// 		http.Error(writer, "Failed to write response", http.StatusInternalServerError)
+//			http.Error(writer, "Failed to write response", http.StatusInternalServerError)
+//			return
+//		}
+//	}
+func (handler *TourHandler) GetTourById(ctx context.Context, request *tours.GetTourRequest) (*tours.GetTourResponse, error) {
+	tour, err := handler.TourService.GetTourById(int(request.Id))
+	if err != nil {
+		fmt.Print("Database exception: ", err)
+		return nil, err
+	}
+	if tour == nil {
+		fmt.Printf("Tour with id: '%d' not found", int(request.Id))
+		return nil, err
+	}
+
+	return &tours.GetTourResponse{
+		Tour: convertTour(tour),
+	}, nil
+}
+
+// func (p *TourHandler) GetTourById(rw http.ResponseWriter, h *http.Request) {
+// 	vars := mux.Vars(h)
+// 	idstr := vars["id"]
+// 	id, err := strconv.Atoi(idstr)
+// 	if err != nil {
+// 		fmt.Println("Error:", err)
+// 		return
+// 	}
+// 	tour, err := p.TourService.GetTourById(id)
+
+// 	if err != nil {
+// 		fmt.Print("Database exception: ", err)
+// 	}
+
+// 	if tour == nil {
+// 		http.Error(rw, "Tour with given id not found", http.StatusNotFound)
+// 		fmt.Printf("Tour with id: '%d' not found", id)
+// 		return
+// 	}
+
+// 	err = tour.ToJSON(rw)
+// 	if err != nil {
+// 		http.Error(rw, "Unable to convert to json", http.StatusInternalServerError)
+// 		fmt.Print("Unable to convert to json :", err)
 // 		return
 // 	}
 // }
 
-func (p *TourHandler) GetTourById(rw http.ResponseWriter, h *http.Request) {
-	vars := mux.Vars(h)
-	idstr := vars["id"]
-	id, err := strconv.Atoi(idstr)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-	tour, err := p.TourService.GetTourById(id)
-
+func (handler *TourHandler) GetToursByAuthorId(ctx context.Context, request *tours.GetToursByAuthorIdRequest) (*tours.GetToursByAuthorIdResponse, error) {
+	toursFromDb, err := handler.TourService.GetToursByAuthorId(int(request.Id))
 	if err != nil {
 		fmt.Print("Database exception: ", err)
+		return nil, err
+	}
+	if toursFromDb == nil {
+		fmt.Printf("Tours with author id: '%d' not found", int(request.Id))
+		return nil, err
 	}
 
-	if tour == nil {
-		http.Error(rw, "Tour with given id not found", http.StatusNotFound)
-		fmt.Printf("Tour with id: '%d' not found", id)
-		return
-	}
-
-	err = tour.ToJSON(rw)
-	if err != nil {
-		http.Error(rw, "Unable to convert to json", http.StatusInternalServerError)
-		fmt.Print("Unable to convert to json :", err)
-		return
-	}
+	return &tours.GetToursByAuthorIdResponse{
+		Tour: convertTours(toursFromDb),
+	}, nil
 }
-func (p *TourHandler) GetToursByAuthorId(rw http.ResponseWriter, h *http.Request) {
-	vars := mux.Vars(h)
-	idstr := vars["id"]
-	id, err := strconv.Atoi(idstr)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-	tours, err := p.TourService.GetToursByAuthorId(id)
-	if err != nil {
-		fmt.Print("Database exception: ", err)
-	}
 
-	if tours == nil {
-		http.Error(rw, "Tour with given author id not found", http.StatusNotFound)
-		fmt.Printf("Tour with author id: '%d' not found", id)
-		return
-	}
-	tourJSON, err := json.Marshal(tours)
-	if err != nil {
+// func (p *TourHandler) GetToursByAuthorId(rw http.ResponseWriter, h *http.Request) {
+// 	vars := mux.Vars(h)
+// 	idstr := vars["id"]
+// 	id, err := strconv.Atoi(idstr)
+// 	if err != nil {
+// 		fmt.Println("Error:", err)
+// 		return
+// 	}
+// 	tours, err := p.TourService.GetToursByAuthorId(id)
+// 	if err != nil {
+// 		fmt.Print("Database exception: ", err)
+// 	}
 
-		http.Error(rw, "Failed to marshal tour to JSON", http.StatusInternalServerError)
-		return
-	}
-	rw.Header().Set("Content-Type", "application/json")
-	rw.WriteHeader(http.StatusCreated)
+// 	if tours == nil {
+// 		http.Error(rw, "Tour with given author id not found", http.StatusNotFound)
+// 		fmt.Printf("Tour with author id: '%d' not found", id)
+// 		return
+// 	}
+// 	tourJSON, err := json.Marshal(tours)
+// 	if err != nil {
 
-	_, err = rw.Write(tourJSON)
-	if err != nil {
+// 		http.Error(rw, "Failed to marshal tour to JSON", http.StatusInternalServerError)
+// 		return
+// 	}
+// 	rw.Header().Set("Content-Type", "application/json")
+// 	rw.WriteHeader(http.StatusCreated)
 
-		http.Error(rw, "Failed to write response", http.StatusInternalServerError)
-		return
-	}
-}
+// 	_, err = rw.Write(tourJSON)
+// 	if err != nil {
+
+// 		http.Error(rw, "Failed to write response", http.StatusInternalServerError)
+// 		return
+// 	}
+// }
 
 func (handler *TourHandler) UpdateTour(writer http.ResponseWriter, req *http.Request) {
 	tourInterface := req.Context().Value(KeyProduct{})
