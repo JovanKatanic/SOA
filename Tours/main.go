@@ -15,6 +15,8 @@ import (
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 
 	gorillaHandlers "github.com/gorilla/handlers"
 )
@@ -31,6 +33,9 @@ func initMongoDb() *mongo.Client {
 	return client
 }
 func manageRouter(client *mongo.Client) http.Server {
+	grpcServer := grpc.NewServer()
+	reflection.Register(grpcServer)
+
 	FacilityRepository := &repository.FacilityRepository{FacilityClient: client}
 	FacilityService := &service.FacilityService{FacilityRepository: FacilityRepository}
 	FacilityHandler := &handler.FacilityHandler{FacilityService: FacilityService}
@@ -42,6 +47,8 @@ func manageRouter(client *mongo.Client) http.Server {
 	tourRepository := &repository.TourRepository{TourClient: client}
 	tourService := &service.TourService{TourRepository: tourRepository, KeypointRepository: KeypointRepository}
 	tourHandler := &handler.TourHandler{TourService: tourService}
+	//treba dodati sve metode iz tours-a, pa otkomentarisati
+	//tours.RegisterTourServiceServer(grpcServer, tourHandler)
 
 	tourRatingRepository := &repository.TourRatingRepository{TourRatingClient: client}
 	tourRatingService := &service.TourRatingService{TourRatingRepository: tourRatingRepository}
@@ -65,9 +72,9 @@ func manageRouter(client *mongo.Client) http.Server {
 	postKeypointRouter.HandleFunc("/keypoints", KeypointHandler.CreateKeypoint)
 	postKeypointRouter.Use(KeypointHandler.MiddlewareKeypointDeserialization)
 
-	postTourRouter := router.Methods(http.MethodPost).Subrouter()
-	postTourRouter.HandleFunc("/createTour", tourHandler.CreateTour)
-	postTourRouter.Use(tourHandler.MiddlewareTourDeserialization)
+	// postTourRouter := router.Methods(http.MethodPost).Subrouter()
+	// postTourRouter.HandleFunc("/createTour", tourHandler.CreateTour)
+	// postTourRouter.Use(tourHandler.MiddlewareTourDeserialization)
 
 	putTourRouter := router.Methods(http.MethodPut).Subrouter()
 	putTourRouter.HandleFunc("/tours", tourHandler.UpdateTour)
