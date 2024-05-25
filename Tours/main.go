@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"time"
 	"tours_service/handler"
+	"tours_service/proto/tours"
 	"tours_service/repository"
 	"tours_service/service"
 
@@ -48,8 +49,8 @@ func manageRouter(client *mongo.Client) http.Server {
 	tourService := &service.TourService{TourRepository: tourRepository, KeypointRepository: KeypointRepository}
 	//treba dodati sve metode iz tours-a, pa otkomentarisati
 
-	//tourHandler := &handler.TourHandler{TourService: tourService}
-	//tours.RegisterTourServiceServer(grpcServer, tourHandler)
+	tourHandler := &handler.TourHandler{TourService: tourService}
+	tours.RegisterTourServiceServer(grpcServer, tourHandler)
 
 	tourRatingRepository := &repository.TourRatingRepository{TourRatingClient: client}
 	tourRatingService := &service.TourRatingService{TourRatingRepository: tourRatingRepository}

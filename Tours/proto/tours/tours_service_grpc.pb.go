@@ -23,6 +23,7 @@ const (
 	TourService_GetTourById_FullMethodName        = "/TourService/GetTourById"
 	TourService_GetToursByAuthorId_FullMethodName = "/TourService/GetToursByAuthorId"
 	TourService_UpdateTour_FullMethodName         = "/TourService/UpdateTour"
+	TourService_GetAll_FullMethodName             = "/TourService/GetAll"
 )
 
 // TourServiceClient is the client API for TourService service.
@@ -33,6 +34,7 @@ type TourServiceClient interface {
 	GetTourById(ctx context.Context, in *GetTourRequest, opts ...grpc.CallOption) (*GetTourResponse, error)
 	GetToursByAuthorId(ctx context.Context, in *GetToursByAuthorIdRequest, opts ...grpc.CallOption) (*GetToursByAuthorIdResponse, error)
 	UpdateTour(ctx context.Context, in *UpdateTourRequest, opts ...grpc.CallOption) (*UpdateTourResponse, error)
+	GetAll(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetAllResponse, error)
 }
 
 type tourServiceClient struct {
@@ -79,6 +81,15 @@ func (c *tourServiceClient) UpdateTour(ctx context.Context, in *UpdateTourReques
 	return out, nil
 }
 
+func (c *tourServiceClient) GetAll(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetAllResponse, error) {
+	out := new(GetAllResponse)
+	err := c.cc.Invoke(ctx, TourService_GetAll_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TourServiceServer is the server API for TourService service.
 // All implementations must embed UnimplementedTourServiceServer
 // for forward compatibility
@@ -87,6 +98,7 @@ type TourServiceServer interface {
 	GetTourById(context.Context, *GetTourRequest) (*GetTourResponse, error)
 	GetToursByAuthorId(context.Context, *GetToursByAuthorIdRequest) (*GetToursByAuthorIdResponse, error)
 	UpdateTour(context.Context, *UpdateTourRequest) (*UpdateTourResponse, error)
+	GetAll(context.Context, *Empty) (*GetAllResponse, error)
 	mustEmbedUnimplementedTourServiceServer()
 }
 
@@ -105,6 +117,9 @@ func (UnimplementedTourServiceServer) GetToursByAuthorId(context.Context, *GetTo
 }
 func (UnimplementedTourServiceServer) UpdateTour(context.Context, *UpdateTourRequest) (*UpdateTourResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTour not implemented")
+}
+func (UnimplementedTourServiceServer) GetAll(context.Context, *Empty) (*GetAllResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
 func (UnimplementedTourServiceServer) mustEmbedUnimplementedTourServiceServer() {}
 
@@ -191,6 +206,24 @@ func _TourService_UpdateTour_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TourService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TourServiceServer).GetAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TourService_GetAll_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TourServiceServer).GetAll(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TourService_ServiceDesc is the grpc.ServiceDesc for TourService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -213,6 +246,10 @@ var TourService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateTour",
 			Handler:    _TourService_UpdateTour_Handler,
+		},
+		{
+			MethodName: "GetAll",
+			Handler:    _TourService_GetAll_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -31,6 +31,12 @@ service TourService{
             body: "*"
         };
     }
+
+    rpc GetAll(Empty) returns (GetAllResponse) {
+        option(google.api.http) = {
+            get: "/api/tours/getAll"
+        };
+    }
 }
 
 message Tour{
@@ -99,4 +105,10 @@ message UpdateTourRequest{
 
 message UpdateTourResponse{
     Tour tour = 1;
+}
+
+message Empty {}
+
+message GetAllResponse{
+    repeated Tour tours = 1;
 }

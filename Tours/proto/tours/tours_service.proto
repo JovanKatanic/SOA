@@ -9,6 +9,7 @@ service TourService{
     rpc GetTourById(GetTourRequest) returns (GetTourResponse) {}
     rpc GetToursByAuthorId(GetToursByAuthorIdRequest) returns (GetToursByAuthorIdResponse){}
     rpc UpdateTour(UpdateTourRequest) returns (UpdateTourResponse){}
+    rpc GetAll(Empty) returns (GetAllResponse) {}
 }
 
 message Tour{
@@ -77,4 +78,10 @@ message UpdateTourRequest{
 
 message UpdateTourResponse{
     Tour tour = 1;
+}
+
+message Empty {}
+
+message GetAllResponse{
+    repeated Tour tours = 1;
 }

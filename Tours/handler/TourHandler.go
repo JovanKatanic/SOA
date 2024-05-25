@@ -13,6 +13,7 @@ import (
 )
 
 type TourHandler struct {
+	tours.UnimplementedTourServiceServer
 	TourService *service.TourService
 }
 
@@ -351,6 +352,12 @@ func (handler *TourHandler) UpdateTour(ctx context.Context, request *tours.Updat
 // 		return
 // 	}
 // }
+
+func (hanlder *TourHandler) GetAll(ctx context.Context, request *tours.Empty) (*tours.GetAllResponse, error) {
+	return &tours.GetAllResponse{
+		Tours: nil,
+	}, nil
+}
 
 func (p *TourHandler) MiddlewareTourDeserialization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, h *http.Request) {
