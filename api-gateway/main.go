@@ -4,6 +4,7 @@ import (
 	"api_gateway/proto/auth"
 	"api_gateway/proto/blogs"
 	"api_gateway/proto/followings"
+	"api_gateway/proto/tours"
 	"context"
 	"log"
 	"net/http"
@@ -24,6 +25,8 @@ type Config struct {
 	BlogAddress               string
 	FollowingServiceAdress    string
 	FOllowingAddress          string
+	ToursServiceAddress       string
+	TourAddress               string
 }
 
 func main() {
@@ -34,7 +37,42 @@ func main() {
 		FOllowingAddress:          ":8002",
 		StakeholderServiceAddress: "localhost:8000",
 		Address:                   ":8000",
+		ToursServiceAddress:       "localhost:8003",
+		TourAddress:               ":8003",
 	}
+
+	tourConn, err := grpc.DialContext(
+		context.Background(),
+		cfg.ToursServiceAddress,
+		grpc.WithBlock(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+
+	if err != nil {
+		log.Fatalln("Failed to dial tour service:", err)
+	}
+
+	tlourGMux := runtime.NewServeMux()
+	tourClient := tours.NewTourServiceClient(tourConn)
+	err = tours.RegisterTourServiceHandlerClient(
+		context.Background(),
+		tlourGMux,
+		tourClient,
+	)
+	if err != nil {
+		log.Fatalln("Failed to register tourr gateway:", err)
+	}
+
+	tourGwServer := &http.Server{
+		Addr:    cfg.TourAddress,
+		Handler: tlourGMux,
+	}
+
+	go func() {
+		if err := tourGwServer.ListenAndServe(); err != nil {
+			log.Fatal("Tour server error: ", err)
+		}
+	}()
 
 	conn, err := grpc.DialContext(
 		context.Background(),

@@ -7,33 +7,33 @@ import "google/api/annotations.proto";
 
 service TourService{
     rpc CreateTour(CreateTourRequest) returns (CreateTourResponse){
-        option(google.api.http) = {
+        option (google.api.http) = {
             post: "/api/tours/createTour"
             body: "*"
         };
     }
 
     rpc GetTourById(GetTourRequest) returns (GetTourResponse) {
-        option(google.api.http) = {
+        option (google.api.http) = {
             get: "/api/tours/getTourById/{id}"
         };
     }
 
     rpc GetToursByAuthorId(GetToursByAuthorIdRequest) returns (GetToursByAuthorIdResponse){
-        option(google.api.http) = {
+        option (google.api.http) = {
             get: "/api/tours/getToursByAuthorId/{id}"
         };
     }
     
     rpc UpdateTour(UpdateTourRequest) returns (UpdateTourResponse){
-        option(google.api.http) = {
+        option (google.api.http) = {
             put: "/api/tours/updateTour"
             body: "*"
         };
     }
 
     rpc GetAll(Empty) returns (GetAllResponse) {
-        option(google.api.http) = {
+        option (google.api.http) = {
             get: "/api/tours/getAll"
         };
     }

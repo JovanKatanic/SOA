@@ -24,7 +24,7 @@ import (
 
 func initMongoDb() *mongo.Client {
 
-	dburi := "mongodb://mongo:27017" //ili localhost
+	dburi := "mongodb://localhost:27017" //ili localhost ili mongo
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dburi))
 	if err != nil {
@@ -47,7 +47,6 @@ func manageRouter(client *mongo.Client) http.Server {
 
 	tourRepository := &repository.TourRepository{TourClient: client}
 	tourService := &service.TourService{TourRepository: tourRepository, KeypointRepository: KeypointRepository}
-	//treba dodati sve metode iz tours-a, pa otkomentarisati
 
 	tourHandler := &handler.TourHandler{TourService: tourService}
 	tours.RegisterTourServiceServer(grpcServer, tourHandler)
