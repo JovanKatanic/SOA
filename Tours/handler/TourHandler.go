@@ -27,12 +27,12 @@ func (handler *TourHandler) CreateTour(ctx context.Context, request *tours.Creat
 		Status:        int(request.Tour.Status),
 		Price:         request.Tour.Price,
 		AuthorId:      int(request.Tour.AuthorId),
-		Equipment:     convertInt32ToInt(request.Tour.Equipment),
+		Equipment:     nil,
 		DistanceInKm:  request.Tour.DistanceInKm,
-		ArchivedDate:  convertTimestampToTime(request.Tour.ArchivedDate),
-		PublishedDate: convertTimestampToTime(request.Tour.PublishDate),
-		Durations:     convertTourDurations(request.Tour.Durations),
-		KeyPoints:     convertKeyPoints(request.Tour.Keypoints),
+		ArchivedDate:  nil,
+		PublishedDate: nil,
+		Durations:     nil,
+		KeyPoints:     nil,
 		Image:         request.Tour.Image,
 	}
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
+	"net"
 	"os"
 	"os/signal"
 	"time"
@@ -13,13 +13,10 @@ import (
 	"tours_service/repository"
 	"tours_service/service"
 
-	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-
-	gorillaHandlers "github.com/gorilla/handlers"
 )
 
 func initMongoDb() *mongo.Client {
@@ -33,77 +30,69 @@ func initMongoDb() *mongo.Client {
 
 	return client
 }
-func manageRouter(client *mongo.Client) http.Server {
-	grpcServer := grpc.NewServer()
-	reflection.Register(grpcServer)
 
-	FacilityRepository := &repository.FacilityRepository{FacilityClient: client}
-	FacilityService := &service.FacilityService{FacilityRepository: FacilityRepository}
-	FacilityHandler := &handler.FacilityHandler{FacilityService: FacilityService}
+// func manageRouter(client *mongo.Client) http.Server {
 
-	KeypointRepository := &repository.KeypointRepository{KeypointClient: client}
-	KeypointService := &service.KeypointService{KeypointRepository: KeypointRepository}
-	KeypointHandler := &handler.KeypointHandler{KeypointService: KeypointService}
+// 	// FacilityRepository := &repository.FacilityRepository{FacilityClient: client}
+// 	// FacilityService := &service.FacilityService{FacilityRepository: FacilityRepository}
+// 	// FacilityHandler := &handler.FacilityHandler{FacilityService: FacilityService}
 
-	tourRepository := &repository.TourRepository{TourClient: client}
-	tourService := &service.TourService{TourRepository: tourRepository, KeypointRepository: KeypointRepository}
+// 	// KeypointRepository := &repository.KeypointRepository{KeypointClient: client}
+// 	// KeypointService := &service.KeypointService{KeypointRepository: KeypointRepository}
+// 	// KeypointHandler := &handler.KeypointHandler{KeypointService: KeypointService}
 
-	tourHandler := &handler.TourHandler{TourService: tourService}
-	tours.RegisterTourServiceServer(grpcServer, tourHandler)
+// 	// tourRatingRepository := &repository.TourRatingRepository{TourRatingClient: client}
+// 	// tourRatingService := &service.TourRatingService{TourRatingRepository: tourRatingRepository}
+// 	// tourRatingHandler := &handler.TourRatingHandler{TourRatingService: tourRatingService}
 
-	tourRatingRepository := &repository.TourRatingRepository{TourRatingClient: client}
-	tourRatingService := &service.TourRatingService{TourRatingRepository: tourRatingRepository}
-	tourRatingHandler := &handler.TourRatingHandler{TourRatingService: tourRatingService}
+// 	// tourProblemRepository := &repository.TourProblemRepository{TourProblemClient: client}
+// 	// tourProblemService := &service.TourProblemService{TourProblemRepository: tourProblemRepository,
+// 	// 	TourService: tourService}
+// 	// tourProblemHandler := &handler.TourProblemHandler{TourProblemService: tourProblemService}
 
-	tourProblemRepository := &repository.TourProblemRepository{TourProblemClient: client}
-	tourProblemService := &service.TourProblemService{TourProblemRepository: tourProblemRepository,
-		TourService: tourService}
-	tourProblemHandler := &handler.TourProblemHandler{TourProblemService: tourProblemService}
+// 	// router := mux.NewRouter().StrictSlash(true)
 
-	router := mux.NewRouter().StrictSlash(true)
+// 	// postFacilityRouter := router.Methods(http.MethodPost).Subrouter()
+// 	// postFacilityRouter.HandleFunc("/facilities", FacilityHandler.CreateFacility)
+// 	// postFacilityRouter.Use(FacilityHandler.MiddlewareFacilityDeserialization)
 
-	postFacilityRouter := router.Methods(http.MethodPost).Subrouter()
-	postFacilityRouter.HandleFunc("/facilities", FacilityHandler.CreateFacility)
-	postFacilityRouter.Use(FacilityHandler.MiddlewareFacilityDeserialization)
+// 	// deleteRouter := router.Methods(http.MethodDelete).Subrouter()
+// 	// deleteRouter.HandleFunc("/facilities/{id}", FacilityHandler.DeleteFacility)
 
-	deleteRouter := router.Methods(http.MethodDelete).Subrouter()
-	deleteRouter.HandleFunc("/facilities/{id}", FacilityHandler.DeleteFacility)
+// 	// postKeypointRouter := router.Methods(http.MethodPost).Subrouter()
+// 	// postKeypointRouter.HandleFunc("/keypoints", KeypointHandler.CreateKeypoint)
+// 	// postKeypointRouter.Use(KeypointHandler.MiddlewareKeypointDeserialization)
 
-	postKeypointRouter := router.Methods(http.MethodPost).Subrouter()
-	postKeypointRouter.HandleFunc("/keypoints", KeypointHandler.CreateKeypoint)
-	postKeypointRouter.Use(KeypointHandler.MiddlewareKeypointDeserialization)
+// 	// postTourRouter := router.Methods(http.MethodPost).Subrouter()
+// 	// postTourRouter.HandleFunc("/createTour", tourHandler.CreateTour)
+// 	// postTourRouter.Use(tourHandler.MiddlewareTourDeserialization)
 
-	// postTourRouter := router.Methods(http.MethodPost).Subrouter()
-	// postTourRouter.HandleFunc("/createTour", tourHandler.CreateTour)
-	// postTourRouter.Use(tourHandler.MiddlewareTourDeserialization)
+// 	// putTourRouter := router.Methods(http.MethodPut).Subrouter()
+// 	// putTourRouter.HandleFunc("/tours", tourHandler.UpdateTour)
+// 	// putTourRouter.Use(tourHandler.MiddlewareTourDeserialization)
 
-	// putTourRouter := router.Methods(http.MethodPut).Subrouter()
-	// putTourRouter.HandleFunc("/tours", tourHandler.UpdateTour)
-	// putTourRouter.Use(tourHandler.MiddlewareTourDeserialization)
+// 	// getTourRouter := router.Methods(http.MethodGet).Subrouter()
+// 	// getTourRouter.HandleFunc("/tours/{id}", tourHandler.GetTourById)
+// 	// getTourRouter.HandleFunc("/tours/author/{id}", tourHandler.GetToursByAuthorId)
 
-	// getTourRouter := router.Methods(http.MethodGet).Subrouter()
-	// getTourRouter.HandleFunc("/tours/{id}", tourHandler.GetTourById)
-	// getTourRouter.HandleFunc("/tours/author/{id}", tourHandler.GetToursByAuthorId)
+// 	// postTourRatingRouter := router.Methods(http.MethodPost).Subrouter()
+// 	// postTourRatingRouter.HandleFunc("/createTourRating", tourRatingHandler.CreateTourRating)
+// 	// postTourRatingRouter.Use(tourRatingHandler.MiddlewareTourRatingDeserialization)
 
-	postTourRatingRouter := router.Methods(http.MethodPost).Subrouter()
-	postTourRatingRouter.HandleFunc("/createTourRating", tourRatingHandler.CreateTourRating)
-	postTourRatingRouter.Use(tourRatingHandler.MiddlewareTourRatingDeserialization)
+// 	// getTourProblemRouter := router.Methods(http.MethodGet).Subrouter()
+// 	// getTourProblemRouter.HandleFunc("/getByAuthorId/{authorId}", tourProblemHandler.GetByAuthorId)
 
-	getTourProblemRouter := router.Methods(http.MethodGet).Subrouter()
-	getTourProblemRouter.HandleFunc("/getByAuthorId/{authorId}", tourProblemHandler.GetByAuthorId)
+// 	// cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
-	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
-
-	server := http.Server{
-		Addr:         ":8080",
-		Handler:      cors(router),
-		IdleTimeout:  120 * time.Second,
-		ReadTimeout:  1 * time.Second,
-		WriteTimeout: 1 * time.Second,
-	}
-	return server
-
-}
+// 	// server := http.Server{
+// 	// 	Addr:         ":8080",
+// 	// 	Handler:      cors(router),
+// 	// 	IdleTimeout:  120 * time.Second,
+// 	// 	ReadTimeout:  1 * time.Second,
+// 	// 	WriteTimeout: 1 * time.Second,
+// 	// }
+// 	// return server
+// }
 
 func main() {
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -116,13 +105,32 @@ func main() {
 		fmt.Print(err)
 	}
 	logger := log.New(os.Stdout, "[logger-main] ", log.LstdFlags)
-	server := manageRouter(client)
 
-	logger.Println("Server listening on port", "8080")
-	go func() {
-		err := server.ListenAndServe()
+	listener, err := net.Listen("tcp", "localhost:8003")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer func(listener net.Listener) {
+		err := listener.Close()
 		if err != nil {
-			logger.Fatal(err)
+			log.Fatal(err)
+		}
+	}(listener)
+
+	grpcServer := grpc.NewServer()
+	reflection.Register(grpcServer)
+
+	tourRepository := &repository.TourRepository{TourClient: client}
+	tourService := &service.TourService{TourRepository: tourRepository, KeypointRepository: nil}
+
+	tourHandler := &handler.TourHandler{TourService: tourService}
+	tours.RegisterTourServiceServer(grpcServer, tourHandler)
+
+	//server := manageRouter(client)
+
+	go func() {
+		if err := grpcServer.Serve(listener); err != nil {
+			log.Fatal("server error: ", err)
 		}
 	}()
 
@@ -133,10 +141,10 @@ func main() {
 	sig := <-sigCh
 	logger.Println("Received terminate, graceful shutdown", sig)
 
-	if server.Shutdown(timeoutContext) != nil {
-		logger.Fatal("Cannot gracefully shutdown...")
-	}
-	logger.Println("Server stopped")
+	// if server.Shutdown(timeoutContext) != nil {
+	// 	logger.Fatal("Cannot gracefully shutdown...")
+	// }
+	// logger.Println("Server stopped")
 
 	print("ok")
 }
