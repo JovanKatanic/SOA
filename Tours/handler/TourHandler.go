@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -18,6 +19,16 @@ type TourHandler struct {
 }
 
 func (handler *TourHandler) CreateTour(ctx context.Context, request *tours.CreateTourRequest) (*tours.CreateTourResponse, error) {
+	if request == nil {
+		println("Request is nil")
+		return nil, errors.New("request is nil")
+	}
+
+	if request.Tour == nil {
+		println("Tour in request is nil")
+		return nil, errors.New("tour in request is nil")
+	}
+
 	var tour model.Tour = model.Tour{
 		ID:            int(request.Tour.Id),
 		Name:          request.Tour.Name,
@@ -27,7 +38,7 @@ func (handler *TourHandler) CreateTour(ctx context.Context, request *tours.Creat
 		Status:        int(request.Tour.Status),
 		Price:         request.Tour.Price,
 		AuthorId:      int(request.Tour.AuthorId),
-		Equipment:     nil,
+		Equipment:     convertInt32ToInt(request.Tour.Equipment),
 		DistanceInKm:  request.Tour.DistanceInKm,
 		ArchivedDate:  nil,
 		PublishedDate: nil,
@@ -200,6 +211,13 @@ func convertTours(slice *[]model.Tour) []*tours.Tour {
 //		}
 //	}
 func (handler *TourHandler) GetTourById(ctx context.Context, request *tours.GetTourRequest) (*tours.GetTourResponse, error) {
+	if request == nil {
+		println("Request is nil")
+		return nil, errors.New("request is nil")
+	}
+
+	println(int(request.Id))
+
 	tour, err := handler.TourService.GetTourById(int(request.Id))
 	if err != nil {
 		fmt.Print("Database exception: ", err)

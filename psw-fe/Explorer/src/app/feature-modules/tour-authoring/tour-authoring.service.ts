@@ -22,7 +22,7 @@ export class TourAuthoringService {
 
   createTour(tour: Tour): Observable<Tour> {
     return this.http.post<Tour>(
-      environment.apiHost + 'tourManagement/tour',
+      'http://localhost:8003/api/tours/createTour',
       tour
     );
   }
@@ -50,7 +50,7 @@ export class TourAuthoringService {
   }
 
   getTour(id: number): Observable<Tour> {
-    return this.http.get<Tour>(environment.apiHost + 'tourManagement/tour/' + id);
+    return this.http.get<Tour>('http://localhost:8003/api/tours/getTourById/' + id);
   }
 
   deleteTour(id: number): Observable<Tour> {
@@ -65,7 +65,7 @@ export class TourAuthoringService {
 
   updateTour(tour: Tour): Observable<Tour> {
     return this.http.put<Tour>(
-      environment.apiHost + 'tourManagement/tour/' + tour.id,
+      'http://localhost:8003/api/tours/updateTour' + tour.id,
       tour
     );
   }
@@ -181,7 +181,7 @@ export class TourAuthoringService {
   }
   
   getTourById(id: number): Observable<Tour> {
-    return this.http.get<Tour>(environment.apiHost + 'tourManagement/tour/' + id);
+    return this.http.get<Tour>('http://localhost:8003/api/tours/getTourById/' + id);
   }
 
   addTourRating(tourrating: TourRating): Observable<TourRating> {
@@ -218,7 +218,7 @@ export class TourAuthoringService {
 
   getToursByAuthorId(id: number): Observable<Tour[]> {
     return this.http.get<Tour[]>(
-      environment.apiHost + 'tourManagement/tour/author?authorId=' + id
+      'http://localhost:8003/api/tours/getToursByAuthorId/' + id
     );
   }
 

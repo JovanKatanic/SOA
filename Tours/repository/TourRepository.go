@@ -22,7 +22,7 @@ func (rep *TourRepository) getCollection() *mongo.Collection {
 	return tourCollection
 }
 func (pr *TourRepository) GetById(id int) (*model.Tour, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Second)
 	defer cancel()
 
 	toursCollection := pr.getCollection()
