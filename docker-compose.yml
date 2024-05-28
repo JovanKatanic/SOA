@@ -1,3 +1,8 @@
+x-logging: &fluent-bit
+  driver: fluentd
+  options:
+    fluentd-address: ${FLUENT_BIT_ADDRESS}:24224
+
 version: '3.9'
 
 services:
@@ -102,6 +107,7 @@ services:
     restart: on-failure
     networks:
       - database
+      - monitoring
     ports:
       - 8082:8082
     environment:
@@ -112,6 +118,7 @@ services:
     depends_on:
       neo4j:
         condition: service_healthy
+    logging: *fluent-bit
 
   tour_service:
     build:
@@ -122,10 +129,12 @@ services:
     restart: on-failure
     networks:
       - database
+      - monitoring
     ports:
       - 8080:8080
     depends_on:
       - mongo   
+    logging: *fluent-bit
       
   blog_service:
     build:
@@ -136,10 +145,12 @@ services:
     restart: on-failure
     networks:
       - database
+      - monitoring
     ports:
       - 8081:8081
     depends_on:
       - database   
+    logging: *fluent-bit
       
   stakeholder_service:
     image: stakeholder_service
@@ -153,6 +164,8 @@ services:
       GREETER_SERVICE_ADDRESS: :8000
     networks:
       - database
+      - monitoring
+    logging: *fluent-bit
 
   api_gateway:
     image: api_gateway
@@ -169,8 +182,10 @@ services:
       - stakeholder_service
     networks:
       - database
+      - monitoring
     ports:
-      - "8000:8000"       
+      - "8000:8000"    
+    logging: *fluent-bit   
 
 volumes:
   database-data:
@@ -183,3 +198,4 @@ networks:
   database:
     name: database
     driver: bridge    
+  monitoring:
