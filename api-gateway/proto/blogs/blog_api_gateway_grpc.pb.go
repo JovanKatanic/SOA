@@ -28,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BlogServiceClient interface {
 	GetBlog(ctx context.Context, in *GetBlogRequest, opts ...grpc.CallOption) (*GetBlogResponse, error)
-	CreateBlog(ctx context.Context, in *CreateBlogRequest, opts ...grpc.CallOption) (*GetBlogResponse, error)
+	CreateBlog(ctx context.Context, in *Blog, opts ...grpc.CallOption) (*GetBlogResponse, error)
 }
 
 type blogServiceClient struct {
@@ -48,7 +48,7 @@ func (c *blogServiceClient) GetBlog(ctx context.Context, in *GetBlogRequest, opt
 	return out, nil
 }
 
-func (c *blogServiceClient) CreateBlog(ctx context.Context, in *CreateBlogRequest, opts ...grpc.CallOption) (*GetBlogResponse, error) {
+func (c *blogServiceClient) CreateBlog(ctx context.Context, in *Blog, opts ...grpc.CallOption) (*GetBlogResponse, error) {
 	out := new(GetBlogResponse)
 	err := c.cc.Invoke(ctx, BlogService_CreateBlog_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -62,7 +62,7 @@ func (c *blogServiceClient) CreateBlog(ctx context.Context, in *CreateBlogReques
 // for forward compatibility
 type BlogServiceServer interface {
 	GetBlog(context.Context, *GetBlogRequest) (*GetBlogResponse, error)
-	CreateBlog(context.Context, *CreateBlogRequest) (*GetBlogResponse, error)
+	CreateBlog(context.Context, *Blog) (*GetBlogResponse, error)
 	mustEmbedUnimplementedBlogServiceServer()
 }
 
@@ -73,7 +73,7 @@ type UnimplementedBlogServiceServer struct {
 func (UnimplementedBlogServiceServer) GetBlog(context.Context, *GetBlogRequest) (*GetBlogResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBlog not implemented")
 }
-func (UnimplementedBlogServiceServer) CreateBlog(context.Context, *CreateBlogRequest) (*GetBlogResponse, error) {
+func (UnimplementedBlogServiceServer) CreateBlog(context.Context, *Blog) (*GetBlogResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateBlog not implemented")
 }
 func (UnimplementedBlogServiceServer) mustEmbedUnimplementedBlogServiceServer() {}
@@ -108,7 +108,7 @@ func _BlogService_GetBlog_Handler(srv interface{}, ctx context.Context, dec func
 }
 
 func _BlogService_CreateBlog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateBlogRequest)
+	in := new(Blog)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func _BlogService_CreateBlog_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: BlogService_CreateBlog_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BlogServiceServer).CreateBlog(ctx, req.(*CreateBlogRequest))
+		return srv.(BlogServiceServer).CreateBlog(ctx, req.(*Blog))
 	}
 	return interceptor(ctx, in, info, handler)
 }

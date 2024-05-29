@@ -50,10 +50,10 @@ func (h BlogHandler) GetBlog(ctx context.Context, request *blogs.GetBlogRequest)
 	return response, nil
 }
 
-func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.CreateBlogRequest) (*blogs.GetBlogResponse, error) {
+func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.Blog) (*blogs.GetBlogResponse, error) {
 
-	var ratingsList []model.Rating
-	for _, rating := range request.Blog.Ratings {
+	var ratingsList model.BlogRatings
+	for _, rating := range request.Ratings {
 		layout := "2006-01-02T15:04:05.000Z"
 
 		dateTime, _ := time.Parse(layout, rating.CreationDate)
@@ -62,17 +62,16 @@ func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.CreateBlogRe
 			CreationDate: dateTime,
 			RatingValue:  int(rating.RatingValue),
 		}
-		// Dodajte novu ocenu u listu ocena
 		ratingsList = append(ratingsList, newRating)
 	}
 	var blog = model.BlogPage{
-		Id:           int(request.Blog.Id),
-		Title:        request.Blog.Title,
-		Description:  request.Blog.Description,
+		Id:           int(request.Id),
+		Title:        request.Title,
+		Description:  request.Description,
 		CreationDate: time.Now(),
-		Status:       uint(request.Blog.Status),
-		UserId:       int(request.Blog.UserId),
-		RatingSum:    int(request.Blog.RatingSum),
+		Status:       uint(request.Status),
+		UserId:       int(request.UserId),
+		RatingSum:    int(request.RatingSum),
 		Ratings:      ratingsList,
 	}
 
@@ -81,7 +80,7 @@ func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.CreateBlogRe
 	}
 
 	response := &blogs.GetBlogResponse{
-		Blog: request.Blog,
+		Blog: request,
 	}
 
 	return response, nil

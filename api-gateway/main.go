@@ -24,10 +24,10 @@ type Config struct {
 
 func main() {
 	cfg := Config{
-		BlogServiceAddress:        "localhost:8001",
-		BlogAddress:               ":8001",
 		StakeholderServiceAddress: "localhost:8000",
 		Address:                   ":8000",
+		BlogServiceAddress:        "localhost:8001",
+		BlogAddress:               ":8001",
 	}
 
 	conn, err := grpc.DialContext(

@@ -68,7 +68,7 @@ func local_request_BlogService_GetBlog_0(ctx context.Context, marshaler runtime.
 }
 
 func request_BlogService_CreateBlog_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateBlogRequest
+	var protoReq Blog
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -81,7 +81,7 @@ func request_BlogService_CreateBlog_0(ctx context.Context, marshaler runtime.Mar
 }
 
 func local_request_BlogService_CreateBlog_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateBlogRequest
+	var protoReq Blog
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
