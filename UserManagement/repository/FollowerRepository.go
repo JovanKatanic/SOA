@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log"
-	"os"
 	"strconv"
 	"time"
 	"user_management_service/model"
@@ -17,10 +16,36 @@ type FollowerRepository struct {
 	logger *log.Logger
 }
 
-func NewFollowerRepository(logger *log.Logger) (*FollowerRepository, error) {
+/*func NewFollowerRepository(logger *log.Logger) (*FollowerRepository, error) {
 	uri := os.Getenv("NEO4J_DB")
 	user := os.Getenv("NEO4J_USERNAME")
 	pass := os.Getenv("NEO4J_PASS")
+	auth := neo4j.BasicAuth(user, pass, "")
+
+	driver, err := neo4j.NewDriverWithContext(uri, auth)
+	if err != nil {
+		logger.Panic(err)
+		return nil, err
+	}
+
+	return &FollowerRepository{
+		driver: driver,
+		logger: logger,
+	}, nil
+}
+
+func (f *FollowerRepository) CheckConnection() {
+	ctx := context.Background()
+	err := f.driver.VerifyConnectivity(ctx)
+	if err != nil {
+		f.logger.Panic(err)
+		return
+	}
+
+	f.logger.Printf(`Neo4J server address: %s`, f.driver.Target().Host)
+}*/
+
+func NewFollowerRepository(logger *log.Logger, uri, user, pass string) (*FollowerRepository, error) {
 	auth := neo4j.BasicAuth(user, pass, "")
 
 	driver, err := neo4j.NewDriverWithContext(uri, auth)

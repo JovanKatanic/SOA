@@ -3,44 +3,51 @@ package handl
 import (
 	"context"
 	"fmt"
-	"user_management_service/model"
+	"log"
 	"user_management_service/proto/followings"
-
-	"gorm.io/gorm"
+	"user_management_service/repository"
 )
 
 type FollowingsHandler struct {
 	followings.UnimplementedFollowerServiceServer
-	DatabaseConnection *gorm.DB
+	logger *log.Logger
+	repo   *repository.FollowerRepository
+}
+
+func NewFollowingsHandler(log *log.Logger, repo *repository.FollowerRepository) *FollowingsHandler {
+	return &FollowingsHandler{followings.UnimplementedFollowerServiceServer{}, log, repo}
 }
 
 func (h FollowingsHandler) GetFollowings(ctx context.Context, request *followings.GetFollowRequest) (*followings.GetFollowResponse, error) {
-	var people []model.PeoplePostgre
-	fmt.Print("usao, ", request.Id)
-	fmt.Println("Entered handler")
+	h.logger.Printf("WENT IN!!!!!!")
+	fmt.Println("Usao u getFollowings")
 
-	if err := h.DatabaseConnection.Table(`stakeholders."People"`).Find(&people).Error; err != nil {
-		return nil, err
+	followingss, err := h.repo.GetFollowedPersonsById(int(request.Id))
+	if err != nil {
+		h.logger.Print("Database exception: ", err)
 	}
 
-	var pbPeople []*followings.People
-	for _, p := range people {
-		pbPeople = append(pbPeople, &followings.People{
-			Ud:         int64(p.ID),
-			UserId:     int64(p.UserID),
-			Name:       p.Name,
-			Surname:    p.Surname,
-			Email:      p.Email,
-			ProfilePic: p.ProfilePic,
-			Biography:  p.Biography,
-			Motto:      p.Motto,
-			Latitude:   p.Latitude,
-			Longitude:  p.Longitude,
-		})
+	fmt.Println(followingss)
+
+	var peopleSlice []*followings.People
+	for _, person := range followingss {
+		peopleSlice = append(peopleSlice,
+			&followings.People{
+				Id:         person.ID,
+				UserId:     person.UserId,
+				Name:       person.Name,
+				Surname:    person.Surname,
+				Email:      person.Email,
+				ProfilePic: person.ProfilePic,
+				Biography:  person.Biography,
+				Motto:      person.Motto,
+				Latitude:   person.Latitude,
+				Longitude:  person.Longitude,
+			})
 	}
 
 	response := &followings.GetFollowResponse{
-		People: pbPeople,
+		People: peopleSlice,
 	}
 
 	return response, nil

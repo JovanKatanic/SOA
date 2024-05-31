@@ -7,16 +7,16 @@ service FollowerService {
 }
 
 message People {
-    int64 ud = 1;
-    int64 userId = 2;
-    string name = 3;
-    string surname = 4;
-    string email = 5;
-    string profile_pic = 6;
-    string biography = 7;
-    string motto = 8;
-    double latitude = 9;
-    double longitude = 10;
+  int64 Id = 1;
+  int64 UserId = 2;
+  string Name = 3;
+  string Surname = 4;
+  string Email = 5;
+  string Profile_pic = 6;
+  string Biography = 7;
+  string Motto = 8;
+  double Latitude = 9;
+  double Longitude = 10;
 }
 
 message GetFollowRequest {
