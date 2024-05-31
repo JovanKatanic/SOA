@@ -7,12 +7,21 @@ import (
 	"fmt"
 	"time"
 
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
 )
 
 type BlogHandler struct {
 	blogs.UnimplementedBlogServiceServer
 	DatabaseConnection *gorm.DB
+}
+
+func timeToTimestampp(t time.Time) *timestamppb.Timestamp {
+	return timestamppb.New(t)
+}
+
+func timestampToTime(t *timestamppb.Timestamp) time.Time {
+	return t.AsTime()
 }
 
 func (h BlogHandler) GetBlog(ctx context.Context, request *blogs.GetBlogRequest) (*blogs.Blog, error) {
@@ -25,7 +34,7 @@ func (h BlogHandler) GetBlog(ctx context.Context, request *blogs.GetBlogRequest)
 	for i, rating := range blog.Ratings {
 		ratingList[i] = &blogs.Rating{
 			UserId:       int32(rating.UserId),
-			CreationDate: rating.CreationDate.String(),
+			CreationDate: timeToTimestampp(rating.CreationDate),
 			RatingValue:  int32(rating.RatingValue),
 		}
 	}
@@ -34,7 +43,7 @@ func (h BlogHandler) GetBlog(ctx context.Context, request *blogs.GetBlogRequest)
 		Id:           int32(blog.Id),
 		Title:        blog.Title,
 		Description:  blog.Description,
-		CreationDate: blog.CreationDate.String(),
+		CreationDate: timeToTimestampp(blog.CreationDate),
 		Status:       int32(blog.Status),
 		UserId:       int32(blog.UserId),
 		RatingSum:    int32(blog.RatingSum),
@@ -51,14 +60,9 @@ func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.Blog) (*blog
 
 	var ratingsList model.BlogRatings
 	for _, rating := range request.Ratings {
-		layout := "2006-01-02T15:04:05.000Z"
-		dateTime, err := time.Parse(layout, rating.CreationDate)
-		if err != nil {
-			return nil, err
-		}
 		newRating := model.Rating{
 			UserId:       int(rating.UserId),
-			CreationDate: dateTime,
+			CreationDate: timestampToTime(rating.CreationDate),
 			RatingValue:  int(rating.RatingValue),
 		}
 		ratingsList = append(ratingsList, newRating)
@@ -86,7 +90,7 @@ func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.Blog) (*blog
 	for i, rating := range blog.Ratings {
 		responseRatings[i] = &blogs.Rating{
 			UserId:       int32(rating.UserId),
-			CreationDate: rating.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+			CreationDate: timeToTimestampp(rating.CreationDate),
 			RatingValue:  int32(rating.RatingValue),
 		}
 	}
@@ -95,7 +99,7 @@ func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.Blog) (*blog
 		Id:           int32(blog.Id),
 		Title:        blog.Title,
 		Description:  blog.Description,
-		CreationDate: blog.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+		CreationDate: timeToTimestampp(blog.CreationDate),
 		Status:       int32(blog.Status),
 		UserId:       int32(blog.UserId),
 		RatingSum:    int32(blog.RatingSum),
@@ -117,7 +121,7 @@ func (h BlogHandler) GetAllBlog(ctx context.Context, request *blogs.Empty) (*blo
 		for i, rating := range blog.Ratings {
 			ratingList[i] = &blogs.Rating{
 				UserId:       int32(rating.UserId),
-				CreationDate: rating.CreationDate.String(),
+				CreationDate: timeToTimestampp(rating.CreationDate),
 				RatingValue:  int32(rating.RatingValue),
 			}
 		}
@@ -126,7 +130,7 @@ func (h BlogHandler) GetAllBlog(ctx context.Context, request *blogs.Empty) (*blo
 			Id:           int32(blog.Id),
 			Title:        blog.Title,
 			Description:  blog.Description,
-			CreationDate: blog.CreationDate.String(),
+			CreationDate: timeToTimestampp(blog.CreationDate),
 			Status:       int32(blog.Status),
 			UserId:       int32(blog.UserId),
 			RatingSum:    int32(blog.RatingSum),
@@ -157,14 +161,10 @@ func (h BlogHandler) UpdateOneBlog(ctx context.Context, request *blogs.Blog) (*b
 
 	existingBlog.Ratings = make([]model.Rating, len(request.Ratings))
 	for i, rating := range request.Ratings {
-		layout := "2006-01-02T15:04:05.000Z"
-		dateTime, err := time.Parse(layout, rating.CreationDate)
-		if err != nil {
-			return nil, err
-		}
+
 		newRating := model.Rating{
 			UserId:       int(rating.UserId),
-			CreationDate: dateTime,
+			CreationDate: timestampToTime(rating.CreationDate),
 			RatingValue:  int(rating.RatingValue),
 		}
 		existingBlog.Ratings[i] = newRating
@@ -178,7 +178,7 @@ func (h BlogHandler) UpdateOneBlog(ctx context.Context, request *blogs.Blog) (*b
 		Id:           int32(existingBlog.Id),
 		Title:        existingBlog.Title,
 		Description:  existingBlog.Description,
-		CreationDate: existingBlog.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+		CreationDate: timeToTimestampp(existingBlog.CreationDate),
 		Status:       int32(existingBlog.Status),
 		UserId:       int32(existingBlog.UserId),
 		RatingSum:    int32(existingBlog.RatingSum),
@@ -203,7 +203,7 @@ func (h BlogHandler) GetAllBlogsByStatus(ctx context.Context, request *blogs.Get
 		for j, rating := range blog.Ratings {
 			ratingList[j] = &blogs.Rating{
 				UserId:       int32(rating.UserId),
-				CreationDate: rating.CreationDate.String(),
+				CreationDate: timeToTimestampp(rating.CreationDate),
 				RatingValue:  int32(rating.RatingValue),
 			}
 		}
@@ -212,7 +212,7 @@ func (h BlogHandler) GetAllBlogsByStatus(ctx context.Context, request *blogs.Get
 			Id:           int32(blog.Id),
 			Title:        blog.Title,
 			Description:  blog.Description,
-			CreationDate: blog.CreationDate.String(),
+			CreationDate: timeToTimestampp(blog.CreationDate),
 			Status:       int32(blog.Status),
 			UserId:       int32(blog.UserId),
 			RatingSum:    int32(blog.RatingSum),
@@ -250,7 +250,7 @@ func (h BlogHandler) UpdateRating(ctx context.Context, request *blogs.UpdateRati
 	for i, rating := range existingBlog.Ratings {
 		responseRatings[i] = &blogs.Rating{
 			UserId:       int32(rating.UserId),
-			CreationDate: rating.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+			CreationDate: timeToTimestampp(rating.CreationDate),
 			RatingValue:  int32(rating.RatingValue),
 		}
 	}
@@ -259,7 +259,7 @@ func (h BlogHandler) UpdateRating(ctx context.Context, request *blogs.UpdateRati
 		Id:           int32(existingBlog.Id),
 		Title:        existingBlog.Title,
 		Description:  existingBlog.Description,
-		CreationDate: existingBlog.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+		CreationDate: timeToTimestampp(existingBlog.CreationDate),
 		Status:       int32(existingBlog.Status),
 		UserId:       int32(existingBlog.UserId),
 		RatingSum:    int32(existingBlog.RatingSum),
@@ -311,7 +311,7 @@ func (h BlogHandler) DeleteRating(ctx context.Context, request *blogs.DeleteRati
 	for i, rating := range existingBlog.Ratings {
 		responseRatings[i] = &blogs.Rating{
 			UserId:       int32(rating.UserId),
-			CreationDate: rating.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+			CreationDate: timeToTimestampp(rating.CreationDate),
 			RatingValue:  int32(rating.RatingValue),
 		}
 	}
@@ -320,7 +320,7 @@ func (h BlogHandler) DeleteRating(ctx context.Context, request *blogs.DeleteRati
 		Id:           int32(existingBlog.Id),
 		Title:        existingBlog.Title,
 		Description:  existingBlog.Description,
-		CreationDate: existingBlog.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+		CreationDate: timeToTimestampp(existingBlog.CreationDate),
 		Status:       int32(existingBlog.Status),
 		UserId:       int32(existingBlog.UserId),
 		RatingSum:    int32(existingBlog.RatingSum),

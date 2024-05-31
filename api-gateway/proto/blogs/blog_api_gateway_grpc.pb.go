@@ -19,13 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	BlogService_GetBlog_FullMethodName             = "/BlogService/GetBlog"
-	BlogService_CreateBlog_FullMethodName          = "/BlogService/CreateBlog"
-	BlogService_GetAllBlog_FullMethodName          = "/BlogService/GetAllBlog"
-	BlogService_UpdateOneBlog_FullMethodName       = "/BlogService/UpdateOneBlog"
-	BlogService_GetAllBlogsByStatus_FullMethodName = "/BlogService/GetAllBlogsByStatus"
-	BlogService_UpdateRating_FullMethodName        = "/BlogService/UpdateRating"
-	BlogService_DeleteRating_FullMethodName        = "/BlogService/DeleteRating"
+	BlogService_GetBlog_FullMethodName                  = "/BlogService/GetBlog"
+	BlogService_CreateBlog_FullMethodName               = "/BlogService/CreateBlog"
+	BlogService_GetAllBlog_FullMethodName               = "/BlogService/GetAllBlog"
+	BlogService_UpdateOneBlog_FullMethodName            = "/BlogService/UpdateOneBlog"
+	BlogService_GetAllBlogsByStatus_FullMethodName      = "/BlogService/GetAllBlogsByStatus"
+	BlogService_UpdateRating_FullMethodName             = "/BlogService/UpdateRating"
+	BlogService_DeleteRating_FullMethodName             = "/BlogService/DeleteRating"
+	BlogService_CreateComment_FullMethodName            = "/BlogService/CreateComment"
+	BlogService_GetCommentsByBlogIdAsync_FullMethodName = "/BlogService/GetCommentsByBlogIdAsync"
 )
 
 // BlogServiceClient is the client API for BlogService service.
@@ -39,6 +41,8 @@ type BlogServiceClient interface {
 	GetAllBlogsByStatus(ctx context.Context, in *GetBlogStatus, opts ...grpc.CallOption) (*ListBlog, error)
 	UpdateRating(ctx context.Context, in *UpdateRatingRequest, opts ...grpc.CallOption) (*Blog, error)
 	DeleteRating(ctx context.Context, in *DeleteRatingRequest, opts ...grpc.CallOption) (*Blog, error)
+	CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*Comment, error)
+	GetCommentsByBlogIdAsync(ctx context.Context, in *GetCommentRequest, opts ...grpc.CallOption) (*ListComment, error)
 }
 
 type blogServiceClient struct {
@@ -112,6 +116,24 @@ func (c *blogServiceClient) DeleteRating(ctx context.Context, in *DeleteRatingRe
 	return out, nil
 }
 
+func (c *blogServiceClient) CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*Comment, error) {
+	out := new(Comment)
+	err := c.cc.Invoke(ctx, BlogService_CreateComment_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *blogServiceClient) GetCommentsByBlogIdAsync(ctx context.Context, in *GetCommentRequest, opts ...grpc.CallOption) (*ListComment, error) {
+	out := new(ListComment)
+	err := c.cc.Invoke(ctx, BlogService_GetCommentsByBlogIdAsync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BlogServiceServer is the server API for BlogService service.
 // All implementations must embed UnimplementedBlogServiceServer
 // for forward compatibility
@@ -123,6 +145,8 @@ type BlogServiceServer interface {
 	GetAllBlogsByStatus(context.Context, *GetBlogStatus) (*ListBlog, error)
 	UpdateRating(context.Context, *UpdateRatingRequest) (*Blog, error)
 	DeleteRating(context.Context, *DeleteRatingRequest) (*Blog, error)
+	CreateComment(context.Context, *Comment) (*Comment, error)
+	GetCommentsByBlogIdAsync(context.Context, *GetCommentRequest) (*ListComment, error)
 	mustEmbedUnimplementedBlogServiceServer()
 }
 
@@ -150,6 +174,12 @@ func (UnimplementedBlogServiceServer) UpdateRating(context.Context, *UpdateRatin
 }
 func (UnimplementedBlogServiceServer) DeleteRating(context.Context, *DeleteRatingRequest) (*Blog, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRating not implemented")
+}
+func (UnimplementedBlogServiceServer) CreateComment(context.Context, *Comment) (*Comment, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateComment not implemented")
+}
+func (UnimplementedBlogServiceServer) GetCommentsByBlogIdAsync(context.Context, *GetCommentRequest) (*ListComment, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCommentsByBlogIdAsync not implemented")
 }
 func (UnimplementedBlogServiceServer) mustEmbedUnimplementedBlogServiceServer() {}
 
@@ -290,6 +320,42 @@ func _BlogService_DeleteRating_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BlogService_CreateComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Comment)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).CreateComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_CreateComment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).CreateComment(ctx, req.(*Comment))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BlogService_GetCommentsByBlogIdAsync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).GetCommentsByBlogIdAsync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_GetCommentsByBlogIdAsync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).GetCommentsByBlogIdAsync(ctx, req.(*GetCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BlogService_ServiceDesc is the grpc.ServiceDesc for BlogService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -324,6 +390,14 @@ var BlogService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteRating",
 			Handler:    _BlogService_DeleteRating_Handler,
+		},
+		{
+			MethodName: "CreateComment",
+			Handler:    _BlogService_CreateComment_Handler,
+		},
+		{
+			MethodName: "GetCommentsByBlogIdAsync",
+			Handler:    _BlogService_GetCommentsByBlogIdAsync_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

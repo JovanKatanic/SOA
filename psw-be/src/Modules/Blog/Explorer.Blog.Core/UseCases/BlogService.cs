@@ -12,11 +12,14 @@ using Explorer.Tours.API.Dtos;
 using FluentResults;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -218,7 +221,12 @@ namespace Explorer.Blog.Core.UseCases
  
             var trimmedJsonResponse = jsonResponse.Replace("{\"Blogs\":", "").TrimEnd('}');
 
-            var blogDtos = JsonConvert.DeserializeObject<List<BlogDto>>(trimmedJsonResponse);
+            var settings = new JsonSerializerSettings
+            {
+                Converters = new List<JsonConverter> { new CustomDateTimeConverter() }
+            };
+
+            var blogDtos = JsonConvert.DeserializeObject<List<BlogDto>>(trimmedJsonResponse,settings);
 
             var listResult = new List<BlogDto>(blogDtos);
 
@@ -274,7 +282,12 @@ namespace Explorer.Blog.Core.UseCases
 
             var trimmedJsonResponse = jsonResponse.Replace("{\"Blogs\":", "").TrimEnd('}');
 
-            var blogDtos = JsonConvert.DeserializeObject<List<BlogDto>>(trimmedJsonResponse);
+            var settings = new JsonSerializerSettings
+            {
+                Converters = new List<JsonConverter> { new CustomDateTimeConverter() }
+            };
+
+            var blogDtos = JsonConvert.DeserializeObject<List<BlogDto>>(trimmedJsonResponse, settings);
 
             var listResult = new List<BlogDto>(blogDtos);
 
@@ -348,11 +361,20 @@ namespace Explorer.Blog.Core.UseCases
 
         public async Task<Result<List<CommentDto>>> GetCommentsByBlogIdAsync(int blogId)
         {
-            using HttpResponseMessage response = await _httpClient.GetAsync("/comments/" + blogId.ToString());
+            using HttpResponseMessage response = await _httpClient.GetAsync("/comment/" + blogId.ToString());
             response.EnsureSuccessStatusCode();
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
-            var commentDtos = JsonConvert.DeserializeObject<List<CommentDto>>(jsonResponse);
+
+            var trimmedJsonResponse = jsonResponse.Replace("{\"Comments\":", "").TrimEnd('}');
+
+            var settings = new JsonSerializerSettings
+            {
+                Converters = new List<JsonConverter> { new CustomDateTimeConverter() }
+            };
+
+            var commentDtos = JsonConvert.DeserializeObject<List<CommentDto>>(trimmedJsonResponse, settings);
+
 
             var listResult = new List<CommentDto>(commentDtos);
 
@@ -365,5 +387,42 @@ namespace Explorer.Blog.Core.UseCases
             }
             return listResult;
         }
+    }
+}
+
+public class CustomDateTimeConverter : DateTimeConverterBase
+{
+    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, Newtonsoft.Json.JsonSerializer serializer)
+    {
+        if (reader.Value == null)
+            return DateTime.MinValue;
+
+        // Attempt to parse the value as a DateTimeOffset first
+        if (DateTimeOffset.TryParse(reader.Value.ToString(), out DateTimeOffset dateTimeOffset))
+            return dateTimeOffset.DateTime;
+
+        // If parsing as DateTimeOffset fails, try using specific formats
+        string[] formats =
+        {
+            "yyyy-MM-dd HH:mm:ss.fff zzz",
+            "yyyy-MM-dd HH:mm:ss.fff z",
+            "yyyy-MM-dd HH:mm:ss.fff zz",
+            "yyyy-MM-dd HH:mm:ss.fff zzzz",
+            "M/d/yyyy h:mm:ss tt",
+            "yyyy-MM-ddTHH:mm:ss.fffffffZ",
+            "yyyy-MM-ddTHH:mm:ss.fffZ",
+            "yyyy-MM-ddTHH:mm:ss.fffffffK",
+            "yyyy-MM-ddTHH:mm:ss.fffK"
+        };
+
+        if (DateTime.TryParseExact(reader.Value.ToString(), formats, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime result))
+            return result;
+
+        throw new Newtonsoft.Json.JsonException($"Could not convert string to DateTime: {reader.Value}");
+    }
+
+    public override void WriteJson(JsonWriter writer, object? value, Newtonsoft.Json.JsonSerializer serializer)
+    {
+        writer.WriteValue(((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss.fffK"));
     }
 }

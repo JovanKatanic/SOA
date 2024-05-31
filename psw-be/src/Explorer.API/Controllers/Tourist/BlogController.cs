@@ -126,15 +126,15 @@ namespace Explorer.API.Controllers.Tourist
             }
         }
 
-        //[HttpPost("createComment")]
-        //public ActionResult<CommentDto> Create([FromBody] CommentDto commentDto)
-        //{
-        //    var result = _blogService.CreateComment(commentDto);
-        //    return CreateResponse(result);
-        //}
+        /*[HttpPost("createComment")]
+        public ActionResult<CommentDto> Create([FromBody] CommentDto commentDto)
+        {
+            var result = _blogService.CreateComment(commentDto);
+            return CreateResponse(result);
+        }*/
 
         [HttpPost("createComment")]
-        public async Task<ActionResult<BlogDto>> CreateCommentAsync([FromBody] CommentDto commentDto)
+        public async Task<ActionResult<CommentDto>> CreateCommentAsync([FromBody] CommentDto commentDto)
         {
             try
             {
@@ -208,11 +208,25 @@ namespace Explorer.API.Controllers.Tourist
             return CreateResponse(result);
         }
 
-        [HttpGet("blogComments/{blogId:int}")]
+        /*[HttpGet("blogComments/{blogId:int}")]
         public ActionResult<List<CommentDto>> GetCommentsByBlogId(int blogId)
         {
             var result = _blogService.GetCommentsByBlogId(blogId);
             return CreateResponse(result);
+        }*/
+
+        [HttpGet("blogComments/{blogId:int}")]
+        public async Task<ActionResult<List<CommentDto>>> GetCommentsByBlogId(int blogId)
+        {
+            try
+            {
+                var result = await _blogService.GetCommentsByBlogIdAsync(blogId);
+                return CreateResponse(result);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         /*[HttpDelete("rating/{userId:int}/{blogId:int}")]
