@@ -15,7 +15,7 @@ type BlogHandler struct {
 	DatabaseConnection *gorm.DB
 }
 
-func (h BlogHandler) GetBlog(ctx context.Context, request *blogs.GetBlogRequest) (*blogs.GetBlogResponse, error) {
+func (h BlogHandler) GetBlog(ctx context.Context, request *blogs.GetBlogRequest) (*blogs.Blog, error) {
 	var blog model.BlogPage
 	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Where(`"Blogs"."Id" = ?`, request.Id).First(&blog).Error; err != nil {
 		return nil, err
@@ -41,22 +41,21 @@ func (h BlogHandler) GetBlog(ctx context.Context, request *blogs.GetBlogRequest)
 		Ratings:      ratingList,
 	}
 
-	fmt.Println(blog)
-
-	response := &blogs.GetBlogResponse{
-		Blog: blogic,
-	}
-
-	return response, nil
+	return blogic, nil
 }
 
-func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.Blog) (*blogs.GetBlogResponse, error) {
+func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.Blog) (*blogs.Blog, error) {
+	fmt.Printf("Received Blog: %+v\n", request)
+	fmt.Printf("Received Blog ID: %d, Title: %s, Description: %s, UserId: %d, RatingSum: %d, Ratings: %+v\n",
+		request.Id, request.Title, request.Description, request.UserId, request.RatingSum, request.Ratings)
 
 	var ratingsList model.BlogRatings
 	for _, rating := range request.Ratings {
 		layout := "2006-01-02T15:04:05.000Z"
-
-		dateTime, _ := time.Parse(layout, rating.CreationDate)
+		dateTime, err := time.Parse(layout, rating.CreationDate)
+		if err != nil {
+			return nil, err
+		}
 		newRating := model.Rating{
 			UserId:       int(rating.UserId),
 			CreationDate: dateTime,
@@ -64,8 +63,8 @@ func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.Blog) (*blog
 		}
 		ratingsList = append(ratingsList, newRating)
 	}
+
 	var blog = model.BlogPage{
-		Id:           int(request.Id),
 		Title:        request.Title,
 		Description:  request.Description,
 		CreationDate: time.Now(),
@@ -75,12 +74,32 @@ func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.Blog) (*blog
 		Ratings:      ratingsList,
 	}
 
-	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Create(blog).Error; err != nil {
+	if len(blog.Ratings) == 0 {
+		blog.Ratings = make([]model.Rating, 0)
+	}
+
+	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Create(&blog).Error; err != nil {
 		return nil, err
 	}
 
-	response := &blogs.GetBlogResponse{
-		Blog: request,
+	responseRatings := make([]*blogs.Rating, len(blog.Ratings))
+	for i, rating := range blog.Ratings {
+		responseRatings[i] = &blogs.Rating{
+			UserId:       int32(rating.UserId),
+			CreationDate: rating.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+			RatingValue:  int32(rating.RatingValue),
+		}
+	}
+
+	response := &blogs.Blog{
+		Id:           int32(blog.Id),
+		Title:        blog.Title,
+		Description:  blog.Description,
+		CreationDate: blog.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+		Status:       int32(blog.Status),
+		UserId:       int32(blog.UserId),
+		RatingSum:    int32(blog.RatingSum),
+		Ratings:      responseRatings,
 	}
 
 	return response, nil

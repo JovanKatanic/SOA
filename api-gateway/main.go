@@ -19,7 +19,6 @@ type Config struct {
 	StakeholderServiceAddress string
 	Address                   string
 	BlogServiceAddress        string
-	BlogAddress               string
 }
 
 func main() {
@@ -27,29 +26,52 @@ func main() {
 		StakeholderServiceAddress: "localhost:8000",
 		Address:                   ":8000",
 		BlogServiceAddress:        "localhost:8001",
-		BlogAddress:               ":8001",
 	}
 
+	gwmux := runtime.NewServeMux()
+
+	// Connect to the Stakeholder Service
 	conn, err := grpc.DialContext(
 		context.Background(),
 		cfg.StakeholderServiceAddress,
 		grpc.WithBlock(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
-
 	if err != nil {
-		log.Fatalln("Failed to dial server:", err)
+		log.Fatalln("Failed to dial stakeholder server:", err)
 	}
+	defer conn.Close()
 
-	gwmux := runtime.NewServeMux()
-	client := auth.NewStakeholderServiceClient(conn)
+	stakeholderClient := auth.NewStakeholderServiceClient(conn)
 	err = auth.RegisterStakeholderServiceHandlerClient(
 		context.Background(),
 		gwmux,
-		client,
+		stakeholderClient,
 	)
 	if err != nil {
-		log.Fatalln("Failed to register gateway:", err)
+		log.Fatalln("Failed to register stakeholder gateway:", err)
+	}
+
+	// Connect to the Blog Service
+	blogConn, err := grpc.DialContext(
+		context.Background(),
+		cfg.BlogServiceAddress,
+		grpc.WithBlock(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Fatalln("Failed to dial blog server:", err)
+	}
+	defer blogConn.Close()
+
+	blogClient := blogs.NewBlogServiceClient(blogConn)
+	err = blogs.RegisterBlogServiceHandlerClient(
+		context.Background(),
+		gwmux,
+		blogClient,
+	)
+	if err != nil {
+		log.Fatalln("Failed to register blog gateway:", err)
 	}
 
 	gwServer := &http.Server{
@@ -63,41 +85,9 @@ func main() {
 		}
 	}()
 
-	blogConn, err := grpc.DialContext(
-		context.Background(),
-		cfg.BlogServiceAddress,
-		grpc.WithBlock(),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-
-	if err != nil {
-		log.Fatalln("Failed to dial blog service:", err)
-	}
-
-	blogGwmux := runtime.NewServeMux()
-	blogClient := blogs.NewBlogServiceClient(blogConn)
-	err = blogs.RegisterBlogServiceHandlerClient(
-		context.Background(),
-		blogGwmux,
-		blogClient,
-	)
-	if err != nil {
-		log.Fatalln("Failed to register blog gateway:", err)
-	}
-
-	blogGwServer := &http.Server{
-		Addr:    cfg.BlogAddress,
-		Handler: blogGwmux,
-	}
-
-	go func() {
-		if err := blogGwServer.ListenAndServe(); err != nil {
-			log.Fatal("Blog server error: ", err)
-		}
-	}()
-
+	// Graceful shutdown
 	stopCh := make(chan os.Signal)
-	signal.Notify(stopCh, syscall.SIGTERM)
+	signal.Notify(stopCh, syscall.SIGTERM, syscall.SIGINT)
 
 	<-stopCh
 

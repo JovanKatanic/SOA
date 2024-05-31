@@ -27,8 +27,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BlogServiceClient interface {
-	GetBlog(ctx context.Context, in *GetBlogRequest, opts ...grpc.CallOption) (*GetBlogResponse, error)
-	CreateBlog(ctx context.Context, in *Blog, opts ...grpc.CallOption) (*GetBlogResponse, error)
+	GetBlog(ctx context.Context, in *GetBlogRequest, opts ...grpc.CallOption) (*Blog, error)
+	CreateBlog(ctx context.Context, in *Blog, opts ...grpc.CallOption) (*Blog, error)
 }
 
 type blogServiceClient struct {
@@ -39,8 +39,8 @@ func NewBlogServiceClient(cc grpc.ClientConnInterface) BlogServiceClient {
 	return &blogServiceClient{cc}
 }
 
-func (c *blogServiceClient) GetBlog(ctx context.Context, in *GetBlogRequest, opts ...grpc.CallOption) (*GetBlogResponse, error) {
-	out := new(GetBlogResponse)
+func (c *blogServiceClient) GetBlog(ctx context.Context, in *GetBlogRequest, opts ...grpc.CallOption) (*Blog, error) {
+	out := new(Blog)
 	err := c.cc.Invoke(ctx, BlogService_GetBlog_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -48,8 +48,8 @@ func (c *blogServiceClient) GetBlog(ctx context.Context, in *GetBlogRequest, opt
 	return out, nil
 }
 
-func (c *blogServiceClient) CreateBlog(ctx context.Context, in *Blog, opts ...grpc.CallOption) (*GetBlogResponse, error) {
-	out := new(GetBlogResponse)
+func (c *blogServiceClient) CreateBlog(ctx context.Context, in *Blog, opts ...grpc.CallOption) (*Blog, error) {
+	out := new(Blog)
 	err := c.cc.Invoke(ctx, BlogService_CreateBlog_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -61,8 +61,8 @@ func (c *blogServiceClient) CreateBlog(ctx context.Context, in *Blog, opts ...gr
 // All implementations must embed UnimplementedBlogServiceServer
 // for forward compatibility
 type BlogServiceServer interface {
-	GetBlog(context.Context, *GetBlogRequest) (*GetBlogResponse, error)
-	CreateBlog(context.Context, *Blog) (*GetBlogResponse, error)
+	GetBlog(context.Context, *GetBlogRequest) (*Blog, error)
+	CreateBlog(context.Context, *Blog) (*Blog, error)
 	mustEmbedUnimplementedBlogServiceServer()
 }
 
@@ -70,10 +70,10 @@ type BlogServiceServer interface {
 type UnimplementedBlogServiceServer struct {
 }
 
-func (UnimplementedBlogServiceServer) GetBlog(context.Context, *GetBlogRequest) (*GetBlogResponse, error) {
+func (UnimplementedBlogServiceServer) GetBlog(context.Context, *GetBlogRequest) (*Blog, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBlog not implemented")
 }
-func (UnimplementedBlogServiceServer) CreateBlog(context.Context, *Blog) (*GetBlogResponse, error) {
+func (UnimplementedBlogServiceServer) CreateBlog(context.Context, *Blog) (*Blog, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateBlog not implemented")
 }
 func (UnimplementedBlogServiceServer) mustEmbedUnimplementedBlogServiceServer() {}
