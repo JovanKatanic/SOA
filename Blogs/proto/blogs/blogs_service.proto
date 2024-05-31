@@ -5,6 +5,7 @@ option go_package = "proto/blogs";
 service BlogService {
   rpc GetBlog(GetBlogRequest) returns (Blog) {}
   rpc CreateBlog(Blog) returns (Blog){}
+  rpc GetAllBlog(Empty) returns (ListBlog){}
 }
 
 message Blog {
@@ -26,4 +27,10 @@ message Rating {
 
 message GetBlogRequest {
   int32 id = 1;
+}
+
+message Empty {} 
+
+message ListBlog { 
+  repeated Blog Blogs = 1;
 }

@@ -189,17 +189,6 @@ namespace Explorer.Blog.Core.UseCases
 
         public async Task<Result<BlogDto>> CreateBlogAsync(BlogDto blog)
         {
-            /*using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(blog), Encoding.UTF8, "application/json");
-
-
-            using HttpResponseMessage response = await _httpClient.PostAsync("/blogs", jsonContent);
-
-            response.EnsureSuccessStatusCode();
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            var blogDto = JsonConvert.DeserializeObject<BlogDto>(jsonResponse);
-
-            return blogDto;*/
-
             var jsonString = System.Text.Json.JsonSerializer.Serialize(blog);
             Console.WriteLine("Serialized JSON: " + jsonString);
 
@@ -226,7 +215,10 @@ namespace Explorer.Blog.Core.UseCases
             response.EnsureSuccessStatusCode();
             
             var jsonResponse = await response.Content.ReadAsStringAsync();
-            var blogDtos = JsonConvert.DeserializeObject<List<BlogDto>>(jsonResponse);
+ 
+            var trimmedJsonResponse = jsonResponse.Replace("{\"Blogs\":", "").TrimEnd('}');
+
+            var blogDtos = JsonConvert.DeserializeObject<List<BlogDto>>(trimmedJsonResponse);
 
             var listResult = new List<BlogDto>(blogDtos);
 

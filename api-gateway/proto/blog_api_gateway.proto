@@ -17,6 +17,12 @@ service BlogService {
       body: "*"
     };
   }
+
+  rpc GetAllBlog(Empty) returns (ListBlog){
+    option (google.api.http) = {
+      get: "/blogs"
+    };
+  }
 }
 
 message Blog {
@@ -38,4 +44,10 @@ message Rating {
 
 message GetBlogRequest {
   int32 id = 1;
+}
+
+message Empty {} 
+
+message ListBlog { 
+  repeated Blog Blogs = 1;
 }

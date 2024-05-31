@@ -104,3 +104,43 @@ func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.Blog) (*blog
 
 	return response, nil
 }
+
+func (h BlogHandler) GetAllBlog(ctx context.Context, request *blogs.Empty) (*blogs.ListBlog, error) {
+	var blogsFromDB []model.BlogPage
+	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Find(&blogsFromDB).Error; err != nil {
+		return nil, err
+	}
+
+	// Mapiranje blogova iz baze na proto strukturu
+	var protoBlogs []*blogs.Blog
+	for _, blog := range blogsFromDB {
+		ratingList := make([]*blogs.Rating, len(blog.Ratings))
+		for i, rating := range blog.Ratings {
+			ratingList[i] = &blogs.Rating{
+				UserId:       int32(rating.UserId),
+				CreationDate: rating.CreationDate.String(),
+				RatingValue:  int32(rating.RatingValue),
+			}
+		}
+
+		protoBlog := &blogs.Blog{
+			Id:           int32(blog.Id),
+			Title:        blog.Title,
+			Description:  blog.Description,
+			CreationDate: blog.CreationDate.String(),
+			Status:       int32(blog.Status),
+			UserId:       int32(blog.UserId),
+			RatingSum:    int32(blog.RatingSum),
+			Ratings:      ratingList,
+		}
+
+		protoBlogs = append(protoBlogs, protoBlog)
+	}
+
+	// Kreiranje odgovora koji sadrži listu blogova
+	response := &blogs.ListBlog{
+		Blogs: protoBlogs,
+	}
+
+	return response, nil
+}
