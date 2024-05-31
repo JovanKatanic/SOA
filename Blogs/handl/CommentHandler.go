@@ -16,6 +16,14 @@ type CommentHandler struct {
 	DatabaseConnection *gorm.DB
 }
 
+func timeToTimestamp(t time.Time) *timestamppb.Timestamp {
+	return timestamppb.New(t)
+}
+
+func timestampToTimee(t *timestamppb.Timestamp) time.Time {
+	return t.AsTime()
+}
+
 func (h BlogHandler) CreateComment(ctx context.Context, request *blogs.Comment) (*blogs.Comment, error) {
 	fmt.Println("usao u create commentara")
 
@@ -73,6 +81,58 @@ func (h BlogHandler) GetCommentsByBlogIdAsync(ctx context.Context, request *blog
 	return response, nil
 }
 
-func timeToTimestamp(t time.Time) *timestamppb.Timestamp {
-	return timestamppb.New(t)
+func (h BlogHandler) UpdateComment(ctx context.Context, request *blogs.Comment) (*blogs.Comment, error) {
+	fmt.Println("usao u update komentara")
+
+	var existingComment model.Comment
+	if err := h.DatabaseConnection.Table(`blog."Comments"`).Where(`"Id" = ?`, request.Id).First(&existingComment).Error; err != nil {
+		return nil, err
+	}
+
+	existingComment.UserId = int(request.UserId)
+	existingComment.CreationDate = timestampToTimee(request.CreationDate)
+	existingComment.Description = request.Description
+	existingComment.LastEditDate = timestampToTimee(request.LastEditDate)
+	existingComment.BlogId = int(request.BlogId)
+
+	if err := h.DatabaseConnection.Table(`blog."Comments"`).Save(&existingComment).Error; err != nil {
+		return nil, err
+	}
+
+	response := &blogs.Comment{
+		Id:           int32(existingComment.Id),
+		UserId:       int32(existingComment.UserId),
+		CreationDate: request.CreationDate,
+		Description:  existingComment.Description,
+		LastEditDate: request.LastEditDate,
+		BlogId:       int32(existingComment.BlogId),
+	}
+
+	return response, nil
+
+}
+
+func (h BlogHandler) DeleteComment(ctx context.Context, request *blogs.DeleteCommentRequest) (*blogs.Comment, error) {
+	fmt.Println("usao u delete komentara")
+
+	var existingComment model.Comment
+	if err := h.DatabaseConnection.Table(`blog."Comments"`).Where(`"Id" = ?`, request.Id).First(&existingComment).Error; err != nil {
+		return nil, err
+	}
+
+	if err := h.DatabaseConnection.Table(`blog."Comments"`).Delete(&existingComment).Error; err != nil {
+		return nil, err
+	}
+
+	response := &blogs.Comment{
+		Id:           int32(existingComment.Id),
+		UserId:       int32(existingComment.UserId),
+		CreationDate: timeToTimestamp(existingComment.CreationDate),
+		Description:  existingComment.Description,
+		LastEditDate: timeToTimestamp(existingComment.LastEditDate),
+		BlogId:       int32(existingComment.BlogId),
+	}
+
+	return response, nil
+
 }

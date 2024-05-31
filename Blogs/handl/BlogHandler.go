@@ -271,13 +271,11 @@ func (h BlogHandler) UpdateRating(ctx context.Context, request *blogs.UpdateRati
 }
 
 func (h BlogHandler) DeleteRating(ctx context.Context, request *blogs.DeleteRatingRequest) (*blogs.Blog, error) {
-	// Pronađite blog u bazi podataka po blogId
 	var existingBlog model.BlogPage
 	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Where(`"Id" = ?`, request.BlogId).First(&existingBlog).Error; err != nil {
 		return nil, err
 	}
 
-	// Pronađite rejting koji treba da se izbriše i ažurirajte zbir rejtinga
 	var ratingToDelete *model.Rating
 	var updatedRatings []model.Rating
 	for _, rating := range existingBlog.Ratings {
@@ -289,24 +287,20 @@ func (h BlogHandler) DeleteRating(ctx context.Context, request *blogs.DeleteRati
 		}
 	}
 
-	// Ako rejting nije pronađen, vratite grešku
 	if ratingToDelete == nil {
 		return nil, fmt.Errorf("rating not found for user %d in blog %d", request.UserId, request.BlogId)
 	}
 
-	// Ažurirajte listu rejtinga bloga
 	if len(updatedRatings) == 0 {
 		existingBlog.Ratings = make([]model.Rating, 0)
 	} else {
 		existingBlog.Ratings = updatedRatings
 	}
 
-	// Sačuvajte ažuriran blog u bazi podataka
 	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Save(&existingBlog).Error; err != nil {
 		return nil, err
 	}
 
-	// Pripremite odgovor sa ažuriranim podacima bloga
 	responseRatings := make([]*blogs.Rating, len(existingBlog.Ratings))
 	for i, rating := range existingBlog.Ratings {
 		responseRatings[i] = &blogs.Rating{

@@ -13,6 +13,8 @@ service BlogService {
   rpc DeleteRating(DeleteRatingRequest) returns (Blog){}
   rpc CreateComment(Comment) returns (Comment){}
   rpc GetCommentsByBlogIdAsync(GetCommentRequest) returns (ListComment){}
+  rpc UpdateComment(Comment) returns (Comment){}
+  rpc DeleteComment(DeleteCommentRequest) returns (Comment){}
 }
 
 message Blog {
@@ -74,4 +76,8 @@ message GetCommentRequest{
 
 message ListComment { 
   repeated Comment Comments = 1;
+}
+
+message DeleteCommentRequest {
+  int32 id = 1;
 }
