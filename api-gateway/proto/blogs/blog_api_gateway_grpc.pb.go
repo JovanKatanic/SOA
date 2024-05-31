@@ -19,9 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	BlogService_GetBlog_FullMethodName    = "/BlogService/GetBlog"
-	BlogService_CreateBlog_FullMethodName = "/BlogService/CreateBlog"
-	BlogService_GetAllBlog_FullMethodName = "/BlogService/GetAllBlog"
+	BlogService_GetBlog_FullMethodName             = "/BlogService/GetBlog"
+	BlogService_CreateBlog_FullMethodName          = "/BlogService/CreateBlog"
+	BlogService_GetAllBlog_FullMethodName          = "/BlogService/GetAllBlog"
+	BlogService_UpdateOneBlog_FullMethodName       = "/BlogService/UpdateOneBlog"
+	BlogService_GetAllBlogsByStatus_FullMethodName = "/BlogService/GetAllBlogsByStatus"
+	BlogService_UpdateRating_FullMethodName        = "/BlogService/UpdateRating"
+	BlogService_DeleteRating_FullMethodName        = "/BlogService/DeleteRating"
 )
 
 // BlogServiceClient is the client API for BlogService service.
@@ -31,6 +35,10 @@ type BlogServiceClient interface {
 	GetBlog(ctx context.Context, in *GetBlogRequest, opts ...grpc.CallOption) (*Blog, error)
 	CreateBlog(ctx context.Context, in *Blog, opts ...grpc.CallOption) (*Blog, error)
 	GetAllBlog(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListBlog, error)
+	UpdateOneBlog(ctx context.Context, in *Blog, opts ...grpc.CallOption) (*Blog, error)
+	GetAllBlogsByStatus(ctx context.Context, in *GetBlogStatus, opts ...grpc.CallOption) (*ListBlog, error)
+	UpdateRating(ctx context.Context, in *UpdateRatingRequest, opts ...grpc.CallOption) (*Blog, error)
+	DeleteRating(ctx context.Context, in *DeleteRatingRequest, opts ...grpc.CallOption) (*Blog, error)
 }
 
 type blogServiceClient struct {
@@ -68,6 +76,42 @@ func (c *blogServiceClient) GetAllBlog(ctx context.Context, in *Empty, opts ...g
 	return out, nil
 }
 
+func (c *blogServiceClient) UpdateOneBlog(ctx context.Context, in *Blog, opts ...grpc.CallOption) (*Blog, error) {
+	out := new(Blog)
+	err := c.cc.Invoke(ctx, BlogService_UpdateOneBlog_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *blogServiceClient) GetAllBlogsByStatus(ctx context.Context, in *GetBlogStatus, opts ...grpc.CallOption) (*ListBlog, error) {
+	out := new(ListBlog)
+	err := c.cc.Invoke(ctx, BlogService_GetAllBlogsByStatus_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *blogServiceClient) UpdateRating(ctx context.Context, in *UpdateRatingRequest, opts ...grpc.CallOption) (*Blog, error) {
+	out := new(Blog)
+	err := c.cc.Invoke(ctx, BlogService_UpdateRating_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *blogServiceClient) DeleteRating(ctx context.Context, in *DeleteRatingRequest, opts ...grpc.CallOption) (*Blog, error) {
+	out := new(Blog)
+	err := c.cc.Invoke(ctx, BlogService_DeleteRating_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BlogServiceServer is the server API for BlogService service.
 // All implementations must embed UnimplementedBlogServiceServer
 // for forward compatibility
@@ -75,6 +119,10 @@ type BlogServiceServer interface {
 	GetBlog(context.Context, *GetBlogRequest) (*Blog, error)
 	CreateBlog(context.Context, *Blog) (*Blog, error)
 	GetAllBlog(context.Context, *Empty) (*ListBlog, error)
+	UpdateOneBlog(context.Context, *Blog) (*Blog, error)
+	GetAllBlogsByStatus(context.Context, *GetBlogStatus) (*ListBlog, error)
+	UpdateRating(context.Context, *UpdateRatingRequest) (*Blog, error)
+	DeleteRating(context.Context, *DeleteRatingRequest) (*Blog, error)
 	mustEmbedUnimplementedBlogServiceServer()
 }
 
@@ -90,6 +138,18 @@ func (UnimplementedBlogServiceServer) CreateBlog(context.Context, *Blog) (*Blog,
 }
 func (UnimplementedBlogServiceServer) GetAllBlog(context.Context, *Empty) (*ListBlog, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllBlog not implemented")
+}
+func (UnimplementedBlogServiceServer) UpdateOneBlog(context.Context, *Blog) (*Blog, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateOneBlog not implemented")
+}
+func (UnimplementedBlogServiceServer) GetAllBlogsByStatus(context.Context, *GetBlogStatus) (*ListBlog, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllBlogsByStatus not implemented")
+}
+func (UnimplementedBlogServiceServer) UpdateRating(context.Context, *UpdateRatingRequest) (*Blog, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateRating not implemented")
+}
+func (UnimplementedBlogServiceServer) DeleteRating(context.Context, *DeleteRatingRequest) (*Blog, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteRating not implemented")
 }
 func (UnimplementedBlogServiceServer) mustEmbedUnimplementedBlogServiceServer() {}
 
@@ -158,6 +218,78 @@ func _BlogService_GetAllBlog_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BlogService_UpdateOneBlog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Blog)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).UpdateOneBlog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_UpdateOneBlog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).UpdateOneBlog(ctx, req.(*Blog))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BlogService_GetAllBlogsByStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBlogStatus)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).GetAllBlogsByStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_GetAllBlogsByStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).GetAllBlogsByStatus(ctx, req.(*GetBlogStatus))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BlogService_UpdateRating_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRatingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).UpdateRating(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_UpdateRating_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).UpdateRating(ctx, req.(*UpdateRatingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BlogService_DeleteRating_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRatingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).DeleteRating(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_DeleteRating_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).DeleteRating(ctx, req.(*DeleteRatingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BlogService_ServiceDesc is the grpc.ServiceDesc for BlogService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -176,6 +308,22 @@ var BlogService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllBlog",
 			Handler:    _BlogService_GetAllBlog_Handler,
+		},
+		{
+			MethodName: "UpdateOneBlog",
+			Handler:    _BlogService_UpdateOneBlog_Handler,
+		},
+		{
+			MethodName: "GetAllBlogsByStatus",
+			Handler:    _BlogService_GetAllBlogsByStatus_Handler,
+		},
+		{
+			MethodName: "UpdateRating",
+			Handler:    _BlogService_UpdateRating_Handler,
+		},
+		{
+			MethodName: "DeleteRating",
+			Handler:    _BlogService_DeleteRating_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

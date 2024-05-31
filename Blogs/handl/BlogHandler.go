@@ -111,7 +111,6 @@ func (h BlogHandler) GetAllBlog(ctx context.Context, request *blogs.Empty) (*blo
 		return nil, err
 	}
 
-	// Mapiranje blogova iz baze na proto strukturu
 	var protoBlogs []*blogs.Blog
 	for _, blog := range blogsFromDB {
 		ratingList := make([]*blogs.Rating, len(blog.Ratings))
@@ -137,10 +136,197 @@ func (h BlogHandler) GetAllBlog(ctx context.Context, request *blogs.Empty) (*blo
 		protoBlogs = append(protoBlogs, protoBlog)
 	}
 
-	// Kreiranje odgovora koji sadrži listu blogova
 	response := &blogs.ListBlog{
 		Blogs: protoBlogs,
 	}
 
 	return response, nil
+}
+
+func (h BlogHandler) UpdateOneBlog(ctx context.Context, request *blogs.Blog) (*blogs.Blog, error) {
+	var existingBlog model.BlogPage
+	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Where(`"Blogs"."Id" = ?`, request.Id).First(&existingBlog).Error; err != nil {
+		return nil, err
+	}
+
+	existingBlog.Title = request.Title
+	existingBlog.Description = request.Description
+	existingBlog.Status = uint(request.Status)
+	existingBlog.UserId = int(request.UserId)
+	existingBlog.RatingSum = int(request.RatingSum)
+
+	existingBlog.Ratings = make([]model.Rating, len(request.Ratings))
+	for i, rating := range request.Ratings {
+		layout := "2006-01-02T15:04:05.000Z"
+		dateTime, err := time.Parse(layout, rating.CreationDate)
+		if err != nil {
+			return nil, err
+		}
+		newRating := model.Rating{
+			UserId:       int(rating.UserId),
+			CreationDate: dateTime,
+			RatingValue:  int(rating.RatingValue),
+		}
+		existingBlog.Ratings[i] = newRating
+	}
+
+	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Save(&existingBlog).Error; err != nil {
+		return nil, err
+	}
+
+	response := &blogs.Blog{
+		Id:           int32(existingBlog.Id),
+		Title:        existingBlog.Title,
+		Description:  existingBlog.Description,
+		CreationDate: existingBlog.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+		Status:       int32(existingBlog.Status),
+		UserId:       int32(existingBlog.UserId),
+		RatingSum:    int32(existingBlog.RatingSum),
+		Ratings:      request.Ratings,
+	}
+
+	return response, nil
+}
+
+func (h BlogHandler) GetAllBlogsByStatus(ctx context.Context, request *blogs.GetBlogStatus) (*blogs.ListBlog, error) {
+	state := request.State
+
+	var blogsFromDB []model.BlogPage
+
+	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Where(`"Status" = ?`, state).Find(&blogsFromDB).Error; err != nil {
+		return nil, err
+	}
+
+	protoBlogs := make([]*blogs.Blog, len(blogsFromDB))
+	for i, blog := range blogsFromDB {
+		ratingList := make([]*blogs.Rating, len(blog.Ratings))
+		for j, rating := range blog.Ratings {
+			ratingList[j] = &blogs.Rating{
+				UserId:       int32(rating.UserId),
+				CreationDate: rating.CreationDate.String(),
+				RatingValue:  int32(rating.RatingValue),
+			}
+		}
+
+		protoBlogs[i] = &blogs.Blog{
+			Id:           int32(blog.Id),
+			Title:        blog.Title,
+			Description:  blog.Description,
+			CreationDate: blog.CreationDate.String(),
+			Status:       int32(blog.Status),
+			UserId:       int32(blog.UserId),
+			RatingSum:    int32(blog.RatingSum),
+			Ratings:      ratingList,
+		}
+	}
+
+	response := &blogs.ListBlog{
+		Blogs: protoBlogs,
+	}
+
+	return response, nil
+}
+
+func (h BlogHandler) UpdateRating(ctx context.Context, request *blogs.UpdateRatingRequest) (*blogs.Blog, error) {
+	var existingBlog model.BlogPage
+	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Where(`"Id" = ?`, request.BlogId).First(&existingBlog).Error; err != nil {
+		return nil, err
+	}
+
+	newRating := model.Rating{
+		UserId:       int(request.UserId),
+		CreationDate: time.Now(),
+		RatingValue:  int(request.Value),
+	}
+	existingBlog.Ratings = append(existingBlog.Ratings, newRating)
+
+	existingBlog.RatingSum += int(request.Value)
+
+	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Save(&existingBlog).Error; err != nil {
+		return nil, err
+	}
+
+	responseRatings := make([]*blogs.Rating, len(existingBlog.Ratings))
+	for i, rating := range existingBlog.Ratings {
+		responseRatings[i] = &blogs.Rating{
+			UserId:       int32(rating.UserId),
+			CreationDate: rating.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+			RatingValue:  int32(rating.RatingValue),
+		}
+	}
+
+	response := &blogs.Blog{
+		Id:           int32(existingBlog.Id),
+		Title:        existingBlog.Title,
+		Description:  existingBlog.Description,
+		CreationDate: existingBlog.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+		Status:       int32(existingBlog.Status),
+		UserId:       int32(existingBlog.UserId),
+		RatingSum:    int32(existingBlog.RatingSum),
+		Ratings:      responseRatings,
+	}
+
+	return response, nil
+
+}
+
+func (h BlogHandler) DeleteRating(ctx context.Context, request *blogs.DeleteRatingRequest) (*blogs.Blog, error) {
+	// Pronađite blog u bazi podataka po blogId
+	var existingBlog model.BlogPage
+	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Where(`"Id" = ?`, request.BlogId).First(&existingBlog).Error; err != nil {
+		return nil, err
+	}
+
+	// Pronađite rejting koji treba da se izbriše i ažurirajte zbir rejtinga
+	var ratingToDelete *model.Rating
+	var updatedRatings []model.Rating
+	for _, rating := range existingBlog.Ratings {
+		if rating.UserId == int(request.UserId) {
+			ratingToDelete = &rating
+			existingBlog.RatingSum -= rating.RatingValue
+		} else {
+			updatedRatings = append(updatedRatings, rating)
+		}
+	}
+
+	// Ako rejting nije pronađen, vratite grešku
+	if ratingToDelete == nil {
+		return nil, fmt.Errorf("rating not found for user %d in blog %d", request.UserId, request.BlogId)
+	}
+
+	// Ažurirajte listu rejtinga bloga
+	if len(updatedRatings) == 0 {
+		existingBlog.Ratings = make([]model.Rating, 0)
+	} else {
+		existingBlog.Ratings = updatedRatings
+	}
+
+	// Sačuvajte ažuriran blog u bazi podataka
+	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Save(&existingBlog).Error; err != nil {
+		return nil, err
+	}
+
+	// Pripremite odgovor sa ažuriranim podacima bloga
+	responseRatings := make([]*blogs.Rating, len(existingBlog.Ratings))
+	for i, rating := range existingBlog.Ratings {
+		responseRatings[i] = &blogs.Rating{
+			UserId:       int32(rating.UserId),
+			CreationDate: rating.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+			RatingValue:  int32(rating.RatingValue),
+		}
+	}
+
+	response := &blogs.Blog{
+		Id:           int32(existingBlog.Id),
+		Title:        existingBlog.Title,
+		Description:  existingBlog.Description,
+		CreationDate: existingBlog.CreationDate.Format("2006-01-02T15:04:05.000Z"),
+		Status:       int32(existingBlog.Status),
+		UserId:       int32(existingBlog.UserId),
+		RatingSum:    int32(existingBlog.RatingSum),
+		Ratings:      responseRatings,
+	}
+
+	return response, nil
+
 }

@@ -271,7 +271,10 @@ namespace Explorer.Blog.Core.UseCases
             response.EnsureSuccessStatusCode();
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
-            var blogDtos = JsonConvert.DeserializeObject<List<BlogDto>>(jsonResponse);
+
+            var trimmedJsonResponse = jsonResponse.Replace("{\"Blogs\":", "").TrimEnd('}');
+
+            var blogDtos = JsonConvert.DeserializeObject<List<BlogDto>>(trimmedJsonResponse);
 
             var listResult = new List<BlogDto>(blogDtos);
 

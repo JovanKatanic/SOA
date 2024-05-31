@@ -23,6 +23,31 @@ service BlogService {
       get: "/blogs"
     };
   }
+  
+  rpc UpdateOneBlog(Blog) returns (Blog){
+    option (google.api.http) = {
+      put: "/blogs/updateOneBlog",
+      body: "*"
+    };
+  }
+
+  rpc GetAllBlogsByStatus(GetBlogStatus) returns (ListBlog){
+    option (google.api.http) = {
+      get: "/blogs/getByStatus/{state}"
+    };
+  }
+  rpc UpdateRating(UpdateRatingRequest) returns(Blog){
+    option (google.api.http) = {
+      put: "/blogs/rating/{userId}/{blogId}/{value}",
+      body: "*"
+    };
+  }
+
+  rpc DeleteRating(DeleteRatingRequest) returns (Blog){
+    option (google.api.http) = {
+      delete: "/blogs/rating/{userId}/{blogId}"
+    };
+  }
 }
 
 message Blog {
@@ -50,4 +75,19 @@ message Empty {}
 
 message ListBlog { 
   repeated Blog Blogs = 1;
+}
+
+message GetBlogStatus{
+  int32 state = 1;
+}
+
+message UpdateRatingRequest{
+  int32 blogId = 1;
+  int32 userId = 2;
+  int32 value = 3;
+}
+
+message DeleteRatingRequest{
+  int32 blogId = 1;
+  int32 userId = 2;
 }

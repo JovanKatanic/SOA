@@ -6,6 +6,10 @@ service BlogService {
   rpc GetBlog(GetBlogRequest) returns (Blog) {}
   rpc CreateBlog(Blog) returns (Blog){}
   rpc GetAllBlog(Empty) returns (ListBlog){}
+  rpc UpdateOneBlog(Blog) returns (Blog){}
+  rpc GetAllBlogsByStatus(GetBlogStatus) returns (ListBlog){}
+  rpc UpdateRating(UpdateRatingRequest) returns(Blog){}
+  rpc DeleteRating(DeleteRatingRequest) returns (Blog){}
 }
 
 message Blog {
@@ -33,4 +37,19 @@ message Empty {}
 
 message ListBlog { 
   repeated Blog Blogs = 1;
+}
+
+message GetBlogStatus{
+  int32 state = 1;
+}
+
+message UpdateRatingRequest{
+  int32 blogId = 1;
+  int32 userId = 2;
+  int32 value = 3;
+}
+
+message DeleteRatingRequest{
+  int32 blogId = 1;
+  int32 userId = 2;
 }
