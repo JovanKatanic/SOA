@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiHost: 'https://localhost:44333/api/',
+  apiHost: 'http://localhost:8000/api/',
   socketHost: 'wss://localhost:44333/hub'
 };

@@ -3,6 +3,7 @@ package main
 import (
 	"blogs_service/handl"
 	"blogs_service/proto/blogs"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -70,7 +71,7 @@ func main() {
 		return
 	}
 
-	listener, err := net.Listen("tcp", "localhost:8001")
+	listener, err := net.Listen("tcp", "localhost:8002")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -82,6 +83,7 @@ func main() {
 	}(listener)
 
 	grpcServer := grpc.NewServer()
+	fmt.Println("startovao server")
 	reflection.Register(grpcServer)
 
 	blogHandler := handl.BlogHandler{DatabaseConnection: database}

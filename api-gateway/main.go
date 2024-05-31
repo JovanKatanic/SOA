@@ -3,6 +3,7 @@ package main
 import (
 	"api_gateway/proto/auth"
 	"api_gateway/proto/blogs"
+	"api_gateway/proto/followings"
 	"context"
 	"log"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 	"syscall"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/rs/cors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -19,13 +21,15 @@ type Config struct {
 	StakeholderServiceAddress string
 	Address                   string
 	BlogServiceAddress        string
+	FollowingServiceAdress    string
 }
 
 func main() {
 	cfg := Config{
-		StakeholderServiceAddress: "localhost:8000",
 		Address:                   ":8000",
-		BlogServiceAddress:        "localhost:8001",
+		StakeholderServiceAddress: "localhost:8001",
+		BlogServiceAddress:        "localhost:8002",
+		FollowingServiceAdress:    "localhost:8003",
 	}
 
 	gwmux := runtime.NewServeMux()
@@ -74,9 +78,41 @@ func main() {
 		log.Fatalln("Failed to register blog gateway:", err)
 	}
 
+	//Connect to the Followers Service
+	followCon, err := grpc.DialContext(
+		context.Background(),
+		cfg.FollowingServiceAdress,
+		grpc.WithBlock(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+
+	if err != nil {
+		log.Fatalln("Failed to dial following service:", err)
+	}
+	defer followCon.Close()
+
+	followClient := followings.NewFollowerServiceClient(followCon)
+	err = followings.RegisterFollowerServiceHandlerClient(
+		context.Background(),
+		gwmux,
+		followClient,
+	)
+	if err != nil {
+		log.Fatalln("Failed to register following gateway:", err)
+	}
+
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},                            // Allow all origins
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"}, // Allow specific HTTP methods
+		AllowedHeaders:   []string{"*"},                            // Allow all headers
+		AllowCredentials: true,                                     // Allow sending credentials (e.g., cookies)
+	})
+
+	handler := c.Handler(gwmux)
+
 	gwServer := &http.Server{
 		Addr:    cfg.Address,
-		Handler: gwmux,
+		Handler: handler,
 	}
 
 	go func() {
@@ -86,6 +122,7 @@ func main() {
 	}()
 
 	// Graceful shutdown
+
 	stopCh := make(chan os.Signal)
 	signal.Notify(stopCh, syscall.SIGTERM, syscall.SIGINT)
 

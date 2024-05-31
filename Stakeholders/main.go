@@ -33,7 +33,7 @@ func main() {
 		return
 	}
 
-	listener, err := net.Listen("tcp", "localhost:8000")
+	listener, err := net.Listen("tcp", "localhost:8001")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -47,7 +47,7 @@ func main() {
 	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
 
-	authHandler := handl.AuthHandler{DatabaseConnection: database}
+	authHandler := handl.AuthHandler{DatabaseConnection: database, Key: "your_secret_key"}
 	auth.RegisterStakeholderServiceServer(grpcServer, authHandler)
 
 	go func() {

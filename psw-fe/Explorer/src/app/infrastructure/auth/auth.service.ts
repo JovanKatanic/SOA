@@ -64,9 +64,10 @@ export class AuthService {
     const user: User = {
       id: +jwtHelperService.decodeToken(accessToken).id,
       username: jwtHelperService.decodeToken(accessToken).username,
-      role: jwtHelperService.decodeToken(accessToken)[
-        'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
-      ],
+      role: jwtHelperService.decodeToken(accessToken).role
+      // [
+      //   'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+      // ],
     };
     // const userNews: UserNews = {
     //   id: 0,
@@ -85,12 +86,12 @@ export class AuthService {
   
 
   requestPasswordChange(email: string): Observable<string> {
-    const url = `${environment.apiHost}users/changePasswordRequest?email=${email}`;
+    const url = `${environment.apiHost}users/activateUser/changePasswordRequest?email=${email}`;
     return this.http.post<string>(url, null);
   }
 
   changePassword(changePassword: ChangePassword): Observable<string>{
-    return this.http.post<string>(environment.apiHost + 'users/changePassword', changePassword);
+    return this.http.post<string>(environment.apiHost + 'users/activateUser/changePassword', changePassword);
   }
 
   activateUser(token: string): Observable<AuthenticationResponse>{

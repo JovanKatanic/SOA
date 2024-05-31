@@ -2,7 +2,7 @@ package model
 
 type Person struct {
 	ID         int     `json:"id" gorm:"column:Id;primaryKey"`
-	UserID     int     `json:"userId" gorm:"column:UserId"`
+	UserID     int64   `json:"userId" gorm:"column:UserId"`
 	Name       string  `json:"name" gorm:"column:Name"`
 	Surname    string  `json:"surname" gorm:"column:Surname"`
 	Email      string  `json:"email" gorm:"column:Email"`

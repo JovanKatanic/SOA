@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v5.26.1
-// source: api_gateway.proto
+// source: auth/api_gateway.proto
 
 package auth
 
@@ -19,14 +19,22 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	StakeholderService_Greet_FullMethodName = "/StakeholderService/Greet"
+	StakeholderService_LogIn_FullMethodName                 = "/StakeholderService/LogIn"
+	StakeholderService_RegisterTourist_FullMethodName       = "/StakeholderService/RegisterTourist"
+	StakeholderService_ActivateUser_FullMethodName          = "/StakeholderService/ActivateUser"
+	StakeholderService_ChangePassword_FullMethodName        = "/StakeholderService/ChangePassword"
+	StakeholderService_ChangePasswordRequest_FullMethodName = "/StakeholderService/changePasswordRequest"
 )
 
 // StakeholderServiceClient is the client API for StakeholderService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StakeholderServiceClient interface {
-	Greet(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
+	LogIn(ctx context.Context, in *RequestLogIn, opts ...grpc.CallOption) (*ResponseLogIn, error)
+	RegisterTourist(ctx context.Context, in *RequestRegister, opts ...grpc.CallOption) (*ResponseLogIn, error)
+	ActivateUser(ctx context.Context, in *RequestActivateUser, opts ...grpc.CallOption) (*ResponseLogIn, error)
+	ChangePassword(ctx context.Context, in *RequestChangePassword, opts ...grpc.CallOption) (*RequestActivateUser, error)
+	ChangePasswordRequest(ctx context.Context, in *RequestChangePasswordRequest, opts ...grpc.CallOption) (*RequestActivateUser, error)
 }
 
 type stakeholderServiceClient struct {
@@ -37,9 +45,45 @@ func NewStakeholderServiceClient(cc grpc.ClientConnInterface) StakeholderService
 	return &stakeholderServiceClient{cc}
 }
 
-func (c *stakeholderServiceClient) Greet(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
-	out := new(Response)
-	err := c.cc.Invoke(ctx, StakeholderService_Greet_FullMethodName, in, out, opts...)
+func (c *stakeholderServiceClient) LogIn(ctx context.Context, in *RequestLogIn, opts ...grpc.CallOption) (*ResponseLogIn, error) {
+	out := new(ResponseLogIn)
+	err := c.cc.Invoke(ctx, StakeholderService_LogIn_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *stakeholderServiceClient) RegisterTourist(ctx context.Context, in *RequestRegister, opts ...grpc.CallOption) (*ResponseLogIn, error) {
+	out := new(ResponseLogIn)
+	err := c.cc.Invoke(ctx, StakeholderService_RegisterTourist_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *stakeholderServiceClient) ActivateUser(ctx context.Context, in *RequestActivateUser, opts ...grpc.CallOption) (*ResponseLogIn, error) {
+	out := new(ResponseLogIn)
+	err := c.cc.Invoke(ctx, StakeholderService_ActivateUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *stakeholderServiceClient) ChangePassword(ctx context.Context, in *RequestChangePassword, opts ...grpc.CallOption) (*RequestActivateUser, error) {
+	out := new(RequestActivateUser)
+	err := c.cc.Invoke(ctx, StakeholderService_ChangePassword_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *stakeholderServiceClient) ChangePasswordRequest(ctx context.Context, in *RequestChangePasswordRequest, opts ...grpc.CallOption) (*RequestActivateUser, error) {
+	out := new(RequestActivateUser)
+	err := c.cc.Invoke(ctx, StakeholderService_ChangePasswordRequest_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +94,11 @@ func (c *stakeholderServiceClient) Greet(ctx context.Context, in *Request, opts 
 // All implementations must embed UnimplementedStakeholderServiceServer
 // for forward compatibility
 type StakeholderServiceServer interface {
-	Greet(context.Context, *Request) (*Response, error)
+	LogIn(context.Context, *RequestLogIn) (*ResponseLogIn, error)
+	RegisterTourist(context.Context, *RequestRegister) (*ResponseLogIn, error)
+	ActivateUser(context.Context, *RequestActivateUser) (*ResponseLogIn, error)
+	ChangePassword(context.Context, *RequestChangePassword) (*RequestActivateUser, error)
+	ChangePasswordRequest(context.Context, *RequestChangePasswordRequest) (*RequestActivateUser, error)
 	mustEmbedUnimplementedStakeholderServiceServer()
 }
 
@@ -58,8 +106,20 @@ type StakeholderServiceServer interface {
 type UnimplementedStakeholderServiceServer struct {
 }
 
-func (UnimplementedStakeholderServiceServer) Greet(context.Context, *Request) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Greet not implemented")
+func (UnimplementedStakeholderServiceServer) LogIn(context.Context, *RequestLogIn) (*ResponseLogIn, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LogIn not implemented")
+}
+func (UnimplementedStakeholderServiceServer) RegisterTourist(context.Context, *RequestRegister) (*ResponseLogIn, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterTourist not implemented")
+}
+func (UnimplementedStakeholderServiceServer) ActivateUser(context.Context, *RequestActivateUser) (*ResponseLogIn, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ActivateUser not implemented")
+}
+func (UnimplementedStakeholderServiceServer) ChangePassword(context.Context, *RequestChangePassword) (*RequestActivateUser, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangePassword not implemented")
+}
+func (UnimplementedStakeholderServiceServer) ChangePasswordRequest(context.Context, *RequestChangePasswordRequest) (*RequestActivateUser, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangePasswordRequest not implemented")
 }
 func (UnimplementedStakeholderServiceServer) mustEmbedUnimplementedStakeholderServiceServer() {}
 
@@ -74,20 +134,92 @@ func RegisterStakeholderServiceServer(s grpc.ServiceRegistrar, srv StakeholderSe
 	s.RegisterService(&StakeholderService_ServiceDesc, srv)
 }
 
-func _StakeholderService_Greet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Request)
+func _StakeholderService_LogIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestLogIn)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(StakeholderServiceServer).Greet(ctx, in)
+		return srv.(StakeholderServiceServer).LogIn(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: StakeholderService_Greet_FullMethodName,
+		FullMethod: StakeholderService_LogIn_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StakeholderServiceServer).Greet(ctx, req.(*Request))
+		return srv.(StakeholderServiceServer).LogIn(ctx, req.(*RequestLogIn))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StakeholderService_RegisterTourist_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestRegister)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StakeholderServiceServer).RegisterTourist(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StakeholderService_RegisterTourist_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StakeholderServiceServer).RegisterTourist(ctx, req.(*RequestRegister))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StakeholderService_ActivateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestActivateUser)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StakeholderServiceServer).ActivateUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StakeholderService_ActivateUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StakeholderServiceServer).ActivateUser(ctx, req.(*RequestActivateUser))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StakeholderService_ChangePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestChangePassword)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StakeholderServiceServer).ChangePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StakeholderService_ChangePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StakeholderServiceServer).ChangePassword(ctx, req.(*RequestChangePassword))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StakeholderService_ChangePasswordRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestChangePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StakeholderServiceServer).ChangePasswordRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StakeholderService_ChangePasswordRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StakeholderServiceServer).ChangePasswordRequest(ctx, req.(*RequestChangePasswordRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -100,10 +232,26 @@ var StakeholderService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*StakeholderServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Greet",
-			Handler:    _StakeholderService_Greet_Handler,
+			MethodName: "LogIn",
+			Handler:    _StakeholderService_LogIn_Handler,
+		},
+		{
+			MethodName: "RegisterTourist",
+			Handler:    _StakeholderService_RegisterTourist_Handler,
+		},
+		{
+			MethodName: "ActivateUser",
+			Handler:    _StakeholderService_ActivateUser_Handler,
+		},
+		{
+			MethodName: "ChangePassword",
+			Handler:    _StakeholderService_ChangePassword_Handler,
+		},
+		{
+			MethodName: "changePasswordRequest",
+			Handler:    _StakeholderService_ChangePasswordRequest_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api_gateway.proto",
+	Metadata: "auth/api_gateway.proto",
 }
