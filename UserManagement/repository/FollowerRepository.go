@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log"
-	"strconv"
 	"time"
 	"user_management_service/model"
 
@@ -90,7 +89,7 @@ func (f *FollowerRepository) WriteFollower(follower *model.Follower) error {
 			result, err := transaction.Run(ctx,
 				"MATCH (a:Person), (b:Person) WHERE a.id = $aId  AND b.id = $bId CREATE (a) -[r:Follows {content:$content, timeOfArrival:$timeOfArrival, read:$read}]-> (b) RETURN type(r)",
 				map[string]any{"aId": follower.FollowerId, "bId": follower.FollowedId,
-					"content": strconv.Itoa(follower.FollowerId) + " has started following you", "timeOfArrival": time.Now(), "read": false})
+					"content": follower.Notification.Content /*strconv.Itoa(follower.FollowerId) + " has started following you"*/, "timeOfArrival": time.Now().UTC(), "read": false})
 
 			f.logger.Print("Napravljen je upit")
 			if err != nil {

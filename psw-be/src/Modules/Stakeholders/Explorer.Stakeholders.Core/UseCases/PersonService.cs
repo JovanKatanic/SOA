@@ -138,7 +138,8 @@ namespace Explorer.Stakeholders.Core.UseCases
             response.EnsureSuccessStatusCode();
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
-            var followings = JsonConvert.DeserializeObject<List<PersonDto>>(jsonResponse);
+            var trimmedJsonResponse = jsonResponse.Replace("{\"people\":", "").TrimEnd('}');
+            var followings = JsonConvert.DeserializeObject<List<PersonDto>>(trimmedJsonResponse);
 
 
             return followings;

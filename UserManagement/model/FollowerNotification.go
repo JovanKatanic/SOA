@@ -9,9 +9,9 @@ import (
 )
 
 type FollowerNotification struct {
-	Content       string     `json:"content" bson:"content"`
-	TimeOfArrival *time.Time `json:"timeOfArrival" bson:"timeOfArrival"`
-	Read          bool       `json:"read" bson:"read"`
+	Content       string    `json:"content" bson:"content"`
+	TimeOfArrival time.Time `json:"timeOfArrival" bson:"timeOfArrival"`
+	Read          bool      `json:"read" bson:"read"`
 }
 
 func (n FollowerNotification) Value() (driver.Value, error) {

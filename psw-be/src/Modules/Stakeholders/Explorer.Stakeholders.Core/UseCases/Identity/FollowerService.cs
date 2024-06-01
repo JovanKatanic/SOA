@@ -32,9 +32,13 @@ namespace Explorer.Stakeholders.Core.UseCases.Identity
             this._httpClient = _httpClient;
         }
 
-        private static HttpClient sharedClient = new()
+        /*private static HttpClient sharedClient = new()
         {
             BaseAddress = new Uri("http://user_management_service:8082")
+        };*/
+        private static HttpClient sharedClient = new()
+        {
+            BaseAddress = new Uri("http://localhost:8000")
         };
         public Result<List<SavedNotificationDto>> GetFollowersNotifications(int id)
         {

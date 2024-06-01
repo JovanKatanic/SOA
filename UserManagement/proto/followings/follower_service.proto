@@ -1,9 +1,13 @@
 syntax = "proto3";
 
 option go_package = "proto/followings";
+import "google/protobuf/timestamp.proto";
 
 service FollowerService {
   rpc GetFollowings(GetFollowRequest) returns (GetFollowResponse) {}
+  rpc CreateFollow(Follower) returns (Follower){}
+  rpc DeleteFollow(DeleteFollowRequest) returns (Emptyy){}
+  rpc GetAllRecommendedFollowings(GetFollowRequest) returns (GetFollowResponse){}
 }
 
 message People {
@@ -25,4 +29,27 @@ message GetFollowRequest {
 
 message GetFollowResponse{
     repeated People people = 1;
+}
+
+
+message Follower{
+  int32 Id = 1;
+  int32 FollowerId = 2;
+  int32 FollowedId = 3;
+  Notification Notification = 4;
+}
+
+message Notification{
+  string Content = 1;
+  google.protobuf.Timestamp TimeOfArrival = 2;
+  bool Read = 3;
+}
+
+message DeleteFollowRequest{
+  int32 followerId = 1;
+  int32 followedId = 2;
+}
+
+message Emptyy{
+
 }
