@@ -43,11 +43,11 @@ func (s *TourService) GetTourById(id int) (*model.Tour, error) {
 		fmt.Println("Tour not found")
 		return nil, nil
 	}
-	keypoints, err := s.KeypointRepository.GetByTourId(id)
+	// keypoints, err := s.KeypointRepository.GetByTourId(id)
 
-	tour.KeyPoints = keypoints
+	// tour.KeyPoints = keypoints
 
-	return tour, err
+	return tour, nil
 }
 
 func (service *TourService) GetToursByAuthorId(id int) (*[]model.Tour, error) {

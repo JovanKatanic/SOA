@@ -110,7 +110,7 @@ func local_request_BlogService_CreateBlog_0(ctx context.Context, marshaler runti
 }
 
 func request_BlogService_GetAllBlog_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq Empty
+	var protoReq Emptyyy
 	var metadata runtime.ServerMetadata
 
 	msg, err := client.GetAllBlog(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -119,7 +119,7 @@ func request_BlogService_GetAllBlog_0(ctx context.Context, marshaler runtime.Mar
 }
 
 func local_request_BlogService_GetAllBlog_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq Empty
+	var protoReq Emptyyy
 	var metadata runtime.ServerMetadata
 
 	msg, err := server.GetAllBlog(ctx, &protoReq)

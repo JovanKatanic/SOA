@@ -109,7 +109,7 @@ func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.Blog) (*blog
 	return response, nil
 }
 
-func (h BlogHandler) GetAllBlog(ctx context.Context, request *blogs.Empty) (*blogs.ListBlog, error) {
+func (h BlogHandler) GetAllBlog(ctx context.Context, request *blogs.Emptyyy) (*blogs.ListBlog, error) {
 	var blogsFromDB []model.BlogPage
 	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Find(&blogsFromDB).Error; err != nil {
 		return nil, err

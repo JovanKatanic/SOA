@@ -42,9 +42,13 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             _httpClient = httpClient;
         }
 
-        private static HttpClient sharedClient = new()
+        /*private static HttpClient sharedClient = new()
         {
             BaseAddress = new Uri("http://tours_service:8080")
+        };*/
+        private static HttpClient sharedClient = new()
+        {
+            BaseAddress = new Uri("http://localhost:8000")
         };
 
         public async Task<TourDto> CreateAsync(TourDto tour)
@@ -58,25 +62,34 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             var jsonString = await response.Content.ReadAsStringAsync();
             var jsonObject = JsonDocument.Parse(jsonString).RootElement;
 
+            var imageString = jsonObject.GetProperty("Image").GetString();
+            Uri imageUri = null;
+
+            if (Uri.TryCreate(imageString, UriKind.Absolute, out var uriResult) &&
+                (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+            {
+                imageUri = uriResult;
+            }
+
             TourDto tourDto = new TourDto
             {
-                Id = jsonObject.GetProperty("id").GetInt32(),
-                Name = jsonObject.GetProperty("name").GetString(),
-                Description = jsonObject.GetProperty("description").GetString(),
-                Difficulty = jsonObject.GetProperty("difficulty").GetInt32(),
-                Tags = ParseTags(jsonObject.GetProperty("tags")),
-                Status = jsonObject.GetProperty("status").GetInt32(),
-                Price = jsonObject.GetProperty("price").GetDouble(),
-                AuthorId = jsonObject.GetProperty("authorId").GetInt32(),
-                Equipment = ParseEquipment(jsonObject.GetProperty("equipment")),
-                DistanceInKm = jsonObject.GetProperty("distanceInKm").GetDouble(),
-                ArchivedDate = jsonObject.TryGetProperty("archivedDate", out var archivedDate) && archivedDate.ValueKind != JsonValueKind.Null ?
+                Id = jsonObject.GetProperty("Id").GetInt32(),
+                Name = jsonObject.GetProperty("Name").GetString(),
+                Description = jsonObject.GetProperty("Description").GetString(),
+                Difficulty = jsonObject.GetProperty("Difficulty").GetInt32(),
+                Tags = ParseTags(jsonObject.GetProperty("Tags")),
+                Status = jsonObject.GetProperty("Status").GetInt32(),
+                Price = jsonObject.GetProperty("Price").GetDouble(),
+                AuthorId = jsonObject.GetProperty("AuthorId").GetInt32(),
+                Equipment = ParseEquipment(jsonObject.GetProperty("Equipment")),
+                DistanceInKm = jsonObject.GetProperty("DistanceInKm").GetDouble(),
+                ArchivedDate = jsonObject.TryGetProperty("ArchivedDate", out var archivedDate) && archivedDate.ValueKind != JsonValueKind.Null ?
         (DateTime?)DateTime.Parse(archivedDate.GetString()) : null,
-                PublishedDate = jsonObject.TryGetProperty("publishedDate", out var publishedDate) && publishedDate.ValueKind != JsonValueKind.Null ?
+                PublishedDate = jsonObject.TryGetProperty("PublishedDate", out var publishedDate) && publishedDate.ValueKind != JsonValueKind.Null ?
         (DateTime?)DateTime.Parse(publishedDate.GetString()) : null,
                 Durations = { },
                 KeyPoints = { },
-                Image = null
+                Image = imageUri, 
             };
 
             return tourDto;

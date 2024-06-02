@@ -6,7 +6,7 @@ import "google/protobuf/timestamp.proto";
 service BlogService {
   rpc GetBlog(GetBlogRequest) returns (Blog) {}
   rpc CreateBlog(Blog) returns (Blog){}
-  rpc GetAllBlog(Empty) returns (ListBlog){}
+  rpc GetAllBlog(Emptyyy) returns (ListBlog){}
   rpc UpdateOneBlog(Blog) returns (Blog){}
   rpc GetAllBlogsByStatus(GetBlogStatus) returns (ListBlog){}
   rpc UpdateRating(UpdateRatingRequest) returns(Blog){}
@@ -38,7 +38,7 @@ message GetBlogRequest {
   int32 id = 1;
 }
 
-message Empty {} 
+message Emptyyy {} 
 
 message ListBlog { 
   repeated Blog Blogs = 1;

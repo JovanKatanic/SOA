@@ -4,6 +4,7 @@ import (
 	"api_gateway/proto/auth"
 	"api_gateway/proto/blogs"
 	"api_gateway/proto/followings"
+	"api_gateway/proto/tours"
 	"context"
 	"log"
 	"net/http"
@@ -18,10 +19,11 @@ import (
 )
 
 type Config struct {
-	StakeholderServiceAddress string
 	Address                   string
+	StakeholderServiceAddress string
 	BlogServiceAddress        string
 	FollowingServiceAdress    string
+	ToursServiceAddress       string
 }
 
 func main() {
@@ -30,6 +32,7 @@ func main() {
 		StakeholderServiceAddress: "localhost:8001",
 		BlogServiceAddress:        "localhost:8002",
 		FollowingServiceAdress:    "localhost:8003",
+		ToursServiceAddress:       "localhost:8004",
 	}
 
 	gwmux := runtime.NewServeMux()
@@ -99,6 +102,28 @@ func main() {
 	)
 	if err != nil {
 		log.Fatalln("Failed to register following gateway:", err)
+	}
+
+	//Connect to the Tour Service
+	tourConn, err := grpc.DialContext(
+		context.Background(),
+		cfg.ToursServiceAddress,
+		grpc.WithBlock(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+
+	if err != nil {
+		log.Fatalln("Failed to dial tour service:", err)
+	}
+
+	tourClient := tours.NewTourServiceClient(tourConn)
+	err = tours.RegisterTourServiceHandlerClient(
+		context.Background(),
+		gwmux,
+		tourClient,
+	)
+	if err != nil {
+		log.Fatalln("Failed to register tourr gateway:", err)
 	}
 
 	c := cors.New(cors.Options{

@@ -19,7 +19,7 @@ service BlogService {
     };
   }
 
-  rpc GetAllBlog(Empty) returns (ListBlog){
+  rpc GetAllBlog(Emptyyy) returns (ListBlog){
     option (google.api.http) = {
       get: "/blogs"
     };
@@ -99,7 +99,7 @@ message GetBlogRequest {
   int32 id = 1;
 }
 
-message Empty {} 
+message Emptyyy {} 
 
 message ListBlog { 
   repeated Blog Blogs = 1;
