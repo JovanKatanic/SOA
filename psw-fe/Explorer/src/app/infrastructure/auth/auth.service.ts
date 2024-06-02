@@ -26,11 +26,13 @@ export class AuthService {
     private layoutService: LayoutService) { }
 
   login(login: Login): Observable<AuthenticationResponse> {
+
     return this.http
-      .post<AuthenticationResponse>(environment.apiHost + 'users/login', login)
+      .post<AuthenticationResponse>(/*environment.apiHost +*/ 'http://localhost:8000/api/users/login', login)
       .pipe(
         tap((authenticationResponse) => {
           this.tokenStorage.saveAccessToken(authenticationResponse.accessToken);
+          console.log(authenticationResponse.accessToken);
           this.setUser();
         })
       );
@@ -38,7 +40,7 @@ export class AuthService {
 
   register(registration: Registration): Observable<AuthenticationResponse> {
     return this.http
-    .post<AuthenticationResponse>(environment.apiHost + 'users', registration);
+    .post<AuthenticationResponse>(/*environment.apiHost +*/  'http://localhost:8000/api/users', registration);
   }
 
   logout(): void {
@@ -89,16 +91,16 @@ export class AuthService {
   
 
   requestPasswordChange(email: string): Observable<string> {
-    const url = `${environment.apiHost}users/activateUser/changePasswordRequest?email=${email}`;
+    const url = `$http://localhost:8000/api/users/activateUser/changePasswordRequest?email=${email}`;
     return this.http.post<string>(url, null);
   }
 
   changePassword(changePassword: ChangePassword): Observable<string>{
-    return this.http.post<string>(environment.apiHost + 'users/activateUser/changePassword', changePassword);
+    return this.http.post<string>(environment.apiHost + 'http://localhost:8000/api/users/activateUser/changePassword', changePassword);
   }
 
   activateUser(token: string): Observable<AuthenticationResponse>{
-    const url = `${environment.apiHost}users/activateUser?token=${token}`;
+    const url = `$http://localhost:8000/api/users/activateUser?token=${token}`;
     return this.http.post<AuthenticationResponse>(url, null);
     /*.pipe(
       tap((authenticationResponse) => {

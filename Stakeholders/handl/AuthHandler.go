@@ -34,7 +34,7 @@ func ConvertToString(role int) string {
 	}
 }
 
-func generateAccessToken(user model.User, person model.Person, key string) (string, error) {
+/*func generateAccessToken(user model.User, person model.Person, key string) (string, error) {
 	claims := jwt.MapClaims{
 		"jti":      uuid.New().String(),
 		"id":       user.ID,
@@ -42,6 +42,25 @@ func generateAccessToken(user model.User, person model.Person, key string) (stri
 		"personId": person.ID,
 		"role":     ConvertToString(user.Role),
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(key))
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}*/
+
+func generateAccessToken(user model.User, person model.Person, key string) (string, error) {
+	claims := jwt.MapClaims{
+		"jti":      uuid.New().String(),
+		"id":       user.ID,
+		"username": user.Username,
+		"personId": person.ID,
+		"http://schemas.microsoft.com/ws/2008/06/identity/claims/role": ConvertToString(user.Role),
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"iss": "explorer",
+		"aud": "explorer-front.com",
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(key))
@@ -84,7 +103,7 @@ func (h AuthHandler) RegisterTourist(ctx context.Context, request *auth.RequestR
 	var user model.User = model.User{
 		Username: request.Username,
 		Password: request.Password,
-		Role:     1,
+		Role:     2,
 		IsActive: false,
 	}
 
