@@ -20,6 +20,10 @@ using System.Text.Json;
 using System.Text;
 using Newtonsoft.Json;
 using Explorer.Stakeholders.Core.Domain;
+using Newtonsoft.Json.Converters;
+using System.Globalization;
+using System.Reflection.Metadata;
+using Newtonsoft.Json.Linq;
 
 namespace Explorer.Tours.Core.UseCases.Authoring
 {
@@ -51,7 +55,7 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             BaseAddress = new Uri("http://localhost:8000")
         };
 
-        public async Task<TourDto> CreateAsync(TourDto tour)
+        public async Task<Result<TourDto>> CreateAsync(TourDto tour)
         {
             using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
 
@@ -124,13 +128,16 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             return equipmentList.ToArray();
         }
 
-        public async Task UpdateAsync(TourDto tour)
+        public async Task<Result<TourDto>> UpdateAsync(TourDto tour)
         {
             using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
-
-            using HttpResponseMessage response = await sharedClient.PostAsync("/updateTour", jsonContent);
-
+            using HttpResponseMessage response = await sharedClient.PutAsync("/updateTour", jsonContent);
             response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var tourDto = JsonConvert.DeserializeObject<TourDto>(jsonResponse);
+
+            return tourDto;
         }
 
 
@@ -144,7 +151,7 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             tour.Id = id;
             tour.Archive(userId);
             using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
-            using HttpResponseMessage response = await sharedClient.PutAsync("/tours", jsonContent);
+            using HttpResponseMessage response = await sharedClient.PutAsync("/updateTour", jsonContent);
             response.EnsureSuccessStatusCode();
             var jsonResponse = await response.Content.ReadAsStringAsync();
             return jsonResponse;
@@ -179,7 +186,7 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             tour.Id = id;
             tour.Publish(userId);
             using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tour), Encoding.UTF8, "application/json");
-            using HttpResponseMessage response = await sharedClient.PutAsync("/tours", jsonContent);
+            using HttpResponseMessage response = await sharedClient.PutAsync("/updateTour", jsonContent);
             response.EnsureSuccessStatusCode();
             var jsonResponse = await response.Content.ReadAsStringAsync();
             return jsonResponse;
@@ -209,12 +216,27 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             var result = _tourRepository.GetPagedByAuthorId(authorId, page, pageSize);
             return MapToDto(result);
         }
-        public async Task<string> GetPagedByAuthorIdAsync(int authorId, int page, int pageSize)
+        public async Task<Result<List<TourDto>>> GetPagedByAuthorIdAsync(int authorId)
         {
-            using HttpResponseMessage response = await sharedClient.GetAsync("/tours/author/"+authorId.ToString());
+
+
+            using HttpResponseMessage response = await sharedClient.GetAsync("/tours/author/" + authorId.ToString());
             response.EnsureSuccessStatusCode();
             var jsonResponseGet = await response.Content.ReadAsStringAsync();
-            return jsonResponseGet;
+
+            var trimmedJsonResponse = jsonResponseGet.Replace("{\"tour\":", "").TrimEnd('}');
+
+            var settings = new JsonSerializerSettings
+            {
+                Converters = new List<JsonConverter> { new CustomDateTimeConverter() }
+            };
+
+            var tourDtos = JsonConvert.DeserializeObject<List<TourDto>>(trimmedJsonResponse, settings);
+
+            var listResult = new List<TourDto>(tourDtos);
+
+
+            return tourDtos;
         }
 
         public Result<TourDto> CreateCampaign(List<TourDto> tours, string name, string description, int touristId)
@@ -436,14 +458,80 @@ namespace Explorer.Tours.Core.UseCases.Authoring
             var jsonResponse = await response.Content.ReadAsStringAsync();
             return jsonResponse;
         }
-        public async Task<string> GetAsync(int id)
+        public async Task<Result<TourDto>> GetAsync(int id)
         {
             using HttpResponseMessage response = await sharedClient.GetAsync("/tours/" + id.ToString());
             response.EnsureSuccessStatusCode();
             var jsonResponseGet = await response.Content.ReadAsStringAsync();
-            return jsonResponseGet;
+
+            var tourDto = JsonConvert.DeserializeObject<TourDto>(jsonResponseGet);
+            return tourDto;
         }
+
+        public async Task<Result<PagedResult<TourDto>>> GetAllAsync()
+        {
+            using HttpResponseMessage response = await sharedClient.GetAsync("/getAll");
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+
+            var settings = new JsonSerializerSettings
+            {
+                Converters = new List<JsonConverter> { new CustomDateTimeConverter() }
+            };
+            // Parse the JSON response
+            var parsedResponse = JObject.Parse(jsonResponse);
+
+            // Extract the "results" array
+            var results = parsedResponse["results"].ToString();
+            var totalCount = parsedResponse["totalCount"].ToString();
+
+            // Deserialize the results array to List<TourDto>
+            var tourDtos = JsonConvert.DeserializeObject<List<TourDto>>(results, settings);
+
+            var listResult = new PagedResult<TourDto>(tourDtos,int.Parse(totalCount));
+
+            return listResult;
+        }
+
 
     }
 
+}
+
+public class CustomDateTimeConverter : DateTimeConverterBase
+{
+    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, Newtonsoft.Json.JsonSerializer serializer)
+    {
+        if (reader.Value == null)
+            return DateTime.MinValue;
+
+        // Attempt to parse the value as a DateTimeOffset first
+        if (DateTimeOffset.TryParse(reader.Value.ToString(), out DateTimeOffset dateTimeOffset))
+            return dateTimeOffset.DateTime;
+
+        // If parsing as DateTimeOffset fails, try using specific formats
+        string[] formats =
+        {
+            "yyyy-MM-dd HH:mm:ss.fff zzz",
+            "yyyy-MM-dd HH:mm:ss.fff z",
+            "yyyy-MM-dd HH:mm:ss.fff zz",
+            "yyyy-MM-dd HH:mm:ss.fff zzzz",
+            "M/d/yyyy h:mm:ss tt",
+            "yyyy-MM-ddTHH:mm:ss.fffffffZ",
+            "yyyy-MM-ddTHH:mm:ss.fffZ",
+            "yyyy-MM-ddTHH:mm:ss.fffffffK",
+            "yyyy-MM-ddTHH:mm:ss.fffK"
+        };
+
+        if (DateTime.TryParseExact(reader.Value.ToString(), formats, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime result))
+            return result;
+
+        throw new Newtonsoft.Json.JsonException($"Could not convert string to DateTime: {reader.Value}");
+    }
+
+    public override void WriteJson(JsonWriter writer, object? value, Newtonsoft.Json.JsonSerializer serializer)
+    {
+        writer.WriteValue(((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss.fffK"));
+    }
 }

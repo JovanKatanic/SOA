@@ -17,12 +17,10 @@ namespace Explorer.API.Controllers.Author
     {
         private readonly ITourKeyPointService _tourKeyPointService;
         private readonly IPublicTourKeyPointService _publicTourKeyPointService;
-        private readonly HttpClient _httpClient;
         public TourKeyPointController(ITourKeyPointService tourKeyPointService, IPublicTourKeyPointService publicTourKeyPointService)
         {
             _tourKeyPointService = tourKeyPointService;
             _publicTourKeyPointService = publicTourKeyPointService;
-            _httpClient = new HttpClient();
         }
 
         [HttpGet]
@@ -32,11 +30,25 @@ namespace Explorer.API.Controllers.Author
             return CreateResponse(result);
         }
 
-        [HttpGet("tour/{tourId:int}")]
+        /*[HttpGet("tour/{tourId:int}")]
         public ActionResult<PagedResult<TourKeyPointDto>> GetByTourId(int tourId)
         {
             var result = _tourKeyPointService.GetByTourId(tourId);
             return CreateResponse(result);
+        }*/
+
+        [HttpGet("tour/{tourId:int}")]
+        public async Task<ActionResult<List<TourKeyPointDto>>> GetByTourIdAsync(int tourId)
+        {
+            try
+            {
+                var result = await _tourKeyPointService.GetByTourIdAsync(tourId);
+                return CreateResponse(result);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         [HttpGet("{id:int}")]
@@ -46,11 +58,25 @@ namespace Explorer.API.Controllers.Author
             return CreateResponse(result);
         }
 
-        [HttpPost]
+        /*[HttpPost]
         public Task<string> Create([FromBody] TourKeyPointDto tourKeyPoint)
         {
             var result = _tourKeyPointService.CreateAsync(tourKeyPoint, _httpClient);
             return result;
+        }*/
+
+        [HttpPost]
+        public async Task<ActionResult<TourKeyPointDto>> CreateAsync([FromBody] TourKeyPointDto tourKeyPoint)
+        {
+            try
+            {
+                var createdTourKeypoint = await _tourKeyPointService.CreateAsync(tourKeyPoint);
+                return CreateResponse(createdTourKeypoint);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         [HttpPut("{id:int}")]

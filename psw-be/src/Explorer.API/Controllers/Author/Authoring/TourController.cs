@@ -1,8 +1,10 @@
-﻿using Explorer.BuildingBlocks.Core.UseCases;
+﻿using Explorer.Blog.API.Dtos;
+using Explorer.BuildingBlocks.Core.UseCases;
 using Explorer.Tours.API.Dtos;
 using Explorer.Tours.API.Public.Authoring;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Metadata;
 
 namespace Explorer.API.Controllers.Author.Authoring
 {
@@ -34,12 +36,12 @@ namespace Explorer.API.Controllers.Author.Authoring
         }*/
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] TourDto tour)
+        public async Task<ActionResult<TourDto>> CreateAsync([FromBody] TourDto tour)
         {
             try
             {
                 var createdTour = await _tourService.CreateAsync(tour);
-                return Ok(createdTour);
+                return CreateResponse(createdTour);
             }
             catch (Exception e)
             {
@@ -48,20 +50,20 @@ namespace Explorer.API.Controllers.Author.Authoring
         }
 
 
-        [HttpPut("{id:int}")]
+        /*[HttpPut("{id:int}")]
         public async Task<string> Update([FromBody] TourDto tour)
         {
             var result = await _tourService.UpdateAsync(tour, _httpClient);
             return result;
-        }
+        }*/
 
-        [HttpPut("/updateTour/{id:int}")]
-        public async Task<IActionResult> UpdateAsync([FromBody] TourDto tour)
+        [HttpPut("updateTour")]
+        public async Task<ActionResult<TourDto>> UpdateAsync([FromBody] TourDto tour)
         {
             try
             {
-                await _tourService.UpdateAsync(tour);
-                return Ok();
+                var turica = await _tourService.UpdateAsync(tour);
+                return CreateResponse(turica);
             }
             catch (Exception e)
             {
@@ -78,10 +80,18 @@ namespace Explorer.API.Controllers.Author.Authoring
 
         [AllowAnonymous]
         [HttpGet("{id:int}")]
-        public async Task<string> Get(int id)
+        public async Task<ActionResult<TourDto>> Get(int id)
         {
-            var result = await _tourService.GetAsync(id);
-            return result;
+            try
+            {
+                var tourDto = await _tourService.GetAsync(id);
+                if (tourDto == null) return NotFound();
+                return CreateResponse(tourDto);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         //[HttpPut("publish/{id:int}")]
@@ -111,11 +121,18 @@ namespace Explorer.API.Controllers.Author.Authoring
             return Ok(result);
         }
 
-        [HttpGet("author")]
-        public async Task<string> GetAllByAuthorId([FromQuery] int authorId, [FromQuery] int page, [FromQuery] int pageSize)
+        [HttpGet("author/{authorId:int}")]
+        public async Task<ActionResult<List<TourDto>>> GetAllByAuthorId(int authorId)
         {
-            var result = await _tourService.GetPagedByAuthorIdAsync(authorId, page, pageSize);
-            return result;
+            try
+            {
+                var tourDtos = await _tourService.GetPagedByAuthorIdAsync(authorId);
+                return CreateResponse(tourDtos);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
     }
 }

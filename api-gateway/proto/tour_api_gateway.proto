@@ -21,20 +21,34 @@ service TourService{
 
     rpc GetToursByAuthorId(GetToursByAuthorIdRequest) returns (GetToursByAuthorIdResponse){
         option (google.api.http) = {
-            get: "/api/tours/getToursByAuthorId/{id}"
+            get: "/tours/author/{id}"
         };
     }
     
-    rpc UpdateTour(UpdateTourRequest) returns (UpdateTourResponse){
+    rpc UpdateTour(Tour) returns (Tour){
         option (google.api.http) = {
-            put: "/api/tours/updateTour"
+            put: "/updateTour"
             body: "*"
         };
     }
 
     rpc GetAll(Empty) returns (GetAllResponse) {
         option (google.api.http) = {
-            get: "/api/tours/getAll"
+            get: "/getAll"
+        };
+    }
+}
+
+service KeypointService{
+    rpc CreateTourKeypoint(Keypoint) returns (Keypoint){
+        option (google.api.http) = {
+            post: "/createTourKeypoint"
+            body: "*"
+        };
+    }
+    rpc GetByTourId(GetTourRequest) returns (KeypointsResponse){
+        option (google.api.http) = {
+            get: "/getByTourId/{id}"
         };
     }
 }
@@ -109,5 +123,10 @@ message UpdateTourResponse{
 message Empty {}
 
 message GetAllResponse{
-    repeated Tour tours = 1;
+    repeated Tour results = 1;
+    int32 totalCount = 2;
+}
+
+message KeypointsResponse{
+    repeated Keypoint results = 1;
 }

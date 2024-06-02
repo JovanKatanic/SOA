@@ -11,6 +11,11 @@ using Explorer.Tours.Core.Domain.RepositoryInterfaces;
 using Explorer.Tours.Core.Domain.Tours;
 using FluentResults;
 using System.Text.Json;
+using Microsoft.AspNetCore.DataProtection;
+using Newtonsoft.Json;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
+
 namespace Explorer.Tours.Core.UseCases
 {
     public class TourKeyPointService : CrudService<TourKeyPointDto, TourKeyPoint>, ITourKeyPointService
@@ -21,13 +26,42 @@ namespace Explorer.Tours.Core.UseCases
         {
             _tourKeyPointsRepository = tourKeyPointsRepository;
         }
-        public async Task<string> CreateAsync(TourKeyPointDto tourKeypointDto, HttpClient _httpClient)
+
+        private static HttpClient _httpClient = new()
         {
-            using StringContent jsonContent = new(JsonSerializer.Serialize(tourKeypointDto), Encoding.UTF8, "application/json");
-            using HttpResponseMessage response = await _httpClient.PostAsync("http://tours_service:8080/keypoints", jsonContent);
+            BaseAddress = new Uri("http://localhost:8000")
+        };
+        public async Task<Result<TourKeyPointDto>> CreateAsync(TourKeyPointDto tourKeypointDto)
+        {
+            using StringContent jsonContent = new(System.Text.Json.JsonSerializer.Serialize(tourKeypointDto), Encoding.UTF8, "application/json");
+            using HttpResponseMessage response = await _httpClient.PostAsync("/createTourKeypoint", jsonContent);
             response.EnsureSuccessStatusCode();
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            return jsonResponse;
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var jsonObject = JsonDocument.Parse(jsonString).RootElement;
+
+            var imageString = jsonObject.GetProperty("Image").GetString();
+            Uri imageUri = null;
+
+            if (Uri.TryCreate(imageString, UriKind.Absolute, out var uriResult) &&
+                (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+            {
+                imageUri = uriResult;
+            }
+
+            TourKeyPointDto tourKeyPointDto = new TourKeyPointDto
+            {
+                Id = jsonObject.GetProperty("Id").GetInt32(),
+                Name = jsonObject.GetProperty("Name").GetString(),
+                Description = jsonObject.GetProperty("Description").GetString(),
+                Latitude = jsonObject.GetProperty("Latitude").GetDouble(),
+                Longitude = jsonObject.GetProperty("Longitude").GetDouble(),
+                TourId = jsonObject.GetProperty("TourId").GetInt32(),
+                PositionInTour = jsonObject.GetProperty("PositionInTour").GetInt32(),
+                Secret = jsonObject.GetProperty("Secret").GetString(),
+                Image = imageUri,
+            };
+
+            return tourKeyPointDto;
         }
         public Result<List<TourKeyPointDto>> GetAllByPublicKeypointId(long publicId)
         {
@@ -73,6 +107,25 @@ namespace Explorer.Tours.Core.UseCases
            }
 
            return tourKeyPointDtos;
+        }
+
+        public async Task<Result<List<TourKeyPointDto>>> GetByTourIdAsync(int tourId)
+        {
+            using HttpResponseMessage response = await _httpClient.GetAsync("/getByTourId/" + tourId.ToString());
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+
+            var trimmedJsonResponse = jsonResponse.Replace("{\"results\":", "").TrimEnd('}');
+
+
+            var tourKeypointDtos = JsonConvert.DeserializeObject<List<TourKeyPointDto>>(trimmedJsonResponse);
+
+            var listResult = new List<TourKeyPointDto>(tourKeypointDtos);
+
+
+            return listResult;
+
         }
 
     }

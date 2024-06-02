@@ -8,9 +8,15 @@ service TourService{
     rpc CreateTour(Tour) returns (Tour){}
     rpc GetTourById(GetTourRequest) returns (Tour) {}
     rpc GetToursByAuthorId(GetToursByAuthorIdRequest) returns (GetToursByAuthorIdResponse){}
-    rpc UpdateTour(UpdateTourRequest) returns (UpdateTourResponse){}
+    rpc UpdateTour(Tour) returns (Tour){}
     rpc GetAll(Empty) returns (GetAllResponse) {}
 }
+
+service KeypointService{
+    rpc CreateTourKeypoint(Keypoint) returns (Keypoint){}
+    rpc GetByTourId(GetTourRequest) returns (KeypointsResponse){}
+}
+
 
 message Tour{
     int32 Id = 1;
@@ -82,5 +88,10 @@ message UpdateTourResponse{
 message Empty {}
 
 message GetAllResponse{
-    repeated Tour tours = 1;
+    repeated Tour results = 1;
+    int32 totalCount = 2;
+}
+
+message KeypointsResponse{
+    repeated Keypoint results = 1;
 }

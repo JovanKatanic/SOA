@@ -53,6 +53,7 @@ func (h BlogHandler) CreateComment(ctx context.Context, request *blogs.Comment) 
 }
 
 func (h BlogHandler) GetCommentsByBlogIdAsync(ctx context.Context, request *blogs.GetCommentRequest) (*blogs.ListComment, error) {
+	fmt.Println("usao u GetCommentsByBlogIdAsync")
 	blogId := request.BlogId
 
 	var comments []model.Comment

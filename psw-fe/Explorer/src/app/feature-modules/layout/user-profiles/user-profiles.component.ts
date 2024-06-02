@@ -126,6 +126,7 @@ export class UserProfilesComponent implements OnInit {
   GetFollowings(): void {
     this.service.getFollowings(this.user.id, this.user.role).subscribe({
       next: (result => {
+        console.log(result);
         result.forEach(p => {
           let index = this.profiles.findIndex(profile => profile.id == p.id);
 

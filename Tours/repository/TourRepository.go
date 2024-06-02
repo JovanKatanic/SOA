@@ -3,12 +3,14 @@ package repository
 import (
 	"context"
 	"fmt"
+	"hash/fnv"
 	"math"
 	"math/rand"
 	"time"
 	"tours_service/model"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -54,23 +56,44 @@ func (pr *TourRepository) GetByAuthorId(id int) (*[]model.Tour, error) {
 	}
 	return &tours, nil
 }
-func (rep *TourRepository) Insert(tour *model.Tour) error {
+
+// hash funkcija koja pretvara ObjectID u int32
+func hashObjectID(id primitive.ObjectID) int32 {
+	h := fnv.New32a()
+	h.Write(id[:])
+	return int32(h.Sum32())
+}
+
+func (rep *TourRepository) Insert(tour *model.Tour) (error, int32) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
 	rand.Seed(time.Now().UnixNano())
 	randomInt := rand.Intn(math.MaxInt32)
 	tour.ID = randomInt
 	tourCollection := rep.getCollection()
 
-	result, err := tourCollection.InsertOne(ctx, &tour)
+	result, err := tourCollection.InsertOne(ctx, tour)
 	if err != nil {
 		fmt.Print(err)
-		return err
+		return err, 0 // Vrati 0 kao ID u slučaju greške
 	}
-	fmt.Printf("Documents ID: %v\n", result.InsertedID)
-	return nil
-}
 
+	// Pretpostavljamo da je InsertedID tipa int
+	insertedID, ok := result.InsertedID.(int32)
+	if !ok {
+		insertedIDInt, ok := result.InsertedID.(int)
+		if !ok {
+			// Obradi slučaj gde insertedID nije tipa int ili int32
+			fmt.Println("Inserted ID nije tipa int ili int32")
+			return fmt.Errorf("inserted ID nije tipa int ili int32"), 0
+		}
+		insertedID = int32(insertedIDInt)
+	}
+
+	fmt.Printf("ID dokumenta: %v\n", insertedID)
+	return nil, insertedID
+}
 func (rep *TourRepository) Update(tour *model.Tour) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

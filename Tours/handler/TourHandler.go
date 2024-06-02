@@ -47,10 +47,12 @@ func (handler *TourHandler) CreateTour(ctx context.Context, request *tours.Tour)
 		Image:         request.Image,
 	}
 
-	err := handler.TourService.CreateTour(&tour)
+	err, insertedID := handler.TourService.CreateTour(&tour)
 	if err != nil {
 		return nil, err
 	}
+
+	request.Id = insertedID
 
 	return request, nil
 }
@@ -325,23 +327,25 @@ func (handler *TourHandler) GetToursByAuthorId(ctx context.Context, request *tou
 // 	}
 // }
 
-func (handler *TourHandler) UpdateTour(ctx context.Context, request *tours.UpdateTourRequest) (*tours.UpdateTourResponse, error) {
+func (handler *TourHandler) UpdateTour(ctx context.Context, request *tours.Tour) (*tours.Tour, error) {
+	fmt.Println("usao u update ture")
+	fmt.Println(request.Tags)
 	var tour model.Tour = model.Tour{
-		ID:            int(request.Tour.Id),
-		Name:          request.Tour.Name,
-		Description:   request.Tour.Description,
-		Difficulty:    int(request.Tour.Difficulty),
-		Tags:          request.Tour.Tags,
-		Status:        int(request.Tour.Status),
-		Price:         request.Tour.Price,
-		AuthorId:      int(request.Tour.AuthorId),
-		Equipment:     convertInt32ToInt(request.Tour.Equipment),
-		DistanceInKm:  request.Tour.DistanceInKm,
-		ArchivedDate:  convertTimestampToTime(request.Tour.ArchivedDate),
-		PublishedDate: convertTimestampToTime(request.Tour.PublishDate),
-		Durations:     convertTourDurations(request.Tour.Durations),
-		KeyPoints:     convertKeyPoints(request.Tour.Keypoints),
-		Image:         request.Tour.Image,
+		ID:            int(request.Id),
+		Name:          request.Name,
+		Description:   request.Description,
+		Difficulty:    int(request.Difficulty),
+		Tags:          request.Tags,
+		Status:        int(request.Status),
+		Price:         request.Price,
+		AuthorId:      int(request.AuthorId),
+		Equipment:     convertInt32ToInt(request.Equipment),
+		DistanceInKm:  request.DistanceInKm,
+		ArchivedDate:  convertTimestampToTime(request.ArchivedDate),
+		PublishedDate: convertTimestampToTime(request.PublishDate),
+		Durations:     convertTourDurations(request.Durations),
+		KeyPoints:     convertKeyPoints(request.Keypoints),
+		Image:         request.Image,
 	}
 
 	err := handler.TourService.UpdateTour(&tour)
@@ -349,9 +353,9 @@ func (handler *TourHandler) UpdateTour(ctx context.Context, request *tours.Updat
 		return nil, err
 	}
 
-	return &tours.UpdateTourResponse{
-		Tour: convertTour(&tour),
-	}, nil
+	response := convertTour(&tour)
+
+	return response, nil
 }
 
 // func (handler *TourHandler) UpdateTour(writer http.ResponseWriter, req *http.Request) {
@@ -385,8 +389,18 @@ func (handler *TourHandler) UpdateTour(ctx context.Context, request *tours.Updat
 // }
 
 func (hanlder *TourHandler) GetAll(ctx context.Context, request *tours.Empty) (*tours.GetAllResponse, error) {
+	toursFromDb, err := hanlder.TourService.GetAll()
+	if err != nil {
+		fmt.Print("Database exception: ", err)
+		return nil, err
+	}
+
+	// Calculate the total count of tours
+	totalCount := len(*toursFromDb)
+
 	return &tours.GetAllResponse{
-		Tours: nil,
+		Results:    convertTours(toursFromDb),
+		TotalCount: int32(totalCount),
 	}, nil
 }
 

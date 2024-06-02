@@ -33,7 +33,7 @@ type TourServiceClient interface {
 	CreateTour(ctx context.Context, in *Tour, opts ...grpc.CallOption) (*Tour, error)
 	GetTourById(ctx context.Context, in *GetTourRequest, opts ...grpc.CallOption) (*Tour, error)
 	GetToursByAuthorId(ctx context.Context, in *GetToursByAuthorIdRequest, opts ...grpc.CallOption) (*GetToursByAuthorIdResponse, error)
-	UpdateTour(ctx context.Context, in *UpdateTourRequest, opts ...grpc.CallOption) (*UpdateTourResponse, error)
+	UpdateTour(ctx context.Context, in *Tour, opts ...grpc.CallOption) (*Tour, error)
 	GetAll(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetAllResponse, error)
 }
 
@@ -72,8 +72,8 @@ func (c *tourServiceClient) GetToursByAuthorId(ctx context.Context, in *GetTours
 	return out, nil
 }
 
-func (c *tourServiceClient) UpdateTour(ctx context.Context, in *UpdateTourRequest, opts ...grpc.CallOption) (*UpdateTourResponse, error) {
-	out := new(UpdateTourResponse)
+func (c *tourServiceClient) UpdateTour(ctx context.Context, in *Tour, opts ...grpc.CallOption) (*Tour, error) {
+	out := new(Tour)
 	err := c.cc.Invoke(ctx, TourService_UpdateTour_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -97,7 +97,7 @@ type TourServiceServer interface {
 	CreateTour(context.Context, *Tour) (*Tour, error)
 	GetTourById(context.Context, *GetTourRequest) (*Tour, error)
 	GetToursByAuthorId(context.Context, *GetToursByAuthorIdRequest) (*GetToursByAuthorIdResponse, error)
-	UpdateTour(context.Context, *UpdateTourRequest) (*UpdateTourResponse, error)
+	UpdateTour(context.Context, *Tour) (*Tour, error)
 	GetAll(context.Context, *Empty) (*GetAllResponse, error)
 	mustEmbedUnimplementedTourServiceServer()
 }
@@ -115,7 +115,7 @@ func (UnimplementedTourServiceServer) GetTourById(context.Context, *GetTourReque
 func (UnimplementedTourServiceServer) GetToursByAuthorId(context.Context, *GetToursByAuthorIdRequest) (*GetToursByAuthorIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetToursByAuthorId not implemented")
 }
-func (UnimplementedTourServiceServer) UpdateTour(context.Context, *UpdateTourRequest) (*UpdateTourResponse, error) {
+func (UnimplementedTourServiceServer) UpdateTour(context.Context, *Tour) (*Tour, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTour not implemented")
 }
 func (UnimplementedTourServiceServer) GetAll(context.Context, *Empty) (*GetAllResponse, error) {
@@ -189,7 +189,7 @@ func _TourService_GetToursByAuthorId_Handler(srv interface{}, ctx context.Contex
 }
 
 func _TourService_UpdateTour_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateTourRequest)
+	in := new(Tour)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -201,7 +201,7 @@ func _TourService_UpdateTour_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: TourService_UpdateTour_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TourServiceServer).UpdateTour(ctx, req.(*UpdateTourRequest))
+		return srv.(TourServiceServer).UpdateTour(ctx, req.(*Tour))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -250,6 +250,133 @@ var TourService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAll",
 			Handler:    _TourService_GetAll_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "tours/tours_service.proto",
+}
+
+const (
+	KeypointService_CreateTourKeypoint_FullMethodName = "/KeypointService/CreateTourKeypoint"
+	KeypointService_GetByTourId_FullMethodName        = "/KeypointService/GetByTourId"
+)
+
+// KeypointServiceClient is the client API for KeypointService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type KeypointServiceClient interface {
+	CreateTourKeypoint(ctx context.Context, in *Keypoint, opts ...grpc.CallOption) (*Keypoint, error)
+	GetByTourId(ctx context.Context, in *GetTourRequest, opts ...grpc.CallOption) (*KeypointsResponse, error)
+}
+
+type keypointServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewKeypointServiceClient(cc grpc.ClientConnInterface) KeypointServiceClient {
+	return &keypointServiceClient{cc}
+}
+
+func (c *keypointServiceClient) CreateTourKeypoint(ctx context.Context, in *Keypoint, opts ...grpc.CallOption) (*Keypoint, error) {
+	out := new(Keypoint)
+	err := c.cc.Invoke(ctx, KeypointService_CreateTourKeypoint_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *keypointServiceClient) GetByTourId(ctx context.Context, in *GetTourRequest, opts ...grpc.CallOption) (*KeypointsResponse, error) {
+	out := new(KeypointsResponse)
+	err := c.cc.Invoke(ctx, KeypointService_GetByTourId_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// KeypointServiceServer is the server API for KeypointService service.
+// All implementations must embed UnimplementedKeypointServiceServer
+// for forward compatibility
+type KeypointServiceServer interface {
+	CreateTourKeypoint(context.Context, *Keypoint) (*Keypoint, error)
+	GetByTourId(context.Context, *GetTourRequest) (*KeypointsResponse, error)
+	mustEmbedUnimplementedKeypointServiceServer()
+}
+
+// UnimplementedKeypointServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedKeypointServiceServer struct {
+}
+
+func (UnimplementedKeypointServiceServer) CreateTourKeypoint(context.Context, *Keypoint) (*Keypoint, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTourKeypoint not implemented")
+}
+func (UnimplementedKeypointServiceServer) GetByTourId(context.Context, *GetTourRequest) (*KeypointsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetByTourId not implemented")
+}
+func (UnimplementedKeypointServiceServer) mustEmbedUnimplementedKeypointServiceServer() {}
+
+// UnsafeKeypointServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to KeypointServiceServer will
+// result in compilation errors.
+type UnsafeKeypointServiceServer interface {
+	mustEmbedUnimplementedKeypointServiceServer()
+}
+
+func RegisterKeypointServiceServer(s grpc.ServiceRegistrar, srv KeypointServiceServer) {
+	s.RegisterService(&KeypointService_ServiceDesc, srv)
+}
+
+func _KeypointService_CreateTourKeypoint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Keypoint)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeypointServiceServer).CreateTourKeypoint(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KeypointService_CreateTourKeypoint_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeypointServiceServer).CreateTourKeypoint(ctx, req.(*Keypoint))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KeypointService_GetByTourId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTourRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeypointServiceServer).GetByTourId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KeypointService_GetByTourId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeypointServiceServer).GetByTourId(ctx, req.(*GetTourRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// KeypointService_ServiceDesc is the grpc.ServiceDesc for KeypointService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var KeypointService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "KeypointService",
+	HandlerType: (*KeypointServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateTourKeypoint",
+			Handler:    _KeypointService_CreateTourKeypoint_Handler,
+		},
+		{
+			MethodName: "GetByTourId",
+			Handler:    _KeypointService_GetByTourId_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

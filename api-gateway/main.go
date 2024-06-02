@@ -126,6 +126,16 @@ func main() {
 		log.Fatalln("Failed to register tourr gateway:", err)
 	}
 
+	keypointClient := tours.NewKeypointServiceClient(tourConn)
+	err = tours.RegisterKeypointServiceHandlerClient(
+		context.Background(),
+		gwmux,
+		keypointClient,
+	)
+	if err != nil {
+		log.Fatalln("Failed to register tourr gateway:", err)
+	}
+
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},                            // Allow all origins
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"}, // Allow specific HTTP methods

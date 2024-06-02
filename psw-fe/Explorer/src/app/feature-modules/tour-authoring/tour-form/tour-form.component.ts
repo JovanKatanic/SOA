@@ -125,6 +125,7 @@ export class TourFormComponent implements OnInit {
   }
 
   onAddKeyPoint() {
+    console.log(this.mode)
     switch (this.mode) {
       case TourCreationMode.Create:
         this.constructTour()
@@ -136,9 +137,11 @@ export class TourFormComponent implements OnInit {
         break;
       case TourCreationMode.Edit:
         this.constructTour();
+        console.log(this.tour)
         this.service.updateTour(this.tour).subscribe({
           next: (result: Tour) => {
             //this.router.navigate([`keypoints/create/${this.tour.id}/0`]);
+            console.log(result)
             this.tour = result;
             this.mode = TourCreationMode.Edit;
             const dialogRef = this.dialog.open(TourKeypointsComponent,{
@@ -330,6 +333,8 @@ export class TourFormComponent implements OnInit {
   }
 
   private finalizeCreation() {
+    console.log(this.tour)
+    console.log(this.mode)
     if(this.tourForm.valid)
     {
       switch (this.mode) {

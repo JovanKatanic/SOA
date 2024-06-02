@@ -46,12 +46,26 @@ namespace Explorer.API.Controllers.Author
             return CreateResponse(result);
         }
 
-        [AllowAnonymous]
+        /*[AllowAnonymous]
         [HttpGet("followings/{id:int}")]
         public ActionResult<List<PersonDto>> GetAllFollowings(int id)
         {
             var result = _personService.GetAllFollowings(id);
             return CreateResponse(result);
+        }*/
+        [AllowAnonymous]
+        [HttpGet("followings/{id:int}")]
+        public async Task<ActionResult<List<PersonDto>>> GetAllFollowingsAsync(int id)
+        {
+            try
+            {
+                var followings = await _personService.GetAllFollowingsAsync(id);
+                return CreateResponse(followings);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         [HttpPut("{id:int}")]

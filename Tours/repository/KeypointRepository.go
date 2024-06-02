@@ -22,7 +22,7 @@ func (rep *KeypointRepository) getCollection() *mongo.Collection {
 	return keypointssCollection
 }
 
-func (rep *KeypointRepository) Insert(keypoint *model.Keypoint) error {
+func (rep *KeypointRepository) Insert(keypoint *model.Keypoint) (error, int32) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	rand.Seed(time.Now().UnixNano())
@@ -30,13 +30,27 @@ func (rep *KeypointRepository) Insert(keypoint *model.Keypoint) error {
 	keypoint.ID = randomInt
 	keypointCollection := rep.getCollection()
 
+	fmt.Println(keypointCollection)
+
 	result, err := keypointCollection.InsertOne(ctx, &keypoint)
 	if err != nil {
 		fmt.Print(err)
-		return err
+		return err, 0
 	}
-	fmt.Printf("Documents ID: %v\n", result.InsertedID)
-	return nil
+	// Pretpostavljamo da je InsertedID tipa int
+	insertedID, ok := result.InsertedID.(int32)
+	if !ok {
+		insertedIDInt, ok := result.InsertedID.(int)
+		if !ok {
+			// Obradi slučaj gde insertedID nije tipa int ili int32
+			fmt.Println("Inserted ID nije tipa int ili int32")
+			return fmt.Errorf("inserted ID nije tipa int ili int32"), 0
+		}
+		insertedID = int32(insertedIDInt)
+	}
+
+	fmt.Printf("ID dokumenta: %v\n", insertedID)
+	return nil, insertedID
 }
 func (pr *KeypointRepository) GetByTourId(id int) ([]model.Keypoint, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

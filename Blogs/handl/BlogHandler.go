@@ -110,6 +110,7 @@ func (h BlogHandler) CreateBlog(ctx context.Context, request *blogs.Blog) (*blog
 }
 
 func (h BlogHandler) GetAllBlog(ctx context.Context, request *blogs.Emptyyy) (*blogs.ListBlog, error) {
+	fmt.Println("Usao u getAllBlog")
 	var blogsFromDB []model.BlogPage
 	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Find(&blogsFromDB).Error; err != nil {
 		return nil, err
@@ -148,6 +149,7 @@ func (h BlogHandler) GetAllBlog(ctx context.Context, request *blogs.Emptyyy) (*b
 }
 
 func (h BlogHandler) UpdateOneBlog(ctx context.Context, request *blogs.Blog) (*blogs.Blog, error) {
+	fmt.Println("Usao u updateOneBlog")
 	var existingBlog model.BlogPage
 	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Where(`"Blogs"."Id" = ?`, request.Id).First(&existingBlog).Error; err != nil {
 		return nil, err
@@ -189,6 +191,7 @@ func (h BlogHandler) UpdateOneBlog(ctx context.Context, request *blogs.Blog) (*b
 }
 
 func (h BlogHandler) GetAllBlogsByStatus(ctx context.Context, request *blogs.GetBlogStatus) (*blogs.ListBlog, error) {
+	fmt.Println("Usao u GetAllBlogsByStatus")
 	state := request.State
 
 	var blogsFromDB []model.BlogPage
@@ -228,6 +231,7 @@ func (h BlogHandler) GetAllBlogsByStatus(ctx context.Context, request *blogs.Get
 }
 
 func (h BlogHandler) UpdateRating(ctx context.Context, request *blogs.UpdateRatingRequest) (*blogs.Blog, error) {
+	fmt.Println("Usao u UpdateRating")
 	var existingBlog model.BlogPage
 	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Where(`"Id" = ?`, request.BlogId).First(&existingBlog).Error; err != nil {
 		return nil, err
@@ -271,6 +275,7 @@ func (h BlogHandler) UpdateRating(ctx context.Context, request *blogs.UpdateRati
 }
 
 func (h BlogHandler) DeleteRating(ctx context.Context, request *blogs.DeleteRatingRequest) (*blogs.Blog, error) {
+	fmt.Println("Usao u DeleteRating")
 	var existingBlog model.BlogPage
 	if err := h.DatabaseConnection.Table(`blog."Blogs"`).Where(`"Id" = ?`, request.BlogId).First(&existingBlog).Error; err != nil {
 		return nil, err

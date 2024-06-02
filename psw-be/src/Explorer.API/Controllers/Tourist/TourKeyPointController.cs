@@ -31,11 +31,25 @@ namespace Explorer.API.Controllers.Tourist
             return CreateResponse(result);
         }
 
-        [HttpGet("tour/{tourId:int}")]
+        /*[HttpGet("tour/{tourId:int}")]
         public ActionResult<PagedResult<TourKeyPointDto>> GetByTourId(int tourId)
         {
             var result = _tourKeyPointService.GetByTourId(tourId);
             return CreateResponse(result);
+        }*/
+
+        [HttpGet("tour/{tourId:int}")]
+        public async Task<ActionResult<List<TourKeyPointDto>>> GetByTourIdAsync(int tourId)
+        {
+            try
+            {
+                var result = await _tourKeyPointService.GetByTourIdAsync(tourId);
+                return CreateResponse(result);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         [HttpGet("{id:int}")]

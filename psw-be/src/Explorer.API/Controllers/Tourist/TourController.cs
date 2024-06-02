@@ -26,20 +26,51 @@ namespace Explorer.API.Controllers.Tourist
             _recommenderService = recommenderService;
         }
 
-        [AllowAnonymous]
+        /*[AllowAnonymous]
         [HttpGet]
         public ActionResult<PagedResult<TourDto>> GetAll([FromQuery] int page, [FromQuery] int pageSize)
         {
             var result = _tourService.GetPaged(page, pageSize);
             return CreateResponse(result);
-        }
+        }*/
 
         [AllowAnonymous]
+        [HttpGet]
+        public async Task<ActionResult<PagedResult<TourDto>>> GetAllAsync([FromQuery] int page, [FromQuery] int pageSize)
+        {
+            try
+            {
+                var tourDto= await _tourService.GetAllAsync();
+                return CreateResponse(tourDto);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        /*[AllowAnonymous]
         [HttpGet("{id:int}")]
         public ActionResult<TourDto> Get(int id)
         {
             var result = _tourService.Get(id);
             return CreateResponse(result);
+        }*/
+
+        [AllowAnonymous]
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<TourDto>> Get(int id)
+        {
+            try
+            {
+                var tourDto = await _tourService.GetAsync(id);
+                if (tourDto == null) return NotFound();
+                return CreateResponse(tourDto);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
         [HttpPost]

@@ -10,9 +10,9 @@ namespace Explorer.Tours.API.Public.Authoring
     {
         Result<PagedResult<TourDto>> GetPaged(int page, int pageSize);
         Result<TourDto> Create(TourDto tour);
-        Task<TourDto> CreateAsync(TourDto tour);
+        Task<Result<TourDto>> CreateAsync(TourDto tour);
         Result<TourDto> Update(TourDto tour);
-        Task UpdateAsync(TourDto tour);
+        Task<Result<TourDto>> UpdateAsync(TourDto tour);
         Result Delete(int id);
         Result<TourDto> Get(int id);
         Result<TourDto> Publish(int id, int userId);
@@ -27,7 +27,9 @@ namespace Explorer.Tours.API.Public.Authoring
         Task<string> ArchiveAsync(int id, int userId, HttpClient _httpClient);
         Task<string> CreateAsync(TourDto tour, HttpClient _httpClient);
 
-        Task<string> GetPagedByAuthorIdAsync(int authorId, int page, int pageSize);
-        Task<string> GetAsync(int id);
+        Task<Result<List<TourDto>>> GetPagedByAuthorIdAsync(int authorId);
+        Task<Result<TourDto>> GetAsync(int id);
+
+        Task<Result<PagedResult<TourDto>>> GetAllAsync();
     }
 }

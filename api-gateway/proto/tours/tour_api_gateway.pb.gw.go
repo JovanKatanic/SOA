@@ -162,7 +162,7 @@ func local_request_TourService_GetToursByAuthorId_0(ctx context.Context, marshal
 }
 
 func request_TourService_UpdateTour_0(ctx context.Context, marshaler runtime.Marshaler, client TourServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateTourRequest
+	var protoReq Tour
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -175,7 +175,7 @@ func request_TourService_UpdateTour_0(ctx context.Context, marshaler runtime.Mar
 }
 
 func local_request_TourService_UpdateTour_0(ctx context.Context, marshaler runtime.Marshaler, server TourServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateTourRequest
+	var protoReq Tour
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -201,6 +201,84 @@ func local_request_TourService_GetAll_0(ctx context.Context, marshaler runtime.M
 	var metadata runtime.ServerMetadata
 
 	msg, err := server.GetAll(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_KeypointService_CreateTourKeypoint_0(ctx context.Context, marshaler runtime.Marshaler, client KeypointServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq Keypoint
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.CreateTourKeypoint(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_KeypointService_CreateTourKeypoint_0(ctx context.Context, marshaler runtime.Marshaler, server KeypointServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq Keypoint
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.CreateTourKeypoint(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_KeypointService_GetByTourId_0(ctx context.Context, marshaler runtime.Marshaler, client KeypointServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetTourRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+
+	protoReq.Id, err = runtime.Int32(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+
+	msg, err := client.GetByTourId(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_KeypointService_GetByTourId_0(ctx context.Context, marshaler runtime.Marshaler, server KeypointServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetTourRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+
+	protoReq.Id, err = runtime.Int32(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+
+	msg, err := server.GetByTourId(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -269,7 +347,7 @@ func RegisterTourServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.TourService/GetToursByAuthorId", runtime.WithHTTPPathPattern("/api/tours/getToursByAuthorId/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.TourService/GetToursByAuthorId", runtime.WithHTTPPathPattern("/tours/author/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -294,7 +372,7 @@ func RegisterTourServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.TourService/UpdateTour", runtime.WithHTTPPathPattern("/api/tours/updateTour"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.TourService/UpdateTour", runtime.WithHTTPPathPattern("/updateTour"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -319,7 +397,7 @@ func RegisterTourServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.TourService/GetAll", runtime.WithHTTPPathPattern("/api/tours/getAll"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.TourService/GetAll", runtime.WithHTTPPathPattern("/getAll"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -333,6 +411,65 @@ func RegisterTourServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_TourService_GetAll_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+// RegisterKeypointServiceHandlerServer registers the http handlers for service KeypointService to "mux".
+// UnaryRPC     :call KeypointServiceServer directly.
+// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterKeypointServiceHandlerFromEndpoint instead.
+func RegisterKeypointServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server KeypointServiceServer) error {
+
+	mux.Handle("POST", pattern_KeypointService_CreateTourKeypoint_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.KeypointService/CreateTourKeypoint", runtime.WithHTTPPathPattern("/createTourKeypoint"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_KeypointService_CreateTourKeypoint_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_KeypointService_CreateTourKeypoint_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_KeypointService_GetByTourId_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.KeypointService/GetByTourId", runtime.WithHTTPPathPattern("/getByTourId/{id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_KeypointService_GetByTourId_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_KeypointService_GetByTourId_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -427,7 +564,7 @@ func RegisterTourServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/.TourService/GetToursByAuthorId", runtime.WithHTTPPathPattern("/api/tours/getToursByAuthorId/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/.TourService/GetToursByAuthorId", runtime.WithHTTPPathPattern("/tours/author/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -449,7 +586,7 @@ func RegisterTourServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/.TourService/UpdateTour", runtime.WithHTTPPathPattern("/api/tours/updateTour"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/.TourService/UpdateTour", runtime.WithHTTPPathPattern("/updateTour"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -471,7 +608,7 @@ func RegisterTourServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/.TourService/GetAll", runtime.WithHTTPPathPattern("/api/tours/getAll"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/.TourService/GetAll", runtime.WithHTTPPathPattern("/getAll"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -495,11 +632,11 @@ var (
 
 	pattern_TourService_GetTourById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"tours", "id"}, ""))
 
-	pattern_TourService_GetToursByAuthorId_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "tours", "getToursByAuthorId", "id"}, ""))
+	pattern_TourService_GetToursByAuthorId_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"tours", "author", "id"}, ""))
 
-	pattern_TourService_UpdateTour_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "tours", "updateTour"}, ""))
+	pattern_TourService_UpdateTour_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"updateTour"}, ""))
 
-	pattern_TourService_GetAll_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "tours", "getAll"}, ""))
+	pattern_TourService_GetAll_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"getAll"}, ""))
 )
 
 var (
@@ -512,4 +649,101 @@ var (
 	forward_TourService_UpdateTour_0 = runtime.ForwardResponseMessage
 
 	forward_TourService_GetAll_0 = runtime.ForwardResponseMessage
+)
+
+// RegisterKeypointServiceHandlerFromEndpoint is same as RegisterKeypointServiceHandler but
+// automatically dials to "endpoint" and closes the connection when "ctx" gets done.
+func RegisterKeypointServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+	conn, err := grpc.DialContext(ctx, endpoint, opts...)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+			return
+		}
+		go func() {
+			<-ctx.Done()
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+		}()
+	}()
+
+	return RegisterKeypointServiceHandler(ctx, mux, conn)
+}
+
+// RegisterKeypointServiceHandler registers the http handlers for service KeypointService to "mux".
+// The handlers forward requests to the grpc endpoint over "conn".
+func RegisterKeypointServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterKeypointServiceHandlerClient(ctx, mux, NewKeypointServiceClient(conn))
+}
+
+// RegisterKeypointServiceHandlerClient registers the http handlers for service KeypointService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "KeypointServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "KeypointServiceClient"
+// doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
+// "KeypointServiceClient" to call the correct interceptors.
+func RegisterKeypointServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client KeypointServiceClient) error {
+
+	mux.Handle("POST", pattern_KeypointService_CreateTourKeypoint_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/.KeypointService/CreateTourKeypoint", runtime.WithHTTPPathPattern("/createTourKeypoint"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_KeypointService_CreateTourKeypoint_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_KeypointService_CreateTourKeypoint_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_KeypointService_GetByTourId_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/.KeypointService/GetByTourId", runtime.WithHTTPPathPattern("/getByTourId/{id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_KeypointService_GetByTourId_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_KeypointService_GetByTourId_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+var (
+	pattern_KeypointService_CreateTourKeypoint_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"createTourKeypoint"}, ""))
+
+	pattern_KeypointService_GetByTourId_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"getByTourId", "id"}, ""))
+)
+
+var (
+	forward_KeypointService_CreateTourKeypoint_0 = runtime.ForwardResponseMessage
+
+	forward_KeypointService_GetByTourId_0 = runtime.ForwardResponseMessage
 )

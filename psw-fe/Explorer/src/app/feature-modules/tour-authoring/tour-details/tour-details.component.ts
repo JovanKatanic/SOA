@@ -144,6 +144,7 @@ export class TourDetailsComponent implements OnInit, OnDestroy {
   getTour(id: number): void {
     this.service.getTourForTourist(Number(id)).subscribe({
       next: (result: Tour) => {
+        console.log(result);
         this.tour = result;
         this.setCategories();
         this.setDifficultyColor();

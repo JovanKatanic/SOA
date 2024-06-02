@@ -17,16 +17,25 @@ func (service *TourService) GetAll() (*[]model.Tour, error) {
 		return nil, err
 	}
 
-	return tours, nil
+	updatedTours := make([]model.Tour, 0, len(*tours))
+
+	for _, tour := range *tours {
+		keypoints, _ := service.KeypointRepository.GetByTourId(tour.ID)
+
+		tour.KeyPoints = keypoints
+		updatedTours = append(updatedTours, tour)
+	}
+
+	return &updatedTours, nil
 }
 
-func (service *TourService) CreateTour(tour *model.Tour) error {
+func (service *TourService) CreateTour(tour *model.Tour) (error, int32) {
 
-	err := service.TourRepository.Insert(tour)
+	err, insertedID := service.TourRepository.Insert(tour)
 	if err != nil {
-		return err
+		return err, 0
 	}
-	return nil
+	return nil, insertedID
 }
 
 func (service *TourService) UpdateTour(tour *model.Tour) error {
@@ -43,9 +52,13 @@ func (s *TourService) GetTourById(id int) (*model.Tour, error) {
 		fmt.Println("Tour not found")
 		return nil, nil
 	}
-	// keypoints, err := s.KeypointRepository.GetByTourId(id)
+	keypoints, err := s.KeypointRepository.GetByTourId(id)
 
-	// tour.KeyPoints = keypoints
+	if err != nil {
+		fmt.Println("Problm in KeypointRepository.GetByTourId")
+	}
+
+	tour.KeyPoints = keypoints
 
 	return tour, nil
 }

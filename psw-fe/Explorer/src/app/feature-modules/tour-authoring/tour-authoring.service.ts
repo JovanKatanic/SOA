@@ -46,6 +46,7 @@ export class TourAuthoringService {
   }
 
   getTourForTourist(id: number): Observable<Tour> {
+    console.log(environment.apiHost + 'tourist/tour/' + id)
     return this.http.get<Tour>(environment.apiHost + 'tourist/tour/' + id);
   }
 
@@ -64,8 +65,10 @@ export class TourAuthoringService {
   }
 
   updateTour(tour: Tour): Observable<Tour> {
+    console.log(environment.apiHost + 'tourManagement/tour/updateTour/' + tour.id)
+    console.log(tour)
     return this.http.put<Tour>(
-      environment.apiHost + 'tourManagement/tour/' + tour.id,
+      environment.apiHost + 'tourManagement/tour/updateTour',
       tour
     );
   }
@@ -216,9 +219,9 @@ export class TourAuthoringService {
     return this.http.get<PublicFacility[]>(environment.apiHost + 'author/facilities/public/Approved');
   }
 
-  getToursByAuthorId(id: number): Observable<Tour[]> {
+  getToursByAuthorId(authorId: number): Observable<Tour[]> {
     return this.http.get<Tour[]>(
-      environment.apiHost + 'tourManagement/tour/author?authorId=' + id
+      environment.apiHost + 'tourManagement/tour/author/' + authorId
     );
   }
 

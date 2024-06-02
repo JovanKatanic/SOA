@@ -121,10 +121,16 @@ func main() {
 	reflection.Register(grpcServer)
 
 	tourRepository := &repository.TourRepository{TourClient: client}
-	tourService := &service.TourService{TourRepository: tourRepository, KeypointRepository: nil}
+	keypointRepository := &repository.KeypointRepository{KeypointClient: client}
+
+	tourService := &service.TourService{TourRepository: tourRepository, KeypointRepository: keypointRepository}
+	keypointService := &service.KeypointService{KeypointRepository: keypointRepository}
 
 	tourHandler := &handler.TourHandler{TourService: tourService}
+	keypointHandler := &handler.KeypointHandler{KeypointService: keypointService}
+
 	tours.RegisterTourServiceServer(grpcServer, tourHandler)
+	tours.RegisterKeypointServiceServer(grpcServer, keypointHandler)
 
 	//server := manageRouter(client)
 
