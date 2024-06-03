@@ -29,7 +29,7 @@ namespace Explorer.Tours.Core.UseCases
 
         private static HttpClient _httpClient = new()
         {
-            BaseAddress = new Uri("http://localhost:8000")
+            BaseAddress = new Uri("http://api_gateway:8000")
         };
         public async Task<Result<TourKeyPointDto>> CreateAsync(TourKeyPointDto tourKeypointDto)
         {

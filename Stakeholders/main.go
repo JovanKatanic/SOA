@@ -16,8 +16,8 @@ import (
 )
 
 func initDB() *gorm.DB {
-	connStr := "user=postgres dbname=explorer-v1 password=super sslmode=disable"
-	//connStr := "user=postgres dbname=explorer password=super sslmode=disable port=5432 host=database"
+	//connStr := "user=postgres dbname=explorer-v1 password=super sslmode=disable"
+	connStr := "user=postgres dbname=explorer password=super sslmode=disable port=5432 host=database"
 	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
 		panic(err)
@@ -33,7 +33,7 @@ func main() {
 		return
 	}
 
-	listener, err := net.Listen("tcp", "localhost:8001")
+	listener, err := net.Listen("tcp", "stakeholder_service:8001")
 	if err != nil {
 		log.Fatalln(err)
 	}

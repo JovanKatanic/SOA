@@ -38,7 +38,7 @@ namespace Explorer.Stakeholders.Core.UseCases.Identity
         };*/
         private static HttpClient sharedClient = new()
         {
-            BaseAddress = new Uri("http://localhost:8000")
+            BaseAddress = new Uri("http://api_gateway:8000")
         };
         public Result<List<SavedNotificationDto>> GetFollowersNotifications(int id)
         {

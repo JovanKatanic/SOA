@@ -28,11 +28,11 @@ type Config struct {
 
 func main() {
 	cfg := Config{
-		Address:                   ":8000",
-		StakeholderServiceAddress: "localhost:8001",
-		BlogServiceAddress:        "localhost:8002",
-		FollowingServiceAdress:    "localhost:8003",
-		ToursServiceAddress:       "localhost:8004",
+		Address:                   "api_gateway:8000",
+		StakeholderServiceAddress: "stakeholder_service:8001",
+		BlogServiceAddress:        "blog_service:8002",
+		FollowingServiceAdress:    "user_management_service:8003",
+		ToursServiceAddress:       "tour_service:8004",
 	}
 
 	gwmux := runtime.NewServeMux()

@@ -21,7 +21,7 @@ import (
 
 func initMongoDb() *mongo.Client {
 
-	dburi := "mongodb://localhost:27017" //ili localhost ili mongo
+	dburi := "mongodb://mongo:27017" //ili localhost ili mongo
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dburi))
 	if err != nil {
@@ -106,7 +106,7 @@ func main() {
 	}
 	logger := log.New(os.Stdout, "[logger-main] ", log.LstdFlags)
 
-	listener, err := net.Listen("tcp", "localhost:8004")
+	listener, err := net.Listen("tcp", "tour_service:8004")
 	if err != nil {
 		log.Fatalln(err)
 	}

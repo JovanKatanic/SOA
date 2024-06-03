@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 	"user_management_service/handl"
 	"user_management_service/proto/followings"
 	"user_management_service/repository"
@@ -16,26 +18,26 @@ import (
 )
 
 func main() {
-	//timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	//defer cancel()
+	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
 	followerLogger := log.New(os.Stdout, "[follower-api] ", log.LstdFlags)
 	followerStoreLogger := log.New(os.Stdout, "[follower-store] ", log.LstdFlags)
 
 	// Inicijalizacija Neo4j baze
-	/*followerStore, err := repository.NewFollowerRepository(followerStoreLogger)
+	followerStore, err := repository.NewFollowerRepository(followerStoreLogger)
 	if err != nil {
 		followerLogger.Fatal(err)
 	}
-	defer followerStore.CloseDriverConnection(timeoutContext)*/
-	uri := "bolt://localhost:7687" // Promenite na odgovarajuću adresu vaše baze
+	defer followerStore.CloseDriverConnection(timeoutContext)
+	/*uri := "bolt://localhost:7687" // Promenite na odgovarajuću adresu vaše baze
 	user := "neo4j"                // Promenite na odgovarajuće korisničko ime
 	pass := "sifra123"             // Promenite na odgovarajuću lozinku
 
 	followerStore, err := repository.NewFollowerRepository(followerStoreLogger, uri, user, pass)
 	if err != nil {
 		followerLogger.Fatal(err)
-	}
+	}*/
 	followerStore.CheckConnection()
 
 	/*followerHandler := handler.NewFollowerHandler(followerLogger, followerStore)
@@ -59,7 +61,7 @@ func main() {
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))*/
 
 	// gRPC Server setup
-	grpcListener, err := net.Listen("tcp", "localhost:8003")
+	grpcListener, err := net.Listen("tcp", "user_management_service:8003")
 	if err != nil {
 		log.Fatalln(err)
 	}

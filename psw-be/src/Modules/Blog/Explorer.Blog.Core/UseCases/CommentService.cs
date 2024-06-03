@@ -25,7 +25,7 @@ namespace Explorer.Blog.Core.UseCases
             _commentRepository = commentRepository;
             _httpClient = new HttpClient()
             {
-                BaseAddress = new Uri("http://blogs_service:8081")
+                BaseAddress = new Uri("http://api_gateway:8000")
             };
         }
 

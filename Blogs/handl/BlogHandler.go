@@ -31,11 +31,13 @@ func (h BlogHandler) GetBlog(ctx context.Context, request *blogs.GetBlogRequest)
 	}
 
 	ratingList := make([]*blogs.Rating, len(blog.Ratings))
-	for i, rating := range blog.Ratings {
-		ratingList[i] = &blogs.Rating{
-			UserId:       int32(rating.UserId),
-			CreationDate: timeToTimestampp(rating.CreationDate),
-			RatingValue:  int32(rating.RatingValue),
+	if len(blog.Ratings) > 0 {
+		for i, rating := range blog.Ratings {
+			ratingList[i] = &blogs.Rating{
+				UserId:       int32(rating.UserId),
+				CreationDate: timeToTimestampp(rating.CreationDate),
+				RatingValue:  int32(rating.RatingValue),
+			}
 		}
 	}
 
@@ -119,11 +121,13 @@ func (h BlogHandler) GetAllBlog(ctx context.Context, request *blogs.Emptyyy) (*b
 	var protoBlogs []*blogs.Blog
 	for _, blog := range blogsFromDB {
 		ratingList := make([]*blogs.Rating, len(blog.Ratings))
-		for i, rating := range blog.Ratings {
-			ratingList[i] = &blogs.Rating{
-				UserId:       int32(rating.UserId),
-				CreationDate: timeToTimestampp(rating.CreationDate),
-				RatingValue:  int32(rating.RatingValue),
+		if len(blog.Ratings) > 0 {
+			for i, rating := range blog.Ratings {
+				ratingList[i] = &blogs.Rating{
+					UserId:       int32(rating.UserId),
+					CreationDate: timeToTimestampp(rating.CreationDate),
+					RatingValue:  int32(rating.RatingValue),
+				}
 			}
 		}
 
@@ -203,11 +207,13 @@ func (h BlogHandler) GetAllBlogsByStatus(ctx context.Context, request *blogs.Get
 	protoBlogs := make([]*blogs.Blog, len(blogsFromDB))
 	for i, blog := range blogsFromDB {
 		ratingList := make([]*blogs.Rating, len(blog.Ratings))
-		for j, rating := range blog.Ratings {
-			ratingList[j] = &blogs.Rating{
-				UserId:       int32(rating.UserId),
-				CreationDate: timeToTimestampp(rating.CreationDate),
-				RatingValue:  int32(rating.RatingValue),
+		if len(blog.Ratings) > 0 {
+			for j, rating := range blog.Ratings {
+				ratingList[j] = &blogs.Rating{
+					UserId:       int32(rating.UserId),
+					CreationDate: timeToTimestampp(rating.CreationDate),
+					RatingValue:  int32(rating.RatingValue),
+				}
 			}
 		}
 

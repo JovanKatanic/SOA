@@ -45,7 +45,7 @@ namespace Explorer.Blog.Core.UseCases
             };*/
             _httpClient = new HttpClient()
             {
-                BaseAddress = new Uri("http://localhost:8000")
+                BaseAddress = new Uri("http://api_gateway:8000")
             };
         }
 

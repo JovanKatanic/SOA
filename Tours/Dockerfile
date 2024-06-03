@@ -8,5 +8,5 @@ RUN go build -o tour-service
 
 FROM alpine
 COPY --from=tour_build_container /app/tour-service /usr/bin
-EXPOSE 8080
+EXPOSE 8004
 ENTRYPOINT ["tour-service"]

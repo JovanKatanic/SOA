@@ -20,8 +20,8 @@ services:
           "CMD-SHELL",
           "echo RETURN 1 | cypher-shell -a bolt://neo4j:7687 -u neo4j -p userManagement || exit 1",
         ]
-      interval: 5s
-      timeout: 5s
+      interval: 10s
+      timeout: 10s
       retries: 10
     environment:
       - NEO4J_AUTH=neo4j/userManagement
@@ -109,9 +109,9 @@ services:
       - database
       - monitoring
     ports:
-      - 8082:8082
+      - 8003:8003
     environment:
-      - PORT=8082
+      - PORT=8003
       - NEO4J_DB=bolt://neo4j:7687  
       - NEO4J_USERNAME=neo4j
       - NEO4J_PASS=userManagement
@@ -130,8 +130,10 @@ services:
     networks:
       - database
       - monitoring
+    environment:
+      TOUR_SERVICE_ADDRESS: :8004
     ports:
-      - 8080:8080
+      - "8004:8004" 
     depends_on:
       - mongo   
     logging: *fluent-bit
@@ -146,8 +148,10 @@ services:
     networks:
       - database
       - monitoring
+    environment:
+      BLOG_SERVICE_ADDRESS: :8002
     ports:
-      - 8081:8081
+      - "8002:8002" 
     depends_on:
       - database   
     logging: *fluent-bit
@@ -157,11 +161,13 @@ services:
     container_name: stakeholder_service
     hostname: stakeholder_service
     build:
-      context: ./Stakeholders/
+      context: ./Stakeholders
       dockerfile: Dockerfile
-    restart: always
+    restart: on-failure
     environment:
-      GREETER_SERVICE_ADDRESS: :8000
+      STAKEHOLDER_SERVICE_ADDRESS: :8001
+    ports:
+      - "8001:8001" 
     networks:
       - database
       - monitoring
@@ -176,10 +182,16 @@ services:
       dockerfile: Dockerfile
     restart: always
     environment:
-      GREETER_SERVICE_ADDRESS: stakeholder_service:8000
+      STAKEHOLDER_SERVICE_ADDRESS: stakeholder_service:8001
+      BLOG_SERVICE_ADDRESS:   blogs_service:8002
+      USER_MANAGEMENT_SERVICE: user_management_service:8003
+      TOUR_SERVICE_ADDRESS: tour_service:8004
       GATEWAY_ADDRESS: :8000
     depends_on:
       - stakeholder_service
+      - blog_service
+      - user_management_service
+      - tour_service
     networks:
       - database
       - monitoring
