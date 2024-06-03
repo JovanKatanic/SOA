@@ -2,8 +2,10 @@ package handl
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 
 	"stakeholders_service/model"
 	"stakeholders_service/proto/auth"
@@ -12,6 +14,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
+	"github.com/nats-io/nats.go"
 	"gorm.io/gorm"
 )
 
@@ -284,4 +287,58 @@ func (h AuthHandler) ChangePasswordRequest(ctx context.Context, request *auth.Re
 	return &auth.RequestActivateUser{
 		Token: jwt,
 	}, nil
+}
+func Conn() *nats.Conn {
+	conn, err := nats.Connect("nats://localhost:4222")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return conn
+}
+
+type Message struct {
+	Id   int    `json:"id"`
+	Body string `json:"body"`
+}
+
+func (h AuthHandler) ChangeRating(id int, userId int) {
+	var applicationRating model.ApplicationRating
+	if err := h.DatabaseConnection.Table(`stakeholders."ApplicationRatings"`).Where(`"ApplicationRatings"."UserId" = ?`, userId).First(&applicationRating).Error; err != nil {
+		return
+	}
+	conn := Conn()
+	if applicationRating.Grade < 8 {
+
+		messageRec := Message{
+			Id:   id,
+			Body: "Failed",
+		}
+		data, err := json.Marshal(messageRec)
+		if err != nil {
+			log.Fatal(err)
+		}
+		errTours := conn.Publish("subTours", data)
+		if errTours != nil {
+			log.Fatal(errTours)
+		}
+	} else {
+
+		applicationRating.Grade = 10
+		if err := h.DatabaseConnection.Table(`stakeholders."ApplicationRatings"`).Save(&applicationRating).Error; err != nil {
+			fmt.Println("Failed to update record:", err)
+		}
+		messageRec := Message{
+			Id:   id,
+			Body: "Success",
+		}
+		data, err := json.Marshal(messageRec)
+		if err != nil {
+			log.Fatal(err)
+		}
+		errTours := conn.Publish("subTours", data)
+		if errTours != nil {
+			log.Fatal(errTours)
+		}
+	}
+	return
 }

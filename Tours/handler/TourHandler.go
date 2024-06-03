@@ -2,20 +2,37 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 	"tours_service/model"
 	"tours_service/proto/tours"
 	"tours_service/service"
 
+	"github.com/nats-io/nats.go"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type TourHandler struct {
 	tours.UnimplementedTourServiceServer
 	TourService *service.TourService
+}
+
+type Message struct {
+	Id     int    `json:"id"`
+	Body   string `json:"body"`
+	UserId int    `json:"userId"`
+}
+
+func Conn() *nats.Conn {
+	conn, err := nats.Connect("nats://localhost:4222")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return conn
 }
 
 func (handler *TourHandler) CreateTour(ctx context.Context, request *tours.CreateTourRequest) (*tours.CreateTourResponse, error) {
@@ -45,11 +62,26 @@ func (handler *TourHandler) CreateTour(ctx context.Context, request *tours.Creat
 		Durations:     nil,
 		KeyPoints:     nil,
 		Image:         request.Tour.Image,
+		State:         0,
 	}
 
 	err := handler.TourService.CreateTour(&tour)
 	if err != nil {
 		return nil, err
+	}
+	conn := Conn()
+	message := Message{
+		Id:     tour.ID,
+		Body:   "Success",
+		UserId: tour.AuthorId,
+	}
+	data, err := json.Marshal(message)
+	if err != nil {
+		log.Fatal(err)
+	}
+	errTours := conn.Publish("subStakeholders", data)
+	if errTours != nil {
+		log.Fatal(err)
 	}
 
 	return &tours.CreateTourResponse{
