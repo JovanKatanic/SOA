@@ -15,6 +15,12 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -94,9 +100,45 @@ func initMongoDb() *mongo.Client {
 // 	// return server
 // }
 
+const serviceName = "tours_service"
+
+var tp *trace.TracerProvider
+
+func initJaegerTracer() (*trace.TracerProvider, error) {
+	log.Printf("Initializing tracing to jaeger at %s\n", "http://jaeger:14268/api/traces")
+	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint("http://jaeger:14268/api/traces")))
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("error nije null")
+	return trace.NewTracerProvider(
+		trace.WithBatcher(exporter),
+		trace.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String(serviceName),
+		)),
+	), nil
+}
+
 func main() {
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
+
+	// OpenTelemetry
+	var err1 error
+	tp, err1 = initJaegerTracer()
+	if err1 != nil {
+		log.Fatal(err1)
+	}
+	fmt.Println("prosao err u mainu")
+	defer func() {
+		if err1 := tp.Shutdown(context.Background()); err1 != nil {
+			log.Printf("Error shutting down tracer provider: %v", err1)
+		}
+	}()
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	fmt.Println("prosao otel")
 
 	client := initMongoDb()
 

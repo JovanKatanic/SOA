@@ -9,7 +9,8 @@ import (
 	"user_management_service/proto/followings"
 	"user_management_service/repository"
 
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
 )
 
 type FollowingsHandler struct {
@@ -22,25 +23,34 @@ func NewFollowingsHandler(log *log.Logger, repo *repository.FollowerRepository) 
 	return &FollowingsHandler{followings.UnimplementedFollowerServiceServer{}, log, repo}
 }
 
-func timeToTimestampp(t time.Time) *timestamppb.Timestamp {
+/*func timeToTimestampp(t time.Time) *timestamppb.Timestamp {
 	return timestamppb.New(t)
 }
 
 func timestampToTime(t *timestamppb.Timestamp) time.Time {
 	return t.AsTime()
-}
+}*/
 
 func (h FollowingsHandler) GetFollowings(ctx context.Context, request *followings.GetFollowRequest) (*followings.GetFollowResponse, error) {
+	tracer := otel.Tracer("following-grpc-servis")
+	_, span := tracer.Start(ctx, "GetFollowings")
+	defer span.End()
+
 	h.logger.Printf("WENT IN!!!!!!")
 	fmt.Println("Usao u getFollowings")
 
+	span.AddEvent("GetFollowedPersonsById")
 	followingss, err := h.repo.GetFollowedPersonsById(int(request.Id))
 	if err != nil {
 		h.logger.Print("Database exception: ", err)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, err
 	}
 
 	fmt.Println(followingss)
 
+	span.AddEvent("Mapiranje")
 	var peopleSlice []*followings.People
 	for _, person := range followingss {
 		peopleSlice = append(peopleSlice,
@@ -58,6 +68,7 @@ func (h FollowingsHandler) GetFollowings(ctx context.Context, request *following
 			})
 	}
 
+	span.AddEvent("vracanje responsa")
 	response := &followings.GetFollowResponse{
 		People: peopleSlice,
 	}

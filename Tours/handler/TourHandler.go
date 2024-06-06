@@ -10,6 +10,7 @@ import (
 	"tours_service/proto/tours"
 	"tours_service/service"
 
+	"go.opentelemetry.io/otel"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -211,6 +212,9 @@ func convertTours(slice *[]model.Tour) []*tours.Tour {
 //		}
 //	}
 func (handler *TourHandler) GetTourById(ctx context.Context, request *tours.GetTourRequest) (*tours.Tour, error) {
+	tracer := otel.Tracer("tour-grpc-servis")
+	_, span := tracer.Start(ctx, "GetTourById")
+	defer span.End()
 	if request == nil {
 		println("Request is nil")
 		return nil, errors.New("request is nil")
@@ -218,16 +222,19 @@ func (handler *TourHandler) GetTourById(ctx context.Context, request *tours.GetT
 
 	println(int(request.Id))
 
+	span.AddEvent("dobavlja turu iz handlera")
 	tour, err := handler.TourService.GetTourById(int(request.Id))
 	if err != nil {
 		fmt.Print("Database exception: ", err)
 		return nil, err
 	}
+	span.AddEvent("provjerava da li je tura null")
 	if tour == nil {
 		fmt.Printf("Tour with id: '%d' not found", int(request.Id))
 		return nil, err
 	}
 
+	span.AddEvent("MAPIRA PROMJENE")
 	return &tours.Tour{
 		Id:           int32(tour.ID),
 		Name:         tour.Name,
