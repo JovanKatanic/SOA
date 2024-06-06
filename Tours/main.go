@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -13,6 +14,7 @@ import (
 	"tours_service/repository"
 	"tours_service/service"
 
+	"github.com/nats-io/nats.go"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.opentelemetry.io/otel"
@@ -35,6 +37,14 @@ func initMongoDb() *mongo.Client {
 	}
 
 	return client
+}
+
+func Conn() *nats.Conn {
+	conn, err := nats.Connect("nats://localhost:4222")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return conn
 }
 
 // func manageRouter(client *mongo.Client) http.Server {
@@ -120,6 +130,11 @@ func initJaegerTracer() (*trace.TracerProvider, error) {
 	), nil
 }
 
+type Message struct {
+	Id   int    `json:"id"`
+	Body string `json:"body"`
+}
+
 func main() {
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -146,6 +161,7 @@ func main() {
 	if err != nil {
 		fmt.Print(err)
 	}
+
 	logger := log.New(os.Stdout, "[logger-main] ", log.LstdFlags)
 
 	listener, err := net.Listen("tcp", "tour_service:8004")
@@ -174,6 +190,30 @@ func main() {
 	tours.RegisterTourServiceServer(grpcServer, tourHandler)
 	tours.RegisterKeypointServiceServer(grpcServer, keypointHandler)
 
+	conn := Conn()
+	_, errSub := conn.Subscribe("subTours", func(message *nats.Msg) {
+		var messageRec Message
+		err := json.Unmarshal(message.Data, &messageRec)
+		if err != nil {
+			fmt.Println("Error unmarshalling message:", err)
+			return
+		}
+		fmt.Printf("RECEIVED MESSAGE: %s\n", messageRec.Body)
+		tour, errGet := tourRepository.GetById(messageRec.Id)
+		if errGet != nil {
+			fmt.Println(errGet)
+			return
+		}
+		if messageRec.Body == "Failed" {
+			tour.State = 1
+		} else {
+			tour.State = 2
+		}
+		tourRepository.Update(tour)
+	})
+	if errSub != nil {
+		log.Fatal(err)
+	}
 	//server := manageRouter(client)
 
 	go func() {

@@ -163,7 +163,7 @@ func main() {
 
 	<-stopCh
 
-	if err = gwServer.Close(); err != nil {
+	if err = tourGwServer.Close(); err != nil {
 		log.Fatalln("error while stopping server: ", err)
 	}
 }

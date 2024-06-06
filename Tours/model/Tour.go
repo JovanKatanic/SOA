@@ -25,6 +25,7 @@ type Tour struct {
 	Durations     []TourDuration `json:"durations" bson:"durations"`
 	KeyPoints     []Keypoint     `json:"keyPoints" bson:"keyPoints"`
 	Image         string         `json:"image" bson:"image"`
+	State         int            `json:"state" bson:"state"`
 }
 
 func (p *Tour) FromJSON(r io.Reader) error {

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -9,6 +11,7 @@ import (
 	"stakeholders_service/proto/auth"
 	"syscall"
 
+	"github.com/nats-io/nats.go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
@@ -23,6 +26,19 @@ func initDB() *gorm.DB {
 		panic(err)
 	}
 	return db
+}
+func Conn() *nats.Conn {
+	conn, err := nats.Connect("nats://localhost:4222")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return conn
+}
+
+type Message struct {
+	Id     int    `json:"id"`
+	Body   string `json:"body"`
+	UserId int    `json:"userId"`
 }
 
 func main() {
@@ -50,6 +66,20 @@ func main() {
 	authHandler := handl.AuthHandler{DatabaseConnection: database, Key: "explorer_secret_key"}
 	auth.RegisterStakeholderServiceServer(grpcServer, authHandler)
 
+	conn := Conn()
+	_, errSub := conn.Subscribe("subStakeholders", func(message *nats.Msg) {
+		var messageRec Message
+		err := json.Unmarshal(message.Data, &messageRec)
+		if err != nil {
+			fmt.Println("Error unmarshalling message:", err)
+			return
+		}
+		fmt.Printf("RECEIVED MESSAGE: %s\n", messageRec.Body)
+		authHandler.ChangeRating(messageRec.Id, messageRec.UserId)
+	})
+	if errSub != nil {
+		log.Fatal(err)
+	}
 	go func() {
 		if err := grpcServer.Serve(listener); err != nil {
 			log.Fatal("server error: ", err)
